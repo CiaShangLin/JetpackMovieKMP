@@ -1,9 +1,9 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    alias(libs.plugins.androidApplication)
-    alias(libs.plugins.composeMultiplatform)
-    alias(libs.plugins.composeCompiler)
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.compose.multiplatform)
+    alias(libs.plugins.compose.compiler)
 }
 
 kotlin {
@@ -16,18 +16,18 @@ dependencies {
 
     implementation(libs.androidx.activity.compose)
 
-    implementation(libs.compose.uiToolingPreview)
-    debugImplementation(libs.compose.uiTooling)
+    implementation(libs.compose.ui.tooling.preview)
+    debugImplementation(libs.compose.ui.tooling)
 }
 
 android {
     namespace = "com.shang.jetpackmoviekmp"
-    compileSdk = libs.versions.android.compileSdk.get().toInt()
+    compileSdk = libs.versions.android.compile.sdk.get().toInt()
 
     defaultConfig {
         applicationId = "com.shang.jetpackmoviekmp"
-        minSdk = libs.versions.android.minSdk.get().toInt()
-        targetSdk = libs.versions.android.targetSdk.get().toInt()
+        minSdk = libs.versions.android.min.sdk.get().toInt()
+        targetSdk = libs.versions.android.target.sdk.get().toInt()
         versionCode = 1
         versionName = "1.0"
     }
