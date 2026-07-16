@@ -1,3 +1,6 @@
 type: refactor
+workspace: branch
+branch: refactor/remove-cmp-compose-bom
+base_branch: master
 verify_selected:
   - code-review
