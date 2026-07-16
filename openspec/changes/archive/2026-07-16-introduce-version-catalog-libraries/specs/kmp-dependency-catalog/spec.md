@@ -7,6 +7,18 @@
 - **WHEN** 實作者開始導入尚未使用的 catalog library
 - **THEN** 支援 common/KMP source set 的 library MUST 先於 Android-only library 被評估與引入
 
+#### Scenario: Paging3 common 依賴納入 shared
+- **WHEN** catalog 包含 Paging3 common 與 Android UI aliases
+- **THEN** `androidx-paging-common` MUST 被加入 `shared.commonMain`，且 Android UI paging aliases MUST 只加入 `androidApp` 或 Android UI source set
+
+#### Scenario: Room KMP wiring 納入 shared
+- **WHEN** catalog 包含 Room runtime、compiler、paging、SQLite bundled、Room plugin 與 KSP plugin aliases
+- **THEN** `shared` MUST 套用 Room 與 KSP plugin，加入 Room KMP runtime/paging/SQLite dependencies，並為 Android 與 iOS KSP target 設定 Room compiler
+
+#### Scenario: Room schema directory 受版控
+- **WHEN** Room plugin 被套用到 `shared`
+- **THEN** `shared` MUST 設定受版控 schema directory，且本 change 不需要新增 database schema、DAO 或 migration
+
 #### Scenario: Android-only library 限制在 Android 範圍
 - **WHEN** catalog library 只支援 Android 或 Android instrumentation
 - **THEN** 該 library MUST 只被加入 `androidApp`、`androidMain`、`androidUnitTest` 或 Android instrumentation source set，不得加入 `commonMain`

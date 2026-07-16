@@ -2,3 +2,5 @@ type: feature
 workspace: branch
 branch: feature/introduce-version-catalog-libraries
 base_branch: master
+verify_selected: []
+verified: []
