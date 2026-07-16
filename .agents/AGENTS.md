@@ -1,45 +1,51 @@
 # AGENTS.md
 
-This file gives coding agents project-specific guidance for `JetpackMovieKMP`.
+本檔案提供 `JetpackMovieKMP` 專案的代理作業規範。
 
-## Project Overview
+## 回答語言
 
-- Project type: Kotlin Multiplatform with Android and iOS targets.
-- Root project: `JetpackMovieKMP`
-- Modules:
-  - `androidApp`: Android application entry point.
-  - `shared`: shared Compose Multiplatform and Kotlin code.
-  - `iosApp`: iOS application entry point.
-- Package namespace: `com.shang.jetpackmoviekmp`
-- Key versions are managed in `gradle/libs.versions.toml`.
+- 預設使用繁體中文（zh-TW）回答使用者。
+- 程式碼、指令、檔名、API 名稱、錯誤訊息與 commit message 可依原文保留。
+- 若使用者明確指定其他語言，才改用指定語言。
 
-## Reference Project
+## 專案概覽
 
-Agents may reference this local project when looking for established app structure, naming, architecture, release workflow, or implementation ideas:
+- 專案類型：Kotlin Multiplatform，目標平台包含 Android 與 iOS。
+- 根專案名稱：`JetpackMovieKMP`
+- 模組：
+  - `androidApp`：Android app 入口。
+  - `shared`：Compose Multiplatform 與 Kotlin 共用程式碼。
+  - `iosApp`：iOS app 入口。
+- Package namespace：`com.shang.jetpackmoviekmp`
+- 主要版本集中管理於 `gradle/libs.versions.toml`。
+
+## 參考專案
+
+需要查找既有 app 架構、命名規則、實作模式、release workflow 或其他設計參考時，可以參考本機專案：
 
 `C:\Users\User\AndroidStudioProjects\JetpackMovieCompose`
 
-Use it as a reference only. Do not copy code blindly; adapt patterns to this KMP project's module structure and current dependencies.
+此專案只作為參考來源。不要直接複製程式碼；需要依照本 KMP 專案的模組結構與目前依賴進行調整。
 
-## Common Commands
+## 常用指令
 
-Run commands from the repository root.
+請從 repository 根目錄執行。
 
 ```bash
-# Build Android debug app
+# 建置 Android debug app
 ./gradlew :androidApp:assembleDebug
 
-# Run shared Android host tests
+# 執行 shared Android host tests
 ./gradlew :shared:testAndroidHostTest
 
-# Run shared iOS simulator tests
+# 執行 shared iOS simulator tests
 ./gradlew :shared:iosSimulatorArm64Test
 
-# Run broader Gradle verification when available
+# 執行較完整的 Gradle 驗證（若可用）
 ./gradlew check
 ```
 
-On Windows PowerShell, use:
+Windows PowerShell 使用：
 
 ```powershell
 .\gradlew.bat :androidApp:assembleDebug
@@ -48,24 +54,24 @@ On Windows PowerShell, use:
 .\gradlew.bat check
 ```
 
-## Development Guidelines
+## 開發規範
 
-- Prefer existing project patterns before introducing new structure.
-- Keep shared business and UI logic in `shared` when it is useful across Android and iOS.
-- Keep Android-only behavior in `androidApp` or `shared/src/androidMain`.
-- Keep iOS-only behavior in `iosApp` or `shared/src/iosMain`.
-- Use Compose Multiplatform conventions already present in `shared/src/commonMain`.
-- Keep edits focused on the requested behavior; avoid unrelated refactors.
-- Do not commit secrets or machine-specific local configuration.
-- Treat `local.properties`, signing files, API keys, and generated build outputs as non-source artifacts unless explicitly requested.
+- 優先沿用專案既有模式，再考慮新增結構。
+- 可跨 Android 與 iOS 共用的 business logic 與 UI logic 優先放在 `shared`。
+- Android-only 行為放在 `androidApp` 或 `shared/src/androidMain`。
+- iOS-only 行為放在 `iosApp` 或 `shared/src/iosMain`。
+- Compose Multiplatform 相關實作遵循 `shared/src/commonMain` 既有慣例。
+- 修改範圍應聚焦在使用者要求的行為，避免無關重構。
+- 不要提交 secrets 或機器本機專屬設定。
+- 除非使用者明確要求，`local.properties`、簽章檔、API key、產生的 build output 都視為非原始碼產物。
 
-## Fixed Commit Skill
+## 固定 Commit Skill
 
-For any user request to commit changes, use the commit skill/workflow by default.
+使用者要求 commit 時，預設使用 `caveman-commit` skill/workflow。
 
-Commit workflow:
+Commit workflow：
 
-1. Inspect current status:
+1. 先檢查目前狀態：
 
    ```bash
    git status --short
@@ -74,19 +80,19 @@ Commit workflow:
    git log --oneline -10
    ```
 
-2. Stage only files that belong to the requested work.
-3. Create a single focused commit with a clear message.
-4. Do not include unrelated local changes.
-5. Do not push unless the user explicitly asks for push.
+2. 只 stage 與本次要求相關的檔案。
+3. 建立單一且聚焦的 commit，commit message 必須清楚描述變更。
+4. 不要包含無關的本機變更。
+5. 除非使用者明確要求 push，否則不要 push。
 
-When available in the current agent environment, prefer the `ngs-commit` skill for commit preparation and message generation.
+當目前代理環境可用時，使用 `caveman-commit` 進行 commit 準備與 commit message 產生。
 
 ## Git Remote
 
-The GitHub remote is:
+GitHub remote：
 
 ```bash
 origin https://github.com/CiaShangLin/JetpackMovieKMP.git
 ```
 
-Push only after explicit user approval.
+只有在使用者明確授權後才 push。
