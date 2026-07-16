@@ -2,3 +2,4 @@ type: feature
 workspace: branch
 branch: feature/establish-kmp-dependency-catalog
 base_branch: master
+verify_selected: []

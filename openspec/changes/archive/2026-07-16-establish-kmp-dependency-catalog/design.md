@@ -10,7 +10,7 @@
 
 - 讓所有外部 plugin 與 library 版本集中於 `libs.versions.toml`，並能由 alias 看出用途。
 - 將舊依賴分類為 common、Android、iOS、測試、替代或延後導入。
-- 建立 Ktor、Koin、Room 3、SQLiteDriver 與 Kotlinx Serialization 的 catalog 契約與 source set 配置規則。
+- 建立 Ktor、Koin、Room 2.8.4、SQLiteDriver 與 Kotlinx Serialization 的 catalog 契約與 source set 配置規則。
 - 保留 CMP 作為可撤換的選用 UI layer，同時確保共用業務與資料模組維持純 KMP。
 - 保持目前 MVVM、Repository、Use Case 分層方向；這次只替換基礎設施，不改成 MVI，也不改 domain contract。
 - 讓現有 Android 與 iOS 主要編譯 task 能驗證 catalog accessor 與 plugin alias 配置。
@@ -27,7 +27,7 @@
 
 ### 1. Version Catalog 只管理外部座標與版本
 
-採用 `[versions]`、`[libraries]`、`[plugins]`，alias 使用 kebab-case 並以生態系前綴分組，例如 `ktor-client-core`、`koin-compose-viewmodel`、`room3-runtime`。專案模組依賴繼續使用 type-safe project accessors，不建立 module alias，也不把 namespace、SDK、flavor 或簽章硬塞進 TOML。
+採用 `[versions]`、`[libraries]`、`[plugins]`，alias 使用 kebab-case 並以生態系前綴分組，例如 `ktor-client-core`、`koin-compose-viewmodel`、`room-runtime`。專案模組依賴繼續使用 type-safe project accessors，不建立 module alias，也不把 namespace、SDK、flavor 或簽章硬塞進 TOML。
 
 替代方案是複製 `buildSrc` helper；否決原因是它把依賴集合與 Android Gradle DSL 綁定，而且每個 KMP source set 需要更細的可見性。
 
@@ -35,17 +35,18 @@
 
 | 類別 | 建議版本 | 處置 |
 |---|---:|---|
-| AGP / Android-KMP plugin | 9.0.1 | 保留新專案現值 |
+| Gradle wrapper | 9.5.0 | AGP 9.3.0 最低需求 |
+| AGP / Android-KMP plugin | 9.3.0 | 最新穩定版，支援 compileSdk 37 |
 | Kotlin / Compose Compiler | 2.4.0 | 保留新專案現值，兩個 plugin 同版 |
 | Compose Multiplatform | 1.11.1 | 暫時保留，僅供 optional CMP UI layer 使用 |
-| KSP | 2.3.9 | 新增，僅套用到需要產生碼的模組 |
+| KSP | 2.3.10 | 新增，僅套用到需要產生碼的模組 |
 | Kotlin Coroutines | 1.11.0 | 取代舊版 Android-only `coroutines-android` 1.3.9，以 `core`/`test` aliases 分流 |
 | Kotlinx Serialization JSON | 1.11.0 | 取代舊版 1.6.2 與 Gson converter |
 | Ktor | 3.5.1 | 新增 client core、content negotiation、JSON、logging、mock 與平台 engines |
-| Koin | 4.2.1 | 新增 core、Compose、ViewModel、test；先採 DSL，不採 RC compiler plugin |
-| Room 3 | 3.0.0 | 新增 runtime、compiler、paging 與 `androidx.room3` plugin |
+| Koin | 4.2.2 | 新增 core、Compose、ViewModel、test；先採 DSL，不採 RC compiler plugin |
+| Room | 2.8.4 | 目前官方可解析穩定版，新增 runtime、compiler、paging 與 `androidx.room` plugin；Room 3 穩定發布後再另立 change |
 | AndroidX SQLite | 2.7.0 | 新增 bundled driver，Android/iOS 使用一致 SQLite |
-| Lifecycle | 2.11.0 | 將現有 beta 升為 stable |
+| Lifecycle | 2.11.0 | 最新穩定版；需搭配 AGP 9.1.0+ 與 compileSdk 37 |
 | DataStore | 1.2.1 | 由 1.1.1 升級；共用格式另由 migration change 決定 |
 | Paging | 3.5.0 | 由 3.3.6 升級，使用 KMP artifacts |
 | Coil | 3.5.0 | 由 3.2.0 升級，網路層改用 `coil-network-ktor3` |
@@ -66,17 +67,34 @@
 
 Koin 4.2 官方雖推薦 BOM 和 compiler plugin，但 compiler plugin 仍是 RC；本階段使用單一 `koin` version ref 與 DSL，避免在 Room 已需要 KSP 時再引入另一個預覽編譯器變數。後續可獨立評估 compiler plugin。
 
-### 5. Room 3 以獨立 database 模組導入
+### 5. Room 以獨立 database 模組導入
 
-Room 3 使用新的 `androidx.room3:*` 座標與 `androidx.room3` plugin，KSP compiler 必須對 Android、iOS device 與 simulator target 分別配置。Runtime 與 `room3-paging` 放在共用 database 模組，SQLite 使用 `androidx.sqlite:sqlite-bundled:2.7.0`。
+Room 使用官方可解析的 `androidx.room:*:2.8.4` 座標與 `androidx.room` plugin，KSP compiler 必須對 Android、iOS device 與 simulator target 分別配置。Runtime 與 `room-paging` 放在共用 database 模組，SQLite 使用 `androidx.sqlite:sqlite-bundled:2.7.0`。
 
-Room 3 不只是版本號變更：package 改為 `androidx.room3`、所有資料庫操作採 Coroutine API、只產生 Kotlin 且強制 KSP、直接低階操作改用 SQLiteDriver。舊 DAO 若回傳 `PagingSource`，需加入 `room3-paging` 並註冊 `PagingSourceDaoReturnTypeConverter`。`room3-sqlite-wrapper` 只作暫時相容工具，確認舊碼有 `SupportSQLiteDatabase` 使用時才加入。
+Room 3 目前尚未有穩定可解析座標，因此本階段不切換到 `androidx.room3` package。舊 DAO 若回傳 `PagingSource`，需加入 `room-paging`。直接低階操作改用 SQLiteDriver 的遷移保留在後續 database change。
 
 ### 6. 不把 Android-only 依賴放入 commonMain
 
 Activity、AppCompat、Core KTX、SplashScreen、WorkManager、Chucker、Lottie、Android Material、JUnit/Espresso/MockK Android 僅可存在 `androidApp`、`androidMain` 或 Android test source set。舊專案沒有實際使用的 Sandwich 不導入；Gson、Retrofit adapter、OkHttp、Hilt 完全排除。
 
 DataStore 可在 KMP 使用，但舊 `protobuf-javalite`/`protobuf-kotlin-lite` 不是直接可搬的 commonMain 契約，因此第一階段只建立 DataStore core alias，不加入 Protobuf plugin。後續遷移設定資料時，優先評估 Kotlinx Serialization serializer；因新 app 使用不同 applicationId，沒有強制沿用舊 on-device protobuf 的相容需求。
+
+### 6.1 KMP placement analysis
+
+| Library family | KMP placement | Notes |
+|---|---|---|
+| Kotlinx Coroutines | `commonMain` / `commonTest` | `coroutines-android` 只限 Android source set |
+| Kotlinx Serialization | `commonMain` | 與 Ktor JSON pipeline 共用 |
+| Ktor | `commonMain` core/features, `androidMain` CIO, `iosMain` Darwin | 不引入 OkHttp engine |
+| Koin | `commonMain` core/test；Compose/ViewModel aliases 只給 UI layer | 不引入 Hilt 或 Koin compiler plugin |
+| Room | database KMP module；KSP 依 target 配置 | 本階段採 `androidx.room` 2.8.4，Room 3 另案 |
+| SQLite bundled | database KMP module | 與 Room KMP database 一起使用 |
+| DataStore | `commonMain` | Protobuf plugin/JVM protobuf aliases 不預設導入 |
+| Paging | `paging-common` 可放 common；runtime/compose 只放平台或 UI layer | 避免純 domain/usecase 依賴 UI paging adapter |
+| Coil 3 | KMP image layer；`coil-compose` 只放 Compose UI layer | Network 使用 `coil-network-ktor3`，不使用 OkHttp |
+| Lifecycle | Compose/ViewModel aliases 只放 UI layer | 純 KMP core 使用 Flow/StateFlow/suspend API |
+| Navigation 3 | Android/CMP UI layer | 不放入純 KMP core |
+| WorkManager, Activity, AppCompat, Core KTX, Espresso | Android-only | 不進 common source set |
 
 ### 7. 測試依賴按平台分層
 
@@ -95,7 +113,7 @@ DataStore 可在 KMP 使用，但舊 `protobuf-javalite`/`protobuf-kotlin-lite` 
 ## Risks / Trade-offs
 
 - [新專案目前版本非常新，外部套件可能尚未完整宣告 Kotlin 2.4 metadata 相容性] -> 先以最小 source set 建置驗證；若失敗，只降單一受影響套件並在 TOML 註明原因，不回退整套工具鏈。
-- [Room 2 到 Room 3 為 package 與 API 的破壞性遷移] -> 將 database 集中在獨立模組，先導出舊 schema、建立 migration tests，再搬 DAO；禁止 `fallbackToDestructiveMigration` 作為正式策略。
+- [Room 3 尚未穩定發布，提前使用不可解析座標會阻斷 Gradle build] -> 本階段採用 `androidx.room` 2.8.4 穩定版，將 Room 3 package/API 遷移延後到獨立 change；仍禁止 `fallbackToDestructiveMigration` 作為正式策略。
 - [Room schema migration 可能破壞既有 Android 資料] -> 新 applicationId 預設視為全新資料庫；若日後決定沿用舊 applicationId，必須另立 change 驗證 v1 schema、migration path 與真實資料庫檔。
 - [Ktor engine 的 Android/iOS 行為與憑證、timeout、logging 不完全一致] -> 共用 client configuration，平台 engine 只處理 transport，並以 MockEngine 和平台 smoke test 驗證。
 - [直接採最新穩定版會增加一次遷移的 API 差距] -> Catalog 先落地並逐群導入；每群都有編譯 checkpoint，避免一次修改全部模組。
