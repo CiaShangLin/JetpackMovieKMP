@@ -1,0 +1,3 @@
+type: refactor
+verify_selected:
+  - code-review
