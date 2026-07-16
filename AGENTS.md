@@ -83,7 +83,6 @@ Commit workflow：
 2. 只 stage 與本次要求相關的檔案。
 3. 建立單一且聚焦的 commit，commit message 必須清楚描述變更。
 4. 不要包含無關的本機變更。
-5. 除非使用者明確要求 push，否則不要 push。
 
 當目前代理環境可用時，使用 `caveman-commit` 進行 commit 準備與 commit message 產生。
 
@@ -94,5 +93,3 @@ GitHub remote：
 ```bash
 origin https://github.com/CiaShangLin/JetpackMovieKMP.git
 ```
-
-只有在使用者明確授權後才 push。
