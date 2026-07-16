@@ -7,6 +7,8 @@
 
 - 依 `libs.versions.toml` 盤點尚未被 build scripts 使用的 library alias。
 - 優先引入支援 Kotlin Multiplatform 的 library 到 `shared` 對應 source set。
+- 將 Paging3 的 KMP/common 依賴納入 `shared.commonMain`，Android UI paging 依賴留在 `androidApp`。
+- 將 Room KMP runtime、paging integration、bundled SQLite、Room plugin 與 KSP compiler target wiring 納入本次依賴基線。
 - Android-only library 只引入 `androidApp` 或 Android source set，不污染 `commonMain`。
 - iOS-only library 預設不主動引入，除非該 KMP library 必須配置 iOS platform dependency 才能完成共同契約。
 - 每引入一個 library 或一組不可拆分的同生態依賴後，立即執行 Gradle 編譯驗證。
@@ -33,6 +35,7 @@
 - 受影響 build files：
   - `shared/build.gradle.kts`
   - `androidApp/build.gradle.kts`
+  - `shared/schemas/`：Room schema directory 的受版控占位目錄。
   - root `build.gradle.kts` 或 `settings.gradle.kts` 僅在 plugin/application wiring 必要時調整。
 - 本專案沒有 `buildSrc` 的 `DependenciesVersions`、`Dependencies`、`DependenciesProvider`；新增依賴將直接使用 Gradle Version Catalog alias。
 - 驗證系統：

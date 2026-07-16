@@ -39,13 +39,19 @@
    - 替代方案：卡在同一 dependency 直到成功。缺點是不符合使用者要求，也會阻塞其他低風險依賴。
 
 5. Room 相關只做 dependency wiring，不做 schema 或 DAO 實作。
-   - 選擇：若導入 Room plugin/compiler，需要確認 KSP target wiring 與 schema directory，但不建立資料表。
+   - 選擇：導入 Room plugin、KSP plugin、`room-runtime`、`room-paging`、`sqlite-bundled` 與 Room compiler target wiring，並建立受版控 schema directory，但不建立資料表。
+   - 替代方案：等 database layer change 才導入 Room。缺點是本次 catalog adoption 無法驗證 Room KMP plugin/compiler wiring。
    - 替代方案：同時建立 database layer。缺點是超出 dependency adoption baseline。
+
+6. Paging3 分成 KMP common 與 Android UI 兩層導入。
+   - 選擇：`androidx-paging-common` 放在 `shared.commonMain`，`androidx-paging-runtime` 與 `androidx-paging-compose` 放在 `androidApp`。
+   - 替代方案：只在 Android app 加 Paging。缺點是忽略 Paging3 的 KMP/common 支援，後續 shared repository/use case 仍缺基線依賴。
 
 ## Risks / Trade-offs
 
 - [Risk] 某些 alias 雖支援 KMP，但目前專案 source set 或 plugin 尚未準備好。→ Mitigation: 先調整最小 Gradle wiring，若 3 次仍失敗就記錄並跳過。
 - [Risk] Android smoke test 需要可用裝置或模擬器。→ Mitigation: 使用 `android-cli` 檢查裝置狀態；若無裝置，將該輪記為環境阻塞而非 dependency 失敗。
 - [Risk] 成組引入可能違反「每次一個」的可定位性。→ Mitigation: 僅允許不可拆分的 runtime/plugin/compiler/BOM pairing，並在 tasks 紀錄群組原因。
-- [Risk] Room 未建立 schema 時導入 plugin 可能需要額外設定。→ Mitigation: 本 change 不新增 database schema；若必須設定 schema directory，只加入空目錄與 Gradle 設定，不建立 migration。
+- [Risk] Room 未建立 schema 時導入 plugin 可能需要額外設定。→ Mitigation: 本 change 不新增 database schema；只加入 schema directory、plugin、compiler 與 runtime wiring，不建立 migration。
+- [Risk] Windows host 無法執行 iOS simulator tests。→ Mitigation: 保留 Room KSP iOS target wiring，並以 Android assemble/shared host test 驗證目前可執行路徑；iOS simulator 留待 macOS 環境驗證。
 - [Risk] `openspec` telemetry 在受限網路下可能輸出 PostHog 錯誤。→ Mitigation: 僅以 CLI exit code 與 artifact 狀態判定 OpenSpec 是否成功。
