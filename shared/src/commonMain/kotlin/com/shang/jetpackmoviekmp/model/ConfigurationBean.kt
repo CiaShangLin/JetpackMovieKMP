@@ -1,12 +1,16 @@
 package com.shang.jetpackmoviekmp.model
 
+import kotlinx.serialization.Serializable
+
 /**
  * 資料Api參數設置
  */
+@Serializable
 data class ConfigurationBean(
     val changeKeys: List<String> = emptyList(),
     val images: Images = Images(),
 ) {
+    @Serializable
     data class Images(
         val backdropSizes: List<String> = emptyList(),
         val baseUrl: String = "",
