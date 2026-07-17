@@ -1,8 +1,8 @@
 package com.shang.jetpackmoviekmp.network.extension
 
-import com.shang.jetpackmoviekmp.network.model.NetworkException
+import com.shang.jetpackmoviekmp.common.NetworkException
+import com.shang.jetpackmoviekmp.common.toNetworkException
 import com.shang.jetpackmoviekmp.network.model.NetworkResponse
-import com.shang.jetpackmoviekmp.network.model.toNetworkException
 import io.ktor.client.call.body
 import io.ktor.client.plugins.ResponseException
 import io.ktor.client.statement.HttpResponse

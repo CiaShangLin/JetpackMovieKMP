@@ -1,8 +1,8 @@
 package com.shang.jetpackmoviekmp.network.datasource
 
 import com.shang.jetpackmoviekmp.BuildConfig
+import com.shang.jetpackmoviekmp.common.NetworkException
 import com.shang.jetpackmoviekmp.network.di.configureMovieClient
-import com.shang.jetpackmoviekmp.network.model.NetworkException
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond

@@ -1,10 +1,10 @@
 package com.shang.jetpackmoviekmp.network.di
 
 import com.shang.jetpackmoviekmp.BuildConfig
+import com.shang.jetpackmoviekmp.common.LanguageProvider
 import com.shang.jetpackmoviekmp.network.datasource.MovieDataSource
 import com.shang.jetpackmoviekmp.network.datasource.MovieDataSourceImpl
 import com.shang.jetpackmoviekmp.network.provider.DefaultLanguageProvider
-import com.shang.jetpackmoviekmp.network.provider.LanguageProvider
 import com.shang.jetpackmoviekmp.sharedJson
 import io.ktor.client.HttpClient
 import io.ktor.client.HttpClientConfig

@@ -1,4 +1,4 @@
-package com.shang.jetpackmoviekmp.network.provider
+package com.shang.jetpackmoviekmp.common
 
 /**
  * Supplies the TMDB API language code used by network requests.
