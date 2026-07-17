@@ -1,67 +1,67 @@
 ## ADDED Requirements
 
-### Requirement: Shared user preference datastore
+### Requirement: Shared 使用者偏好設定 datastore
 
-`shared/commonMain` MUST provide a user preference data source that exposes `UserData` as a flow and persists configuration, theme mode, and language mode without requiring a separate Gradle datastore module.
+`shared/commonMain` 必須提供 user preference data source，以 flow 暴露 `UserData`，並持久化 configuration、theme mode、language mode；此能力不得要求建立獨立 Gradle datastore module。
 
-#### Scenario: default user data is emitted
+#### Scenario: 預設 user data 會被發出
 
-- **WHEN** no user preferences have been persisted yet
-- **THEN** the data source emits `UserData.getDefault()`
+- **WHEN** 尚未持久化任何 user preferences
+- **THEN** data source 發出 `UserData.getDefault()`
 
-#### Scenario: theme mode is persisted
+#### Scenario: theme mode 會被持久化
 
-- **WHEN** `setThemeMode(ThemeMode.DARK)` is called
-- **THEN** later `userData` emissions contain `themeMode = ThemeMode.DARK`
+- **WHEN** 呼叫 `setThemeMode(ThemeMode.DARK)`
+- **THEN** 後續 `userData` emission 包含 `themeMode = ThemeMode.DARK`
 
-#### Scenario: language mode is persisted
+#### Scenario: language mode 會被持久化
 
-- **WHEN** `setLanguageMode(LanguageMode.ENGLISH)` is called
-- **THEN** later `userData` emissions contain `languageMode = LanguageMode.ENGLISH`
+- **WHEN** 呼叫 `setLanguageMode(LanguageMode.ENGLISH)`
+- **THEN** 後續 `userData` emission 包含 `languageMode = LanguageMode.ENGLISH`
 
-#### Scenario: configuration is persisted
+#### Scenario: configuration 會被持久化
 
-- **WHEN** `setConfiguration(configuration)` is called
-- **THEN** later `userData` emissions contain the same configuration values
+- **WHEN** 呼叫 `setConfiguration(configuration)`
+- **THEN** 後續 `userData` emission 包含相同 configuration values
 
-### Requirement: Platform-aware datastore creation
+### Requirement: 平台感知 datastore 建立方式
 
-The datastore implementation MUST create/open the same logical user preferences store on each supported platform while keeping platform-specific file path logic outside common business logic.
+datastore implementation 必須在每個支援平台建立/開啟同一個邏輯 user preferences store，並將 platform-specific file path logic 留在 common business logic 之外。
 
-#### Scenario: Android uses application storage
+#### Scenario: Android 使用 application storage
 
-- **WHEN** Android creates the user preferences datastore
-- **THEN** the datastore file is located in app-owned storage and does not require callers outside DI to pass raw file paths
+- **WHEN** Android 建立 user preferences datastore
+- **THEN** datastore file 位於 app-owned storage，且 DI 外部 caller 不需要傳入 raw file paths
 
-#### Scenario: iOS uses a stable app path
+#### Scenario: iOS 使用穩定 app path
 
-- **WHEN** iOS creates the user preferences datastore
-- **THEN** the datastore file uses a stable app-owned document/cache path suitable for app restarts
+- **WHEN** iOS 建立 user preferences datastore
+- **THEN** datastore file 使用適合 app restart 的穩定 app-owned document/cache path
 
 ### Requirement: Datastore Koin module
 
-`shared` MUST provide a Koin datastore module that resolves the user preference data source and binds the network `LanguageProvider` to a datastore-backed implementation.
+`shared` 必須提供 Koin datastore module，可以 resolve user preference data source，並將 network `LanguageProvider` 綁定到 datastore-backed implementation。
 
-#### Scenario: datastore module resolves user preferences
+#### Scenario: datastore module 可解析 user preferences
 
-- **WHEN** Koin starts with the datastore module
-- **THEN** `UserPreferenceDataSource` can be resolved
+- **WHEN** Koin 使用 datastore module 啟動
+- **THEN** 可以 resolve `UserPreferenceDataSource`
 
-#### Scenario: datastore module resolves language provider
+#### Scenario: datastore module 可解析 language provider
 
-- **WHEN** Koin starts with the datastore module
-- **THEN** `LanguageProvider` resolves to the datastore-backed provider
+- **WHEN** Koin 使用 datastore module 啟動
+- **THEN** `LanguageProvider` resolve 到 datastore-backed provider
 
-### Requirement: Android button verification
+### Requirement: Android button 驗證
 
-`androidApp` MUST provide a simple button-based verification path that can update language preference and trigger a network request.
+`androidApp` 必須提供簡易 button-based verification path，可以更新 language preference 並觸發 network request。
 
-#### Scenario: button updates language and calls network
+#### Scenario: button 更新語言並呼叫 network
 
-- **WHEN** the user taps the test button
-- **THEN** the app persists the selected language and performs a TMDB network call using DI-provided dependencies
+- **WHEN** 使用者點擊測試 button
+- **THEN** app 持久化選取語言，並透過 DI-provided dependencies 執行 TMDB network call
 
-#### Scenario: verification result is visible
+#### Scenario: 驗證結果可見
 
-- **WHEN** the button-triggered network call succeeds or fails
-- **THEN** the app displays compact status text indicating the selected language and result or error
+- **WHEN** button-triggered network call 成功或失敗
+- **THEN** app 顯示精簡 status text，指出選取語言與 result 或 error

@@ -1,20 +1,20 @@
 ## MODIFIED Requirements
 
-### Requirement: Request query parameters include api_key and datastore-backed language
+### Requirement: Request query parameters 包含 api_key 與 datastore-backed language
 
-`HttpClient` request configuration MUST append `api_key` to every TMDB request and MUST append `language` from the DI-provided `LanguageProvider`. In production DI, `LanguageProvider` MUST be backed by user preferences datastore rather than a fixed default provider.
+`HttpClient` request configuration 必須在每個 TMDB request 附加 `api_key`，並必須從 DI-provided `LanguageProvider` 附加 `language`。在 production DI 中，`LanguageProvider` 必須由 user preferences datastore 提供，而不是固定 default provider。
 
-#### Scenario: every request includes api_key
+#### Scenario: 每個 request 都包含 api_key
 
-- **WHEN** `MovieDataSource` calls any TMDB endpoint
-- **THEN** the outgoing request contains the `api_key` query parameter
+- **WHEN** `MovieDataSource` 呼叫任一 TMDB endpoint
+- **THEN** outgoing request 包含 `api_key` query parameter
 
-#### Scenario: language comes from datastore-backed provider
+#### Scenario: language 來自 datastore-backed provider
 
-- **WHEN** `UserPreferenceDataSource` persists `LanguageMode.ENGLISH`
-- **THEN** a later network request contains `language=en-US`
+- **WHEN** `UserPreferenceDataSource` 持久化 `LanguageMode.ENGLISH`
+- **THEN** 後續 network request 包含 `language=en-US`
 
-#### Scenario: language changes across requests
+#### Scenario: language 可跨 request 變更
 
-- **WHEN** the persisted language changes from English to Traditional Chinese
-- **THEN** subsequent network requests use `language=zh-TW` without recreating `MovieDataSource`
+- **WHEN** persisted language 從 English 變更為 Traditional Chinese
+- **THEN** 後續 network requests 使用 `language=zh-TW`，且不需要重新建立 `MovieDataSource`
