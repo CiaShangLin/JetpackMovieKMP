@@ -1,1 +1,4 @@
 type: feature
+workspace: worktree
+branch: feature/migrate-datastore-to-commonmain
+base_branch: master
