@@ -1,4 +1,4 @@
-package com.shang.jetpackmoviekmp.network.model
+package com.shang.jetpackmoviekmp.common
 
 import io.ktor.client.network.sockets.ConnectTimeoutException
 import io.ktor.client.network.sockets.SocketTimeoutException

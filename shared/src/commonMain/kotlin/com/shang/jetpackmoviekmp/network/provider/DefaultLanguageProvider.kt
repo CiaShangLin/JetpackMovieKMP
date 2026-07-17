@@ -1,5 +1,7 @@
 package com.shang.jetpackmoviekmp.network.provider
 
+import com.shang.jetpackmoviekmp.common.LanguageProvider
+
 /**
  * Default [LanguageProvider] used before user language persistence is introduced.
  */

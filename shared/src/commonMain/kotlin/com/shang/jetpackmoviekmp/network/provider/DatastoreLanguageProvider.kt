@@ -1,5 +1,6 @@
 package com.shang.jetpackmoviekmp.network.provider
 
+import com.shang.jetpackmoviekmp.common.LanguageProvider
 import com.shang.jetpackmoviekmp.datastore.UserPreferenceDataSource
 import com.shang.jetpackmoviekmp.model.LanguageMode
 import kotlinx.coroutines.CoroutineScope

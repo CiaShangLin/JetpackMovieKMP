@@ -1,5 +1,7 @@
 package com.shang.jetpackmoviekmp.network.model
 
+import com.shang.jetpackmoviekmp.common.NetworkException
+
 /**
  * Represents the normalized result of a network request.
  *

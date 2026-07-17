@@ -1,7 +1,7 @@
 package com.shang.jetpackmoviekmp.network.datasource
 
+import com.shang.jetpackmoviekmp.common.LanguageProvider
 import com.shang.jetpackmoviekmp.network.di.configureMovieClient
-import com.shang.jetpackmoviekmp.network.provider.LanguageProvider
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 
