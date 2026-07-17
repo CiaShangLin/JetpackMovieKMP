@@ -32,7 +32,7 @@ val ktlintArgs = listOf(
     "!**/.gradle/**",
 )
 
-tasks.register<JavaExec>("ktlintCheck") {
+val ktlintCheck = tasks.register<JavaExec>("ktlintCheck") {
     group = LifecycleBasePlugin.VERIFICATION_GROUP
     description = "Check Kotlin code style"
 
@@ -42,7 +42,7 @@ tasks.register<JavaExec>("ktlintCheck") {
     args(ktlintArgs)
 }
 
-tasks.register<JavaExec>("ktlintFormat") {
+val ktlintFormat = tasks.register<JavaExec>("ktlintFormat") {
     group = LifecycleBasePlugin.VERIFICATION_GROUP
     description = "Check Kotlin code style and format"
 
@@ -53,14 +53,18 @@ tasks.register<JavaExec>("ktlintFormat") {
     args(ktlintArgs)
 }
 
+ktlintCheck {
+    mustRunAfter(ktlintFormat)
+}
+
 tasks.named("check") {
-    dependsOn("ktlintCheck")
+    dependsOn(ktlintFormat, ktlintCheck)
 }
 
 subprojects {
     tasks.matching { task ->
         task.name == "preBuild" || task.name == "androidPreBuild"
     }.configureEach {
-        dependsOn(rootProject.tasks.named("ktlintCheck"))
+        dependsOn(ktlintFormat, ktlintCheck)
     }
 }
