@@ -44,8 +44,9 @@ kotlin {
             implementation(libs.ktor.client.logging)
             implementation(libs.ktor.serialization.kotlinx.json)
             implementation(libs.koin.core)
-            implementation(libs.androidx.datastore)
-            implementation(libs.androidx.datastore.preferences)
+            api(libs.androidx.datastore)
+            api(libs.androidx.datastore.preferences)
+            implementation(libs.okio)
             implementation(libs.androidx.paging.common)
             implementation(libs.androidx.room.paging)
             implementation(libs.androidx.room.runtime)
@@ -103,6 +104,8 @@ kover {
                     "com.shang.jetpackmoviekmp.network.datasource",
                     "com.shang.jetpackmoviekmp.network.extension",
                     "com.shang.jetpackmoviekmp.network.provider",
+                    "com.shang.jetpackmoviekmp.datastore",
+                    "com.shang.jetpackmoviekmp.datastore.di",
                 )
             }
         }
