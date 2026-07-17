@@ -192,15 +192,16 @@ Android UI module MUST 使用 AndroidX Compose BOM 管理 Jetpack Compose artifa
 - **THEN** 任務 MUST NOT 自動改寫該檔案
 
 ### Requirement: Ktlint 格式化任務
-專案 MUST 提供 `ktlintFormat` 任務，用來在開發者明確要求時格式化 Kotlin source 與 Kotlin Script。
+專案 MUST 提供 `ktlintFormat` 任務，用來格式化 Kotlin source 與 Kotlin Script；此任務 MUST 可由開發者手動執行，且 MUST 在手動 Android/KMP build lifecycle 的 ktlint 檢查前自動執行。
 
 #### Scenario: 手動格式化
 - **WHEN** 開發者從 repository root 執行 `gradlew.bat ktlintFormat`
 - **THEN** Gradle MUST 使用 ktlint CLI 的 format 模式修正符合掃描範圍的 Kotlin 檔案
 
-#### Scenario: 一般建置不自動格式化
-- **WHEN** 開發者執行 Android 或 KMP 的一般 build task
-- **THEN** Gradle MUST NOT 因 `preBuild` 或等效 lifecycle task 隱式執行 `ktlintFormat`
+#### Scenario: 一般建置先自動格式化
+- **WHEN** 開發者執行 Android 或 KMP 的一般 build task，且該 task 會觸發 `preBuild`、`androidPreBuild` 或等效 build lifecycle task
+- **THEN** Gradle MUST 在 `ktlintCheck` 前執行或依賴 `ktlintFormat`
+- **THEN** 可由 ktlint 自動修正的 Kotlin 格式問題 MUST 在同一輪 build 的 `ktlintCheck` 前被格式化
 
 ### Requirement: Ktlint dependency catalog 管理
 專案 MUST 透過 `gradle/libs.versions.toml` 管理 ktlint CLI 版本與 library alias，Gradle build script MUST NOT 直接硬編碼 ktlint artifact 座標與版本。
@@ -210,9 +211,10 @@ Android UI module MUST 使用 AndroidX Compose BOM 管理 Jetpack Compose artifa
 - **THEN** ktlint dependency MUST 使用 `libs` version catalog alias 宣告
 
 ### Requirement: Ktlint 納入專案驗證流程
-專案 MUST 將 `ktlintCheck` 納入 root `check` 驗證流程，使提交前驗證可以一致執行格式檢查。
+專案 MUST 將 `ktlintFormat` 與 `ktlintCheck` 納入 root `check` 驗證流程，使提交前驗證可以先自動格式化，再一致執行格式檢查。
 
-#### Scenario: check 執行格式檢查
+#### Scenario: check 先格式化再檢查
 - **WHEN** 開發者從 repository root 執行 `gradlew.bat check`
-- **THEN** Gradle MUST 執行或依賴 `ktlintCheck`
+- **THEN** Gradle MUST 執行或依賴 `ktlintFormat`
+- **THEN** Gradle MUST 在 `ktlintFormat` 後執行或依賴 `ktlintCheck`
 
