@@ -1,1 +1,4 @@
 type: feature
+workspace: branch
+branch: feature/introduce-ktor-network-layer
+base_branch: master
