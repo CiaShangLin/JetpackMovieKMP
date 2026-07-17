@@ -1,8 +1,10 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.android.multiplatform.library)
+    alias(libs.plugins.buildconfig)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
     alias(libs.plugins.room)
@@ -69,4 +71,16 @@ dependencies {
 
 room {
     schemaDirectory("$projectDir/schemas")
+}
+
+val keyProperties = Properties().apply {
+    val keyPropertiesFile = rootProject.file("key.properties")
+    if (keyPropertiesFile.exists()) {
+        keyPropertiesFile.inputStream().use { load(it) }
+    }
+}
+
+buildConfig {
+    packageName("com.shang.jetpackmoviekmp")
+    buildConfigField("TMDB_API_KEY", keyProperties.getProperty("TMDB_API_KEY", ""))
 }
