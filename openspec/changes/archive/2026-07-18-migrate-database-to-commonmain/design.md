@@ -40,24 +40,24 @@ commonMain 提供 `fun getRoomDatabase(builder: RoomDatabase.Builder<AppDatabase
 
 **考慮過的替代方案**：讓 `commonMain` 定義 `expect fun getDatabaseBuilder(...): RoomDatabase.Builder<AppDatabase>` 並用 `actual` 在各平台實作。因為 Android 與 iOS 建構子簽名不同（Android 需要 `Context`，iOS 不需要），`expect`/`actual` 對這種參數不對稱的情境不如「平台各自定義一個同名 top-level 函式、由呼叫端各自傳參」自然——這正是 `createUserPreferencesDataStore` 現有的解法（`androidMain` 版本吃 `Context`、`iosMain` 版本不吃參數），這次沿用相同慣例而非導入 `expect`/`actual`。
 
-### 3. DI 使用 Koin，`databaseModule` 吃已建立好的 `RoomDatabase.Builder`
+### 3. DI 使用 Koin，`databaseModule` 吃建立 `RoomDatabase.Builder` 的 lambda
 
 ```kotlin
-fun databaseModule(databaseBuilder: RoomDatabase.Builder<AppDatabase>) = module {
-    single { getRoomDatabase(databaseBuilder) }
+fun databaseModule(databaseBuilder: () -> RoomDatabase.Builder<AppDatabase>) = module {
+    single { getRoomDatabase(databaseBuilder()) }
     single { get<AppDatabase>().createMovieCollectDao() }
     single { get<AppDatabase>().createMovieHistoryDao() }
 }
 ```
 
-`databaseModule` 的形狀比照 `datastoreModule(dataStore: DataStore<Preferences>)`——由呼叫端（平台）先建立平台專屬物件（`DataStore`／`RoomDatabase.Builder`），再把它交給 module 函式，module 函式本身保持平台無關。
+`databaseModule` 的形狀比照 `datastoreModule(dataStore: DataStore<Preferences>)`——由呼叫端（平台）先準備好建立平台專屬物件的方式，再交給 module 函式，module 函式本身保持平台無關。與 `datastoreModule` 不同的是，這裡吃的是「建立 builder 的 lambda」而非「已經建好的 builder」：`getDatabaseBuilder(...)` 內部會呼叫 `context.getDatabasePath(...)` 之類的檔案系統操作，包成 lambda 才能讓這個操作跟著 `single{}` 一起延後到第一次真正 resolve `AppDatabase` 時才執行（見決策 4 的說明）。
 
 ### 4. 擴充 `initKoin(...)` 簽名，新增 `databaseBuilder` 參數
 
 ```kotlin
 fun initKoin(
     dataStore: DataStore<Preferences>,
-    databaseBuilder: RoomDatabase.Builder<AppDatabase>,
+    databaseBuilder: () -> RoomDatabase.Builder<AppDatabase>,
     isDebug: Boolean,
     appDeclaration: KoinAppDeclaration,
 ) {
@@ -73,7 +73,9 @@ fun initKoin(
 }
 ```
 
-`androidApp/JetpackMovieApplication` 改傳入 `getDatabaseBuilder(context = this)`；`shared/iosMain/InitKoinIos.doInitKoinIos` 改傳入 iOS 版 `getDatabaseBuilder()`。這是**簽名變更**（新增必填參數），兩個呼叫端都需要同步更新，屬於本次變更範圍內的預期修改，不算對外 BREAKING（`initKoin`/`doInitKoinIos` 都是 app 啟動內部使用，沒有對外穩定 API 承諾）。
+`androidApp/JetpackMovieApplication` 改傳入 `{ getDatabaseBuilder(this) }`；`shared/iosMain/InitKoinIos.doInitKoinIos` 改傳入 `{ getDatabaseBuilder() }`。這是**簽名變更**（新增必填參數），兩個呼叫端都需要同步更新，屬於本次變更範圍內的預期修改，不算對外 BREAKING（`initKoin`/`doInitKoinIos` 都是 app 啟動內部使用，沒有對外穩定 API 承諾）。
+
+`databaseBuilder` 刻意宣告為 `() -> RoomDatabase.Builder<AppDatabase>`（lambda）而非直接傳入已建好的 builder：驗收階段的 code review 發現 `getDatabaseBuilder(context)` 內部呼叫 `context.getDatabasePath(...)`（檔案系統呼叫）本來會在 `Application.onCreate()` 當下就同步執行，即使 `AppDatabase` 從未被實際 resolve 也一樣，這跟同一個 `initKoin` 呼叫式裡 `createUserPreferencesDataStore` 的既有做法（把路徑解析包進 `producePath: () -> String` lambda、真正讀寫時才觸發）不一致。改成 lambda 後，`databaseModule` 的 `single { getRoomDatabase(databaseBuilder()) }` 只有在第一次真正 resolve `AppDatabase` 時才會呼叫 `databaseBuilder()`，維持 Koin `single{}` 原本的 lazy 語意，也讓 database 與 datastore 兩者的啟動時機慣例一致。
 
 ### 5. Table／欄位命名沿用參考專案
 
@@ -82,8 +84,8 @@ fun initKoin(
 ## Risks / Trade-offs
 
 - **Room migration 策略**：這是全新資料庫，`version = 1`，目前不需要 `Migration`。風險是之後 schema 一旦變動（例如新增欄位），必須另立 change 補上 `Migration` 或改採 `fallbackToDestructiveMigration()`（會清空既有收藏/瀏覽紀錄）——這次不預先決定策略，留待實際需要時依當下需求判斷，並在 design 中明確記錄「非目標」避免範圍蔓延。
-- **iOS 平台驗證風險**：與 `migrate-datastore-to-commonmain` 相同，開發機為 Windows，無法執行 `iosSimulatorArm64Test`。iOS database builder 僅能透過 `commonMain`／`iosMain` 編譯與 `commonTest` 覆蓋驗證，未經模擬器實機驗證資料庫檔案讀寫。
-- **無 UI 可視驗證**：`datastore` 遷移曾用一個 debug button 證明 Android wiring 有效。這次 `MovieCollectDao`/`MovieHistoryDao` 沒有對應消費端，無法用同樣方式驗證。緩解方式：測試需涵蓋「透過 Koin resolve 出 `AppDatabase`/DAO 後，能實際 insert/query/delete 並拿到預期結果」，確保即使沒有 UI，資料庫本身的讀寫與 DI wiring 都有測試覆蓋（Android 端可用 `androidHostTest` 跑真正的 SQLite in-memory/on-disk 驗證；純 JVM `commonTest` 若無法驅動 Bundled SQLite driver，則以能執行的 target 為準，並在 tasks 的 Verification 段落註記）。
+- **平台驗證風險（實作後確認比預期更廣）**：原先預期只有 iOS 模擬器無法在 Windows 執行。實作後發現 Android host test（`:shared:testAndroidHostTest`，純 JVM 執行，非模擬器/真機）**也**無法驗證真正的 Room 讀寫行為——`androidx.sqlite:sqlite-bundled-android` 的 native library（`sqliteJni`）是為真實 Android ABI 打包，JVM host test 的 `java.library.path` 找不到對應原生函式庫，任何實際開啟 SQLite 連線的操作都會拋出 `UnsatisfiedLinkError`；同時 host test 的 `android.content.Context` 也不是可用實作（呼叫 `context.getDatabasePath(...)` 等方法會拋出「not mocked」例外），這台機器未安裝 Robolectric（且本次 proposal 明確排除新增依賴）。緩解方式：拆成兩層——(1) Koin resolve-only 測試（`DatabaseModuleResolutionTest`，只驗證 DI 型別能否解析，不觸發實際查詢，`assertNotNull` 不會踩到上述限制）與 entity mapping 測試（`asExtendedModel()`，純 Kotlin 邏輯）留在 `commonTest`，在 Android host test 上有真實覆蓋；(2) 需要真正開啟連線做 insert/query/delete 的完整行為測試（`MovieCollectDaoTest`、`MovieHistoryDaoTest`、`DatabaseModuleTest` 的整合案例）改放 `shared/src/iosTest`——iOS/Kotlin Native 的 `Room.databaseBuilder(name)` 不需要 Context，原生 SQLite 也不受此限制，但同樣因為 Windows 無法執行 `iosTest`，這些測試目前只能保證原始碼正確（比照官方 Room KMP API 撰寫），未經實際執行驗證。詳細記錄見 tasks.md 7.4。
+- **無 UI 可視驗證**：`datastore` 遷移曾用一個 debug button 證明 Android wiring 有效。這次 `MovieCollectDao`/`MovieHistoryDao` 沒有對應消費端，無法用同樣方式驗證。緩解方式如上一項風險所述，透過測試分層盡量涵蓋。
 - **`initKoin` 簽名變更影響既有呼叫端**：新增必填參數會讓 `androidApp/JetpackMovieApplication` 與 `shared/iosMain/InitKoinIos.doInitKoinIos` 兩處呼叫點同時需要更新；`shared/commonTest` 內既有呼叫 `initKoin(...)` 的測試（若有）也需要同步調整參數。任務清單需明確列出這兩個呼叫點與既有測試的更新項目，避免遺漏導致編譯失敗。
 
 ## Migration Plan

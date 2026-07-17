@@ -1,5 +1,6 @@
 package com.shang.jetpackmoviekmp
 
+import com.shang.jetpackmoviekmp.database.getDatabaseBuilder
 import com.shang.jetpackmoviekmp.datastore.createUserPreferencesDataStore
 
 /**
@@ -16,5 +17,9 @@ import com.shang.jetpackmoviekmp.datastore.createUserPreferencesDataStore
  * @param isDebug 為 `true` 時啟用 network request logging。
  */
 fun doInitKoinIos(isDebug: Boolean) {
-    initKoin(dataStore = createUserPreferencesDataStore(), isDebug = isDebug)
+    initKoin(
+        dataStore = createUserPreferencesDataStore(),
+        databaseBuilder = { getDatabaseBuilder() },
+        isDebug = isDebug,
+    )
 }

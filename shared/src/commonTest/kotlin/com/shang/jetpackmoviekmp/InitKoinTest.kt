@@ -2,6 +2,7 @@ package com.shang.jetpackmoviekmp
 
 import com.shang.jetpackmoviekmp.common.BaseHostUrlProvider
 import com.shang.jetpackmoviekmp.common.LanguageProvider
+import com.shang.jetpackmoviekmp.database.getTestDatabaseBuilder
 import com.shang.jetpackmoviekmp.datastore.InMemoryPreferencesDataStore
 import com.shang.jetpackmoviekmp.datastore.UserPreferenceDataSource
 import com.shang.jetpackmoviekmp.network.datasource.MovieDataSource
@@ -22,7 +23,11 @@ class InitKoinTest : KoinTest {
 
     @BeforeTest
     fun setUp() {
-        initKoin(dataStore = InMemoryPreferencesDataStore(), isDebug = true)
+        initKoin(
+            dataStore = InMemoryPreferencesDataStore(),
+            databaseBuilder = { getTestDatabaseBuilder() },
+            isDebug = true,
+        )
     }
 
     @AfterTest

@@ -36,9 +36,10 @@
   - `shared/commonMain`：新增 `database`（`entity`、`dao`、`di`）package；新增/擴充 `initKoin(...)` 簽名
   - `shared/androidMain`：新增建立 `RoomDatabase.Builder<AppDatabase>` 的 Android 工廠函式
   - `shared/iosMain`：新增建立 `RoomDatabase.Builder<AppDatabase>` 的 iOS 工廠函式；更新 `InitKoinIos.doInitKoinIos`
-  - `shared/commonTest`（以及需要時的 `androidHostTest`）：database entity/DAO 與 Koin module 測試
+  - `shared/commonTest`：entity mapping 測試與 Koin resolve-only 測試
+  - `shared/iosTest`：需要真正開啟資料庫連線的 DAO／Koin module 整合測試（見 design.md 風險章節與 tasks.md 7.4 的環境限制說明）
   - `androidApp`：`JetpackMovieApplication` 改傳入 Android database builder
-- **Dependencies**：不需新增外部依賴或調整 `gradle/libs.versions.toml`——`androidx-room-runtime`、`androidx-room-paging`、`androidx-sqlite-bundled`、`androidx-room-compiler`（KSP）、`room` plugin 均已在 `shared/build.gradle.kts` 配置完成，`shared/schemas` 目錄也已存在。
+- **Dependencies**：不需新增外部依賴——`androidx-room-runtime`、`androidx-room-paging`、`androidx-sqlite-bundled`、`androidx-room-compiler`（KSP）、`room` plugin 均已在 `shared/build.gradle.kts` 配置完成，`shared/schemas` 目錄也已存在；唯一調整是把 `shared/build.gradle.kts` 既有的 `androidx.room.runtime` 依賴宣告從 `implementation` 改成 `api`（比照既有 `androidx.datastore`／`androidx.datastore.preferences` 的作法），讓 `androidApp` 能解析 `RoomDatabase.Builder` 型別——不是新增依賴，只是可見性調整。
 
 ## 非目標
 
