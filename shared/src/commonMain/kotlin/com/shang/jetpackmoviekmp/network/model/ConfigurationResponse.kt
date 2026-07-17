@@ -1,5 +1,6 @@
 package com.shang.jetpackmoviekmp.network.model
 
+import com.shang.jetpackmoviekmp.model.ConfigurationBean
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -43,17 +44,17 @@ data class ConfigurationResponse(
 /**
  * 將網路模型轉換為外部模型
  */
-// fun ConfigurationResponse.asExternalModel(): ConfigurationBean {
-//    return ConfigurationBean(
-//        changeKeys = changeKeys,
-//        images = ConfigurationBean.Images(
-//            backdropSizes = images.backdropSizes,
-//            baseUrl = images.baseUrl,
-//            logoSizes = images.logoSizes,
-//            posterSizes = images.posterSizes,
-//            profileSizes = images.profileSizes,
-//            secureBaseUrl = images.secureBaseUrl,
-//            stillSizes = images.stillSizes,
-//        ),
-//    )
-// }
+fun ConfigurationResponse.asExternalModel(): ConfigurationBean {
+    return ConfigurationBean(
+        changeKeys = changeKeys,
+        images = ConfigurationBean.Images(
+            backdropSizes = images.backdropSizes,
+            baseUrl = images.baseUrl,
+            logoSizes = images.logoSizes,
+            posterSizes = images.posterSizes,
+            profileSizes = images.profileSizes,
+            secureBaseUrl = images.secureBaseUrl,
+            stillSizes = images.stillSizes,
+        ),
+    )
+}

@@ -5,8 +5,7 @@
 ## What Changes
 
 - 在 `shared/src/commonMain/kotlin` 新增 `network` 套件，設定 Ktor `HttpClient`：以 `defaultRequest { url(...) }` 取代 Retrofit 的 `baseUrl`，並在同一區塊帶入 `api_key`／`language` 預設查詢參數（取代舊專案的 `ApiKeyInterceptor`／`LanguageInterceptor`），搭配 `ContentNegotiation`（kotlinx.serialization）與 `Logging` plugin（取代 `HttpLoggingInterceptor`）
-- 新增 `MovieApiService`（+ Impl）：純 API 呼叫層，對應舊專案 `MovieApiService` 的 7 個端點（configuration、genre/movie/list、discover/movie、search/movie、movie/{id}、movie/{id}/recommendations、movie/{id}/credits）
-- 新增 `MovieRemoteDataSource`（+ Impl）：包一層錯誤轉換與 DTO → external model 的映射，行為與命名維持與舊專案的 `safeApiCall`／`NetworkResponse`／`NetworkException` 相近，這次不重新命名、不搬到共用層
+- 新增 `MovieDataSource`（+ Impl）：對應舊專案 `MovieApiService` 的 7 個端點（configuration、genre/movie/list、discover/movie、search/movie、movie/{id}、movie/{id}/recommendations、movie/{id}/credits），直接呼叫 Ktor `HttpClient`，並在同一層用 `safeApiCall`／`mapData` 做錯誤轉換與 DTO → external model 映射（行為與命名維持與舊專案的 `safeApiCall`／`NetworkResponse`／`NetworkException` 相近，這次不重新命名、不搬到共用層）；不額外拆出純 API 呼叫層（`MovieApiService`），因為 Ktor 的 `HttpResponse` 本身可直接被 `ktor-client-mock` 測試替身注入，兩層拆分沒有帶來額外可測試性（詳見 design.md 決策 3）
 - 新增對應 TMDB response 的 DTO model，改用 `kotlinx.serialization` 的 `@Serializable`（取代舊專案的 Gson）
 - 導入 Koin：撰寫 `networkModule`，以 `single<Interface> { Impl(get()) }` 的形式取代 Hilt 的 `NetworkModule`／`DataSourceModule`
 - 補上 `shared/build.gradle.kts` 的 `iosMain.dependencies`（目前完全空缺），加入 `ktor-client-darwin`；`HttpClientEngine` 依平台分流（Android 用既有的 CIO，iOS 用新增的 Darwin），`commonMain` 不依賴具體 engine
@@ -21,7 +20,7 @@
 ## Capabilities
 
 ### New Capabilities
-- `ktor-movie-network`：`shared/commonMain` 中透過 Ktor 呼叫 TMDB API 的網路層能力，涵蓋 HttpClient 設定、ApiService/DataSource 分層、錯誤處理與 Koin DI 綁定
+- `ktor-movie-network`：`shared/commonMain` 中透過 Ktor 呼叫 TMDB API 的網路層能力，涵蓋 HttpClient 設定、單一 MovieDataSource 層、錯誤處理與 Koin DI 綁定
 
 ### Modified Capabilities
 
@@ -34,4 +33,4 @@
   - `commonMain` 已有 `ktor-client-core`／`ktor-client-content-negotiation`／`ktor-client-logging`／`ktor-serialization-kotlinx-json`，需新增使用 `koin-core`（alias 已存在，尚未在 `shared` 引用）
   - `androidMain` 已有 `ktor-client-cio`，無需新增
   - `iosMain` 目前無任何依賴宣告，需新增 `implementation(libs.ktor.client.darwin)`（alias 已存在於 catalog）
-- **測試**：新增 `commonTest` 對 `MovieApiService`／`MovieRemoteDataSource` 的單元測試，使用既有的 `ktor-client-mock` alias，採 AAA 模式，目標覆蓋率 ≥ 80%
+- **測試**：新增 `commonTest` 對 `MovieDataSource` 的單元測試，使用既有的 `ktor-client-mock` alias，採 AAA 模式，目標覆蓋率 ≥ 80%

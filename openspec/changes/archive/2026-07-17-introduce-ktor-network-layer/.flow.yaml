@@ -2,3 +2,11 @@ type: feature
 workspace: branch
 branch: feature/introduce-ktor-network-layer
 base_branch: master
+verify_selected:
+  - junit
+  - kdoc
+  - code-review
+verified:
+  - junit
+  - kdoc
+  - code-review
