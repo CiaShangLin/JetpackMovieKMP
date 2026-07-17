@@ -14,16 +14,20 @@ TBD - created by archiving change introduce-ktor-network-layer. Update Purpose a
 - **WHEN** 開發者不慎以 `/movie/{id}`（開頭帶斜線）呼叫端點
 - **THEN** `commonTest` 使用 `ktor-client-mock` 驗證組出的完整 URL 時 MUST 能偵測到 `/3/` 前綴遺失並使測試失敗
 
-### Requirement: 請求自動附加 api_key 與 language 查詢參數
-`HttpClient` 的 `defaultRequest` 區塊 MUST 為每一次請求附加 `api_key` 查詢參數，並附加反映當下語言設定的 `language` 查詢參數；`language` 的值 MUST 在每次請求時重新取得，不得於 `HttpClient` 建構當下就固定寫死。
+### Requirement: Request query parameters 包含 api_key 與 datastore-backed language
+`HttpClient` request configuration 必須在每個 TMDB request 附加 `api_key`，並必須從 DI-provided `LanguageProvider` 附加 `language`。在 production DI 中，`LanguageProvider` 必須由 user preferences datastore 提供，而不是固定 default provider。
 
-#### Scenario: 每個請求皆附加 api_key
-- **WHEN** `MovieDataSource` 呼叫任一 TMDB 端點
-- **THEN** 實際送出的請求 MUST 帶有 `api_key` 查詢參數
+#### Scenario: 每個 request 都包含 api_key
+- **WHEN** `MovieDataSource` 呼叫任一 TMDB endpoint
+- **THEN** outgoing request 包含 `api_key` query parameter
 
-#### Scenario: language 參數反映當下設定
-- **WHEN** 語言設定在兩次請求之間發生變化
-- **THEN** 第二次請求的 `language` 查詢參數值 MUST 反映變化後的新值，而非沿用第一次請求的舊值
+#### Scenario: language 來自 datastore-backed provider
+- **WHEN** `UserPreferenceDataSource` 持久化 `LanguageMode.ENGLISH`
+- **THEN** 後續 network request 包含 `language=en-US`
+
+#### Scenario: language 可跨 request 變更
+- **WHEN** persisted language 從 English 變更為 Traditional Chinese
+- **THEN** 後續 network requests 使用 `language=zh-TW`，且不需要重新建立 `MovieDataSource`
 
 ### Requirement: MovieDataSource 涵蓋既有 TMDB 端點並統一錯誤處理
 `commonMain` MUST 提供 `MovieDataSource` 介面與實作，涵蓋舊專案既有的 7 個端點：configuration、genre/movie/list、discover/movie、search/movie、movie/{id}、movie/{id}/recommendations、movie/{id}/credits；每個方法 MUST 透過 `safeApiCall` 呼叫 Ktor `HttpClient`，將例外（逾時、無網路連線、解析失敗等）轉換成結構化的 `NetworkResponse`／`NetworkException` 型別，且不得讓未捕捉的例外往呼叫端外洩；成功時 MUST 透過 `mapData` 將底層 DTO 映射成對應的 external model。不額外拆出純 API 呼叫層（`MovieApiService`）。
