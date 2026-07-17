@@ -49,7 +49,7 @@ kotlin {
             implementation(libs.okio)
             implementation(libs.androidx.paging.common)
             implementation(libs.androidx.room.paging)
-            implementation(libs.androidx.room.runtime)
+            api(libs.androidx.room.runtime)
             implementation(libs.androidx.sqlite.bundled)
             implementation(libs.coil.network.ktor3)
         }
@@ -106,7 +106,26 @@ kover {
                     "com.shang.jetpackmoviekmp.network.provider",
                     "com.shang.jetpackmoviekmp.datastore",
                     "com.shang.jetpackmoviekmp.datastore.di",
+                    "com.shang.jetpackmoviekmp.database",
+                    "com.shang.jetpackmoviekmp.database.di",
+                    "com.shang.jetpackmoviekmp.database.entity",
                 )
+            }
+            excludes {
+                // database.dao 只有 @Dao interface 宣告（無可執行邏輯）與 Room KSP 生成的
+                // *_Impl 實作類別。*_Impl 內的 SQL binding 邏輯需要真正可用的 sqliteJni
+                // native library 才能執行到，Android host test 環境沒有對應的 native library
+                // （見 openspec/changes/migrate-database-to-commonmain 的 design.md 風險章節與
+                // tasks.md 7.4 環境限制紀錄），比照 network.model 的排除理由不納入覆蓋率範圍。
+                packages("com.shang.jetpackmoviekmp.database.dao")
+                // androidMain 的 getDatabaseBuilder(context) 需要真正可用的 Android Context
+                // （呼叫 Room 內部的 context.getDatabasePath 解析檔案路徑），同樣受限於上述
+                // native library 限制，沒有自動化測試覆蓋，排除在覆蓋率範圍外。
+                classes("com.shang.jetpackmoviekmp.database.DatabaseBuilder_androidKt*")
+                // Room KSP 生成的實作類別（AppDatabase_Impl、AppDatabaseConstructor 的 actual），
+                // 屬於樣板產生碼而非手寫邏輯，比照 network.model 的排除理由不納入覆蓋率範圍。
+                classes("com.shang.jetpackmoviekmp.database.AppDatabase_Impl*")
+                classes("com.shang.jetpackmoviekmp.database.AppDatabaseConstructor*")
             }
         }
         verify {
