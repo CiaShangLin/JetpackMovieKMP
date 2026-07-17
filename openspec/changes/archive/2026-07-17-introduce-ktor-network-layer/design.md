@@ -21,7 +21,7 @@
 
 ## Decisions
 
-**遵循的既有模式**：本次只落地 Data Source 層，尚未建立 Repository／Use Case，因此嚴格來說還沒有完整的 Repository 模式；但型別介面（`MovieApiService`、`MovieRemoteDataSource`）刻意設計成未來能被 Repository 包一層而不需修改，符合 `kmp-dependency-catalog` spec 對 core 分層（model/domain/data/network）的既有方向。
+**遵循的既有模式**：本次只落地 Data Source 層，尚未建立 Repository／Use Case，因此嚴格來說還沒有完整的 Repository 模式；但 `MovieDataSource` 介面刻意設計成未來能被 Repository 包一層而不需修改，符合 `kmp-dependency-catalog` spec 對 core 分層（model/domain/data/network）的既有方向。
 
 **1. Base URL 用 `defaultRequest { url(...) }` 取代 Retrofit 的 `baseUrl`**
 `HttpClient` 建構時以 `defaultRequest { url("https://api.themoviedb.org/3/") }` 設定基底路徑，各端點呼叫一律使用「不帶開頭 `/`」的相對路徑（例如 `client.get("movie/$id")`）。
@@ -31,12 +31,14 @@
 `defaultRequest{}` 這個 block 會在每次請求時重新執行，因此動態語言代碼（`languageProvider.getLanguageCode()`）的行為與舊專案的 `LanguageInterceptor` 等價，不需要額外的攔截器類別。`HttpLoggingInterceptor` 則對應 Ktor 內建的 `Logging` plugin。
 - 考慮過的替代方案：用 Ktor 的 `createClientPlugin` 自訂 plugin 模擬 Interceptor 行為。不採用，目前需求（附加固定/動態查詢參數）用 `defaultRequest` 就能滿足，自訂 plugin 是不必要的複雜度。
 
-**3. 保留 ApiService → RemoteDataSource 兩層，錯誤處理沿用舊命名**
-`MovieApiService`（+ Impl）只負責發出請求、回傳原始 DTO；`MovieRemoteDataSource`（+ Impl）包一層 `safeApiCall`／`mapData`，把例外轉換成 `NetworkResponse`／`NetworkException` 並映射成 external model。命名維持與舊專案一致，不改名為 `AppResult`／`AppError`，也不搬到尚未存在的 `core:common`。
-- 考慮過的替代方案：(a) 直接合併成一層，`RemoteDataSource` 內部直接呼叫 Ktor——不採用，會讓純 API 呼叫與錯誤轉換邏輯耦合，不利個別測試；(b) 現在就把錯誤型別抽到 `core:common`——不採用，目前只有 network 一個消費者，屬於預先設計還用不到的抽象，等 `core:database` 這類第二個消費者出現時再決定是否搬遷（技術債已在 proposal 中明確記錄）。
+**3. 單一 `MovieDataSource` 層，不額外拆出 `MovieApiService`**
+`MovieDataSource`（+ Impl）直接呼叫 Ktor `HttpClient`，並在同一層用 `safeApiCall`／`mapData` 把例外轉換成 `NetworkResponse`／`NetworkException`、把 DTO 映射成 external model。錯誤處理的命名與行為維持與舊專案一致（`safeApiCall`／`NetworkResponse`／`NetworkException`），不改名為 `AppResult`／`AppError`，也不搬到尚未存在的 `core:common`；但不再區分「純 API 呼叫」與「錯誤處理」兩層。
+- 原規劃是 ApiService → RemoteDataSource 兩層，理由是讓純 API 呼叫與錯誤轉換邏輯分開、利於個別測試。實作後改採單層：Ktor 的 `HttpResponse` 本身就是可被 `ktor-client-mock` 直接替換的型別，測試 `MovieDataSource` 時一樣能在不觸發真實網路請求的情況下驗證請求 URL／參數與錯誤轉換行為，兩層拆分在這裡沒有帶來額外可測試性，反而讓一個端點的邏輯要跨兩個檔案讀。
+- 現在就把錯誤型別抽到 `core:common`——仍然不採用，理由不變：目前只有 network 一個消費者，等 `core:database` 這類第二個消費者出現時再決定是否搬遷（技術債已在 proposal 中明確記錄）。
+- 若之後真的出現需要繞過錯誤轉換、直接拿原始 DTO 的消費者（目前沒有這種需求），再評估要不要拆回兩層。
 
 **4. DI 改用 Koin，以 `single<Interface> { Impl(get()) }` 取代 Hilt `@Binds`/`@Provides`**
-新增 `networkModule`（`org.koin.dsl.module`），提供 `Json`、`HttpClient`、`MovieApiService`、`MovieRemoteDataSource` 四個 binding。這是本專案第一次實際使用 Koin，範圍僅限本次新增的型別，不涉及既有程式碼。
+新增 `networkModule`（`org.koin.dsl.module`），提供 `HttpClient`、`MovieDataSource` 兩個 binding。原規劃另外提到的 `Json`／`MovieApiService`／`MovieRemoteDataSource` 三個 binding，`Json` 因為只在 `HttpClient` 建構時內部使用、沒有其他消費者需要單獨注入而不曝露成 binding，`MovieApiService`／`MovieRemoteDataSource` 則因為決策 3 的單層化而不存在。這是本專案第一次實際使用 Koin，範圍僅限本次新增的型別，不涉及既有程式碼。
 
 **5. iOS engine 缺口：新增 `iosMain.dependencies { implementation(libs.ktor.client.darwin) }`**
 目前 `shared/build.gradle.kts` 完全沒有 `iosMain.dependencies` 區塊。`HttpClientEngine` 依平台分流：`androidMain` 沿用既有的 `ktor-client-cio`，`iosMain` 新增 `ktor-client-darwin`；`commonMain` 的 `HttpClient` 建構程式碼不得指定具體 engine 型別，遵循 `kmp-dependency-catalog` spec 既有規則。
@@ -53,7 +55,13 @@
   → **Mitigation**：列為 Open Question，本次先用一個可替換的暫時性 provider（例如寫死在僅本機的設定檔或環境變數，明確標記為暫時）頂著，不阻塞 network 層邏輯的開發與測試；正式的跨平台金鑰注入留待後續 change。
 
 - **[Risk]** 這是本專案第一次導入 Koin，尚無任何啟動（`startKoin`）邏輯或既有 module 可參考。
-  → **Mitigation**：本次只建立 `networkModule` 本身與其單元測試（用 Koin test 工具直接檢查 module 定義是否可解析），暫不接上 `startKoin` 的應用程式進入點，避免範圍擴大到 androidApp/iosApp 的啟動流程。
+  → **Mitigation**：原規劃是本次只建立 `networkModule` 本身，暫不接上 `startKoin`。實作 debug/release log level 分流（見下一條）時發現這兩件事分不開——`Logging` plugin 的 level 要吃到 debug/release 差異，就必須有人在啟動時把這個布林值傳進 `networkModule`，因此範圍調整為：**Android 端**已在 `JetpackMovieApplication.onCreate()` 接上 `startKoin`；**iOS 端**（`iosApp/iosApp/iOSApp.swift`）刻意保持不動，尚未接上，留待後續 change 決定。
+
+- **[Risk]** debug/release 的 `HttpLoggingInterceptor` 行為（舊專案用 `BuildConfig.DEBUG` 判斷）在 KMP 沒有直接對應物：Android 有 `BuildConfig.DEBUG`，iOS 沒有等價機制；且 `androidApp` 若啟用 AGP 原生 `buildFeatures.buildConfig` 生成自己的 `BuildConfig`，會因為 namespace 跟 `shared` 模組的 `com.github.gmazzo.buildconfig` plugin 產生的 `com.shang.jetpackmoviekmp.BuildConfig`（`packageName("com.shang.jetpackmoviekmp")`）撞到同一個 fully-qualified class name。
+  → **Mitigation**：`networkModule` 改成 `fun networkModule(isDebug: Boolean)`，`isDebug` 由呼叫端決定怎麼取得。Android 端改用執行期的 `applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE`（讀 AGP 依 build type 自動設定的 manifest `debuggable` 屬性），完全不需要啟用 AGP 的 buildConfig，避免撞名。iOS 端若之後要做，對應機制是 Swift 的 `#if DEBUG`（這個專案的 `iosApp.xcodeproj` 已經有 `SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)"`），但本次不處理。
+
+- **[Risk]** 專案原本沒有任何程式碼覆蓋率工具，task 7.6 要求「單元測試覆蓋率 ≥80%」但沒有數字可以驗證；而 `shared` 模組整體／`network.model` 套件量測出來都低於 80%，因為 Kotlin `@Serializable` DTO 每個欄位都會生成 `equals()`/`hashCode()`/`toString()`/`copy()`/`componentN()`，這些樣板方法在我們的程式碼裡從未被呼叫（DTO 只用來反序列化後立刻映射成 Bean）。
+  → **Mitigation**：新增 `kover`（`org.jetbrains.kotlinx.kover` 0.9.8）catalog alias + plugin，只套用在 `shared/build.gradle.kts`。Kover 0.9.8 的 verify rule 沒有獨立的 per-rule filters——`filters{}` 是掛在 `reports{}` 底下、對 log/HTML/XML/verify 全部生效的全域設定（查證過原始碼 `KoverReportsConfig`／`KoverVerifyRule` 介面，前者才有 `filters`，後者只有 `groupBy`/`bound`/`minBound`/`maxBound`）。因此把 `reports { filters { includes { packages(...) } } }` 收斂成只涵蓋這次 change 實際新增的業務邏輯（`network.di`／`network.datasource`／`network.extension`／`network.provider`），不含 `network.model`（DTO 樣板）與 `shared` 模組其他既有、與本次無關的程式碼（`Platform`、`ThemeMode`、`UserData` 等）。收斂後這四個套件的 line coverage 皆為 100%，`koverVerify` 通過 80% 門檻。代價是 `koverLog`／`koverHtmlReport` 現在只反映這四個套件，不是整個 `shared` 模組——如果未來要幫其他套件（如 `network.model`）也建立覆蓋率門檻，需要另外評估要不要放寬 filters 範圍或改用 `excludes` 排除純樣板類別。
 
 **資料庫 schema**：本次不涉及 Room／資料庫變更，無 migration 需求。
 
