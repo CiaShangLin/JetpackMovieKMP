@@ -116,6 +116,9 @@ kover {
                     "com.shang.jetpackmoviekmp.data.paging",
                     "com.shang.jetpackmoviekmp.data.model",
                     "com.shang.jetpackmoviekmp.data.di",
+                    // migrate-domain-to-commonmain：新增電影 UseCase 層。
+                    "com.shang.jetpackmoviekmp.domain.usecase",
+                    "com.shang.jetpackmoviekmp.domain.di",
                 )
             }
             excludes {

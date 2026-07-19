@@ -8,13 +8,14 @@ import com.shang.jetpackmoviekmp.data.di.dataModule
 import com.shang.jetpackmoviekmp.database.AppDatabase
 import com.shang.jetpackmoviekmp.database.di.databaseModule
 import com.shang.jetpackmoviekmp.datastore.di.datastoreModule
+import com.shang.jetpackmoviekmp.domain.di.domainModule
 import com.shang.jetpackmoviekmp.network.di.networkModule
 import org.koin.core.context.startKoin
 import org.koin.dsl.KoinAppDeclaration
 
 /**
  * 兩個平台共用的 Koin 啟動進入點，統一安裝 [commonModule]、[datastoreModule]、[databaseModule]、
- * [networkModule]、[dataModule]。
+ * [networkModule]、[dataModule]、[domainModule]。
  *
  * `androidApp`、`iosApp` 都必須透過這個進入點（或 [initKoin] 的無 [appDeclaration] 版本）啟動 Koin，
  * 不得各自重複組裝 module 清單。
@@ -40,6 +41,7 @@ fun initKoin(
             databaseModule(databaseBuilder),
             networkModule(isDebug = isDebug, provideDefaultLanguageProvider = false),
             dataModule(),
+            domainModule(),
         )
     }
 }
