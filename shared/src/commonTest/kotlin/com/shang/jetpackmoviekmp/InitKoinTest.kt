@@ -2,6 +2,8 @@ package com.shang.jetpackmoviekmp
 
 import com.shang.jetpackmoviekmp.common.BaseHostUrlProvider
 import com.shang.jetpackmoviekmp.common.LanguageProvider
+import com.shang.jetpackmoviekmp.data.repository.MovieRepository
+import com.shang.jetpackmoviekmp.data.repository.UserDataRepository
 import com.shang.jetpackmoviekmp.database.getTestDatabaseBuilder
 import com.shang.jetpackmoviekmp.datastore.InMemoryPreferencesDataStore
 import com.shang.jetpackmoviekmp.datastore.UserPreferenceDataSource
@@ -20,6 +22,8 @@ class InitKoinTest : KoinTest {
     private val languageProvider: LanguageProvider by inject()
     private val baseHostUrlProvider: BaseHostUrlProvider by inject()
     private val movieDataSource: MovieDataSource by inject()
+    private val movieRepository: MovieRepository by inject()
+    private val userDataRepository: UserDataRepository by inject()
 
     @BeforeTest
     fun setUp() {
@@ -53,5 +57,15 @@ class InitKoinTest : KoinTest {
     @Test
     fun initKoin_resolves_movieDataSource() {
         assertNotNull(movieDataSource)
+    }
+
+    @Test
+    fun initKoin_resolves_movieRepository() {
+        assertNotNull(movieRepository)
+    }
+
+    @Test
+    fun initKoin_resolves_userDataRepository() {
+        assertNotNull(userDataRepository)
     }
 }
