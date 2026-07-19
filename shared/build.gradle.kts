@@ -109,6 +109,13 @@ kover {
                     "com.shang.jetpackmoviekmp.database",
                     "com.shang.jetpackmoviekmp.database.di",
                     "com.shang.jetpackmoviekmp.database.entity",
+                    // migrate-data-to-commonmain：新增電影資料整合層，以及 commonModule
+                    // 擴充出的共用 CoroutineDispatcher qualifier binding，一併納入覆蓋率範圍。
+                    "com.shang.jetpackmoviekmp.common.di",
+                    "com.shang.jetpackmoviekmp.data.repository",
+                    "com.shang.jetpackmoviekmp.data.paging",
+                    "com.shang.jetpackmoviekmp.data.model",
+                    "com.shang.jetpackmoviekmp.data.di",
                 )
             }
             excludes {

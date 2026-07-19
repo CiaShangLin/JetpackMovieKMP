@@ -1,0 +1,14 @@
+type: feature
+workspace: worktree
+branch: feature/migrate-data-to-commonmain
+base_branch: master
+verify_selected:
+  - junit
+  - kdoc
+  - code-review
+  - mermaid
+verified:
+  - junit
+  - kdoc
+  - code-review
+  - mermaid
