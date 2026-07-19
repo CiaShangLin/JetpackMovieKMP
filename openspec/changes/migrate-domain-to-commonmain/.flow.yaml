@@ -1,4 +1,0 @@
-type: feature
-workspace: worktree
-branch: feature/migrate-domain-to-commonmain
-base_branch: master

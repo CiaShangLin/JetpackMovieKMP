@@ -7,6 +7,11 @@ import com.shang.jetpackmoviekmp.data.repository.UserDataRepository
 import com.shang.jetpackmoviekmp.database.getTestDatabaseBuilder
 import com.shang.jetpackmoviekmp.datastore.InMemoryPreferencesDataStore
 import com.shang.jetpackmoviekmp.datastore.UserPreferenceDataSource
+import com.shang.jetpackmoviekmp.domain.usecase.GetConfigurationUseCase
+import com.shang.jetpackmoviekmp.domain.usecase.GetHistoryMovieListUseCase
+import com.shang.jetpackmoviekmp.domain.usecase.GetHomeMovieListUseCase
+import com.shang.jetpackmoviekmp.domain.usecase.GetMovieDetailUseCase
+import com.shang.jetpackmoviekmp.domain.usecase.GetMovieRecommendUseCase
 import com.shang.jetpackmoviekmp.network.datasource.MovieDataSource
 import org.koin.core.context.stopKoin
 import org.koin.test.KoinTest
@@ -24,6 +29,11 @@ class InitKoinTest : KoinTest {
     private val movieDataSource: MovieDataSource by inject()
     private val movieRepository: MovieRepository by inject()
     private val userDataRepository: UserDataRepository by inject()
+    private val getConfigurationUseCase: GetConfigurationUseCase by inject()
+    private val getHistoryMovieListUseCase: GetHistoryMovieListUseCase by inject()
+    private val getHomeMovieListUseCase: GetHomeMovieListUseCase by inject()
+    private val getMovieDetailUseCase: GetMovieDetailUseCase by inject()
+    private val getMovieRecommendUseCase: GetMovieRecommendUseCase by inject()
 
     @BeforeTest
     fun setUp() {
@@ -67,5 +77,30 @@ class InitKoinTest : KoinTest {
     @Test
     fun initKoin_resolves_userDataRepository() {
         assertNotNull(userDataRepository)
+    }
+
+    @Test
+    fun initKoin_resolves_getConfigurationUseCase() {
+        assertNotNull(getConfigurationUseCase)
+    }
+
+    @Test
+    fun initKoin_resolves_getHistoryMovieListUseCase() {
+        assertNotNull(getHistoryMovieListUseCase)
+    }
+
+    @Test
+    fun initKoin_resolves_getHomeMovieListUseCase() {
+        assertNotNull(getHomeMovieListUseCase)
+    }
+
+    @Test
+    fun initKoin_resolves_getMovieDetailUseCase() {
+        assertNotNull(getMovieDetailUseCase)
+    }
+
+    @Test
+    fun initKoin_resolves_getMovieRecommendUseCase() {
+        assertNotNull(getMovieRecommendUseCase)
     }
 }
