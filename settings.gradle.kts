@@ -1,4 +1,4 @@
-rootProject.name = "JetpackMovieKMP"
+﻿rootProject.name = "JetpackMovieKMP"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {
@@ -30,6 +30,7 @@ dependencyResolutionManagement {
 
 include(":androidApp")
 include(":core:designsystem")
+include(":core:ui")
 include(":shared:app")
 include(":shared:common")
 include(":shared:data")
