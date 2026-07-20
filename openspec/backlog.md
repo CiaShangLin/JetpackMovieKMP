@@ -53,3 +53,29 @@
 
 下一個「首頁 feature 層」或「domain 模組化」相關 change 開始前，可以先翻這則記錄，不需要
 重新推導這些取捨。
+
+## 收斂 shared:data 對底層模組的 api 暴露
+- 類型: refactor
+- 記錄日期: 2026-07-20
+- 分支: feature/modularize-shared-kmp-modules
+- 相關 change: modularize-shared-kmp-modules
+
+### 背景
+
+模組化後 `shared:data` 目前對 `shared:network`、`shared:database`、`shared:datastore`
+使用 `api` 依賴，這能讓上層模組先穩定編譯，但會把 data 層的底層實作依賴以
+transitive API 形式暴露給 `shared:domain` / `shared:app`。
+
+架構上 `shared:domain` 不應直接接觸 network / database / datastore。domain 應只明確依賴
+自己的 public API 真正需要的 `shared:model`、`shared:common`，以及目前 UseCase 回傳型別需要的
+`androidx-paging-common`。
+
+### 後續調整
+
+1. 檢查 `shared:data` public signatures。
+2. 將未出現在 public API 的 `shared:network`、`shared:database`、`shared:datastore`
+   依賴由 `api` 改為 `implementation`。
+3. 確認 `shared:domain` 顯式宣告 `shared:model`、`shared:common`、`androidx-paging-common`
+   等真正需要的依賴，不靠 `shared:data` transitive dependency。
+4. 評估下一步是否把 `MovieRepository` / `UserDataRepository` interface 移到 `shared:domain`，
+   讓依賴方向演進為 `domain -> common/model`、`data -> domain/network/database/datastore`。
