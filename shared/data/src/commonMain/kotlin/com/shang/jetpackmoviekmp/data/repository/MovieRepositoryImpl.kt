@@ -33,7 +33,7 @@ import kotlinx.coroutines.flow.map
  *   `dataModule()` 透過 `commonModule()` 提供的 `CommonDispatcher.IO` qualifier 注入，
  *   測試可直接建構並傳入 test dispatcher，不需要透過 Koin。
  */
-class MovieRepositoryImpl(
+internal class MovieRepositoryImpl(
     private val movieDataSource: MovieDataSource,
     private val movieCollectDao: MovieCollectDao,
     private val movieHistoryDao: MovieHistoryDao,

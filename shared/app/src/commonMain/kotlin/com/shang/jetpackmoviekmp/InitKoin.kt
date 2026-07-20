@@ -12,6 +12,7 @@ import com.shang.jetpackmoviekmp.domain.di.domainModule
 import com.shang.jetpackmoviekmp.network.di.networkModule
 import org.koin.core.context.startKoin
 import org.koin.dsl.KoinAppDeclaration
+import org.koin.dsl.module
 
 /**
  * 兩個平台共用的 Koin 啟動進入點，統一安裝 [commonModule]、[datastoreModule]、[databaseModule]、
@@ -27,7 +28,7 @@ import org.koin.dsl.KoinAppDeclaration
  * @param isDebug 為 `true` 時啟用 network request logging。
  * @param appDeclaration 平台專屬的 Koin 設定（例如 Android 的 `androidContext(this)`）。
  */
-fun initKoin(
+internal fun initKoin(
     dataStore: DataStore<Preferences>,
     databaseBuilder: () -> RoomDatabase.Builder<AppDatabase>,
     isDebug: Boolean,
@@ -42,6 +43,9 @@ fun initKoin(
             networkModule(isDebug = isDebug, provideDefaultLanguageProvider = false),
             dataModule(),
             domainModule(),
+            module {
+                single { AppDiagnostics(getConfigurationUseCase = get(), userDataRepository = get()) }
+            },
         )
     }
 }
@@ -53,7 +57,7 @@ fun initKoin(
  * @param databaseBuilder 建立平台 [RoomDatabase.Builder] 的 lambda（見 `getDatabaseBuilder`）。
  * @param isDebug 為 `true` 時啟用 network request logging。
  */
-fun initKoin(
+internal fun initKoin(
     dataStore: DataStore<Preferences>,
     databaseBuilder: () -> RoomDatabase.Builder<AppDatabase>,
     isDebug: Boolean,

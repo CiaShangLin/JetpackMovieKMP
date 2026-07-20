@@ -1,4 +1,4 @@
-rootProject.name = "JetpackMovieKMP"
+﻿rootProject.name = "JetpackMovieKMP"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {

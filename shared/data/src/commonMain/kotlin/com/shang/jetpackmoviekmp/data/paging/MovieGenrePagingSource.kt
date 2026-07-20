@@ -12,7 +12,7 @@ import kotlinx.coroutines.CancellationException
  * @property movieDataSource 提供 `getDiscoverMovie` 呼叫的網路資料來源。
  * @property withGenres TMDB 類型 id filter，對應 `with_genres` 查詢參數。
  */
-class MovieGenrePagingSource(
+internal class MovieGenrePagingSource(
     private val movieDataSource: MovieDataSource,
     private val withGenres: String,
 ) : PagingSource<Int, MovieCardResult>() {

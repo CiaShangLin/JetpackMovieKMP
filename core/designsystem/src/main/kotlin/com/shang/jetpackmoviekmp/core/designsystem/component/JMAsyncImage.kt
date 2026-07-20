@@ -1,4 +1,4 @@
-package com.shang.jetpackmoviekmp.core.designsystem.component
+﻿package com.shang.jetpackmoviekmp.core.designsystem.component
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -27,6 +27,23 @@ import coil3.compose.AsyncImagePainter.Companion.DefaultTransform
 import coil3.compose.AsyncImagePainter.State
 import com.shang.jetpackmoviekmp.core.designsystem.R
 
+/**
+ * 帶狀態感知的異步圖片載入組件
+ *
+ * @param model 圖片來源 (URL、URI、File等)
+ * @param contentDescription 圖片描述
+ * @param modifier 修飾符
+ * @param transform Coil 圖片狀態轉換器。
+ * @param onState 圖片載入狀態變更時的回呼。
+ * @param alignment 圖片在容器中的對齊方式。
+ * @param contentScale 圖片在容器中的縮放方式。
+ * @param alpha 圖片透明度。
+ * @param colorFilter 圖片顏色濾鏡。
+ * @param filterQuality 圖片縮放濾鏡品質。
+ * @param clipToBounds 是否裁切超出邊界的圖片內容。
+ * @param loadingContent 載入中的自訂內容
+ * @param errorContent 錯誤時的自訂內容
+ */
 @Composable
 fun JMAsyncImage(
     model: Any?,
@@ -49,6 +66,7 @@ fun JMAsyncImage(
         modifier = modifier,
         contentAlignment = Alignment.Center,
     ) {
+        // 主要圖片
         AsyncImage(
             model = model,
             contentDescription = contentDescription,
@@ -66,6 +84,7 @@ fun JMAsyncImage(
             clipToBounds = clipToBounds,
         )
 
+        // 載入中狀態
         AnimatedVisibility(
             visible = imageState.isLoading(),
             enter = fadeIn(),
@@ -74,6 +93,7 @@ fun JMAsyncImage(
             loadingContent()
         }
 
+        // 錯誤狀態
         AnimatedVisibility(
             visible = imageState is State.Error,
             enter = fadeIn(),
@@ -84,8 +104,17 @@ fun JMAsyncImage(
     }
 }
 
+/**
+ * 判斷是否為載入中狀態
+ */
 private fun State.isLoading(): Boolean = this is State.Empty || this is State.Loading
 
+/**
+ * 預設載入中圖片組件
+ *
+ * @param modifier 套用在圖片上的修飾符。
+ * @param size 圖片尺寸，單位為 dp。
+ */
 @Composable
 fun DefaultLoadingImage(
     modifier: Modifier = Modifier,
@@ -99,6 +128,12 @@ fun DefaultLoadingImage(
     )
 }
 
+/**
+ * 預設錯誤圖片組件
+ *
+ * @param modifier 套用在圖片上的修飾符。
+ * @param size 圖片尺寸，單位為 dp。
+ */
 @Composable
 fun DefaultErrorImage(
     modifier: Modifier = Modifier,
