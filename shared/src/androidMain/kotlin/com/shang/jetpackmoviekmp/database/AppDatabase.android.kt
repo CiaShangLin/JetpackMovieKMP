@@ -3,6 +3,7 @@ package com.shang.jetpackmoviekmp.database
 import android.content.Context
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.RoomDatabaseConstructor
 
 /**
  * 建立以 Android app-owned database 目錄為後盾的 [AppDatabase] builder。
