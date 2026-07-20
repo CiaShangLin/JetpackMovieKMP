@@ -1,0 +1,9 @@
+type: feature
+verify_selected:
+  - junit
+  - kdoc
+  - code-review
+verified:
+  - junit
+  - kdoc
+  - code-review
