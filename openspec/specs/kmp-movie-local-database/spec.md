@@ -1,11 +1,8 @@
-# kmp-movie-local-database Specification
+## MODIFIED Requirements
 
-## Purpose
-TBD - created by archiving change migrate-database-to-commonmain. Update Purpose after archive.
-## Requirements
 ### Requirement: Shared 本地電影資料庫
 
-`shared/commonMain` 必須提供 Room-based 本地資料庫，持久化電影收藏（`MovieCollectEntity`）與瀏覽紀錄（`MovieHistoryEntity`），且不得要求建立獨立 Gradle database module。
+`shared/database` 的 `commonMain` MUST 提供 Room-based 本地資料庫，持久化電影收藏（`MovieCollectEntity`）與瀏覽紀錄（`MovieHistoryEntity`）。
 
 #### Scenario: 新增收藏會被持久化
 
@@ -32,23 +29,9 @@ TBD - created by archiving change migrate-database-to-commonmain. Update Purpose
 - **WHEN** 呼叫 `MovieHistoryDao.deleteAllMovies()`
 - **THEN** 後續 `MovieHistoryDao.getAllMovies()` 的 emission 為空 list
 
-### Requirement: 平台感知資料庫建立方式
-
-database implementation 必須在每個支援平台建立/開啟同一個邏輯本地資料庫，並將 platform-specific 檔案路徑邏輯留在 common 業務邏輯之外。
-
-#### Scenario: Android 使用 app-owned database 目錄
-
-- **WHEN** Android 建立 `RoomDatabase.Builder<AppDatabase>`
-- **THEN** 資料庫檔案位於 app-owned database 目錄，且 DI 外部 caller 不需要傳入 raw file paths
-
-#### Scenario: iOS 使用穩定 app document 路徑
-
-- **WHEN** iOS 建立 `RoomDatabase.Builder<AppDatabase>`
-- **THEN** 資料庫檔案使用適合 app restart 的穩定 app-owned document 路徑
-
 ### Requirement: Database Koin module
 
-`shared` MUST 提供 Koin database module，接受一個建立 `RoomDatabase.Builder<AppDatabase>` 的 lambda（只在第一次真正 resolve `AppDatabase` 時才呼叫，維持 Koin `single{}` 的 lazy 語意），並可 resolve `AppDatabase`、`MovieCollectDao`、`MovieHistoryDao`。
+`shared/database` MUST 提供 Koin database module，接受一個建立 `RoomDatabase.Builder<AppDatabase>` 的 lambda（只在第一次真正 resolve `AppDatabase` 時才呼叫，維持 Koin `single{}` 的 lazy 語意），並可 resolve `AppDatabase`、`MovieCollectDao`、`MovieHistoryDao`。
 
 #### Scenario: database module 可解析 AppDatabase
 

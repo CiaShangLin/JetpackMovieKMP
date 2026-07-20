@@ -6,7 +6,10 @@ import androidx.datastore.preferences.core.emptyPreferences
 import kotlinx.coroutines.flow.MutableStateFlow
 
 /**
- * 記憶體內的 [DataStore] 測試替身，避免 commonTest 依賴平台檔案 I/O。
+ * In-memory [DataStore] implementation for unit tests.
+ *
+ * This keeps preference state inside the test process so datastore consumers can
+ * be exercised without touching platform storage.
  */
 class InMemoryPreferencesDataStore : DataStore<Preferences> {
 

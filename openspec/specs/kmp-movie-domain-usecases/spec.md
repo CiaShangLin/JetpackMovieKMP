@@ -1,12 +1,8 @@
-# kmp-movie-domain-usecases Specification
+## MODIFIED Requirements
 
-## Purpose
-TBD - created by archiving change migrate-domain-to-commonmain. Update Purpose after archive.
-
-## Requirements
 ### Requirement: Configuration UseCase 具備快取退回機制
 
-`shared/commonMain` SHALL 提供 `GetConfigurationUseCase`，整合 `MovieRepository.getConfiguration()` 與 `UserDataRepository`：API 成功時寫入本地快取並回傳成功結果；API 失敗時若本地有快取則回傳快取內容視為成功，皆無快取才回傳原始錯誤。
+`shared/domain` 的 `commonMain` SHALL 提供 `GetConfigurationUseCase`，整合 `shared:data` 的 `MovieRepository.getConfiguration()` 與 `UserDataRepository`：API 成功時寫入本地快取並回傳成功結果；API 失敗時若本地有快取則回傳快取內容視為成功，皆無快取才回傳原始錯誤。
 
 #### Scenario: API 呼叫成功時寫入快取並回傳成功
 
@@ -25,7 +21,7 @@ TBD - created by archiving change migrate-domain-to-commonmain. Update Purpose a
 
 ### Requirement: 瀏覽紀錄 UseCase 標記收藏狀態
 
-`shared/commonMain` SHALL 提供 `GetHistoryMovieListUseCase`，合併 `MovieRepository.getAllMovieHistory()` 與 `getCollectedMovieIds()`，將每筆瀏覽紀錄的 `isCollect` 更新為目前實際收藏狀態。
+`shared/domain` 的 `commonMain` SHALL 提供 `GetHistoryMovieListUseCase`，合併 `shared:data` 的 `MovieRepository.getAllMovieHistory()` 與 `getCollectedMovieIds()`，將每筆瀏覽紀錄的 `isCollect` 更新為目前實際收藏狀態。
 
 #### Scenario: 瀏覽紀錄中已收藏的電影標記為 true
 
@@ -39,7 +35,7 @@ TBD - created by archiving change migrate-domain-to-commonmain. Update Purpose a
 
 ### Requirement: 首頁電影清單 UseCase 標記收藏狀態
 
-`shared/commonMain` SHALL 提供 `GetHomeMovieListUseCase`，合併 `MovieRepository.getMovieListPager(withGenres)` 分頁資料與 `getCollectedMovieIds()`，標記每筆分頁電影的 `isCollect`，並依呼叫端提供的 `CoroutineScope` 執行 `cachedIn`。
+`shared/domain` 的 `commonMain` SHALL 提供 `GetHomeMovieListUseCase`，合併 `shared:data` 的 `MovieRepository.getMovieListPager(withGenres)` 分頁資料與 `getCollectedMovieIds()`，標記每筆分頁電影的 `isCollect`，並依呼叫端提供的 `CoroutineScope` 執行 `cachedIn`。
 
 #### Scenario: 分頁電影清單標記收藏狀態
 
@@ -48,7 +44,7 @@ TBD - created by archiving change migrate-domain-to-commonmain. Update Purpose a
 
 ### Requirement: 電影詳情 UseCase 自動寫入瀏覽紀錄
 
-`shared/commonMain` SHALL 提供 `GetMovieDetailUseCase`，呼叫 `MovieRepository.getMovieDetail(movieId)`，成功時額外呼叫 `insertMovieHistory(...)` 寫入瀏覽紀錄。
+`shared/domain` 的 `commonMain` SHALL 提供 `GetMovieDetailUseCase`，呼叫 `shared:data` 的 `MovieRepository.getMovieDetail(movieId)`，成功時額外呼叫 `insertMovieHistory(...)` 寫入瀏覽紀錄。
 
 #### Scenario: 取得詳情成功時寫入瀏覽紀錄
 
@@ -62,7 +58,7 @@ TBD - created by archiving change migrate-domain-to-commonmain. Update Purpose a
 
 ### Requirement: 電影推薦 UseCase 標記收藏狀態
 
-`shared/commonMain` SHALL 提供 `GetMovieRecommendUseCase`，合併 `MovieRepository.getMovieRecommendations(movieId)` 與 `getCollectedMovieIds()`，標記推薦清單中每部電影的 `isCollect`。
+`shared/domain` 的 `commonMain` SHALL 提供 `GetMovieRecommendUseCase`，合併 `shared:data` 的 `MovieRepository.getMovieRecommendations(movieId)` 與 `getCollectedMovieIds()`，標記推薦清單中每部電影的 `isCollect`。
 
 #### Scenario: 推薦清單成功時標記收藏狀態
 
@@ -76,7 +72,7 @@ TBD - created by archiving change migrate-domain-to-commonmain. Update Purpose a
 
 ### Requirement: Domain Koin module
 
-`shared` MUST 提供 Koin `domainModule()`，可解析全部 5 個 UseCase，且不需要任何平台專屬參數（只依賴既有 `dataModule()`／`commonModule()` 已提供的元件）。
+`shared/domain` MUST 提供 Koin `domainModule()`，可解析全部 5 個 UseCase，且不需要任何平台專屬參數（只依賴既有 `shared:data` 的 `dataModule()`／`shared:common` 的 `commonModule()` 已提供的元件）。
 
 #### Scenario: domain module 可解析全部 5 個 UseCase
 
@@ -85,5 +81,5 @@ TBD - created by archiving change migrate-domain-to-commonmain. Update Purpose a
 
 #### Scenario: initKoin 安裝 domainModule
 
-- **WHEN** 呼叫 `initKoin(...)`
+- **WHEN** 呼叫 `shared:app` 提供的 `initKoin(...)`
 - **THEN** 啟動後的 Koin container 可直接 resolve 5 個 UseCase，不需要呼叫端額外安裝其他 module

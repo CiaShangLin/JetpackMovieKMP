@@ -1,12 +1,8 @@
-# kmp-movie-data-repository Specification
+## MODIFIED Requirements
 
-## Purpose
-TBD - created by archiving change migrate-data-to-commonmain. Update Purpose after archive.
-
-## Requirements
 ### Requirement: 電影資料 Repository
 
-`shared/commonMain` SHALL 提供 `MovieRepository`，整合 `MovieDataSource`（TMDB network）與本地資料庫（`MovieCollectDao`／`MovieHistoryDao`），對外提供 configuration、電影類型、電影分頁列表／搜尋、電影詳情／推薦／演員陣容，以及收藏／瀏覽紀錄的讀寫，且不得要求建立獨立 Gradle data module。
+`shared/data` 的 `commonMain` SHALL 提供 `MovieRepository`，整合 `MovieDataSource`（`shared:network`）與本地資料庫（`shared:database` 的 `MovieCollectDao`／`MovieHistoryDao`），對外提供 configuration、電影類型、電影分頁列表／搜尋、電影詳情／推薦／演員陣容，以及收藏／瀏覽紀錄的讀寫。
 
 #### Scenario: 取得 TMDB configuration
 
@@ -45,7 +41,7 @@ TBD - created by archiving change migrate-data-to-commonmain. Update Purpose aft
 
 ### Requirement: 使用者偏好設定 Repository
 
-`shared/commonMain` SHALL 提供 `UserDataRepository`，包裝 `UserPreferenceDataSource`，對外以 `UserData`（configuration、theme、language 的聚合）暴露單一 `Flow`，並提供各別欄位的持久化方法。
+`shared/data` 的 `commonMain` SHALL 提供 `UserDataRepository`，包裝 `shared:datastore` 的 `UserPreferenceDataSource`，對外以 `UserData`（configuration、theme、language 的聚合）暴露單一 `Flow`，並提供各別欄位的持久化方法。
 
 #### Scenario: 觀察使用者偏好設定
 
@@ -69,7 +65,7 @@ TBD - created by archiving change migrate-data-to-commonmain. Update Purpose aft
 
 ### Requirement: Data Koin module
 
-`shared` MUST 提供 Koin `dataModule()`，可解析 `MovieRepository`、`UserDataRepository`，且不需要任何平台專屬參數（只依賴既有 `networkModule`／`databaseModule`／`datastoreModule` 已提供的元件）。
+`shared/data` MUST 提供 Koin `dataModule()`，可解析 `MovieRepository`、`UserDataRepository`，且不需要任何平台專屬參數（只依賴既有 `shared:network` 的 `networkModule`／`shared:database` 的 `databaseModule`／`shared:datastore` 的 `datastoreModule` 已提供的元件）。
 
 #### Scenario: data module 可解析 MovieRepository 與 UserDataRepository
 
@@ -78,5 +74,5 @@ TBD - created by archiving change migrate-data-to-commonmain. Update Purpose aft
 
 #### Scenario: initKoin 安裝 dataModule
 
-- **WHEN** 呼叫 `initKoin(...)`
+- **WHEN** 呼叫 `shared:app` 提供的 `initKoin(...)`
 - **THEN** 啟動後的 Koin container 可直接 resolve `MovieRepository`／`UserDataRepository`，不需要呼叫端額外安裝其他 module
