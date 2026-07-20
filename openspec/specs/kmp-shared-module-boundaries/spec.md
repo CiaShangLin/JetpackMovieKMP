@@ -14,6 +14,8 @@
 ### Requirement: 模組依賴方向由 Gradle project dependency 強制驗證
 子模組間的依賴方向 MUST 對應現有依賴圖：`shared:network`、`shared:datastore` MUST 只依賴 `shared:common`、`shared:model`；`shared:database` MUST 只依賴 `shared:common`、`shared:model`；`shared:data` MUST 依賴 `shared:common`、`shared:model`、`shared:network`、`shared:datastore`、`shared:database`；`shared:domain` MUST 依賴 `shared:common`、`shared:model`、`shared:data`；`shared:app` MUST 依賴全部 8 個子模組（含自身以外的 7 個）。`shared:common`、`shared:model` MUST NOT 依賴任何其他 `shared:*` 子模組。
 
+dependency configuration MUST 反映 public API 暴露程度：只有 public signature 直接需要的 module 或 library 才能使用 `api`；純內部實作依賴 MUST 使用 `implementation`。`shared:app` MUST 作為 Koin composition root / DI facade。它可以依賴全部底層 `shared:*` 子模組來組裝 Koin，但不得因為組裝需要就把所有底層 module 以 transitive API 暴露給 app 使用者。`shared:app` 的 `api` dependency MUST 只限於其 public API 簽名直接出現的型別。
+
 #### Scenario: network 與 datastore 互不依賴
 - **WHEN** 檢查 `shared/network/build.gradle.kts` 與 `shared/datastore/build.gradle.kts` 的 dependencies 區塊
 - **THEN** `shared:network` 的 dependencies 不包含 `projects.shared.datastore`，`shared:datastore` 的 dependencies 不包含 `projects.shared.network`
@@ -29,6 +31,16 @@
 #### Scenario: 循環依賴會導致 Gradle 建置失敗
 - **WHEN** 任兩個 `shared:*` 子模組被錯誤地宣告為互相依賴
 - **THEN** Gradle sync／build MUST 因 circular project dependency 而失敗，而非被靜默忽略
+
+#### Scenario: data 不以 api 暴露底層實作 module
+- **WHEN** 檢查 `shared/data/build.gradle.kts`
+- **THEN** `shared:network`、`shared:database`、`shared:datastore` 使用 `implementation`
+- **AND** `shared:model` 與 `androidx-paging-common` 因 repository public API 需要而使用 `api`
+
+#### Scenario: app 預設不傳遞暴露底層 module
+- **WHEN** 檢查 `shared/app/build.gradle.kts`
+- **THEN** 僅供 Koin module 組裝使用的 `shared:*` dependency 使用 `implementation`
+- **AND** 只有 `shared:app` public API 簽名直接需要的 dependency 可以使用 `api`
 
 ### Requirement: shared:app 是 androidApp 與 iosApp 依賴 shared 邏輯的唯一進入點
 `shared:app` MUST 收斂原本位於 `shared` 根目錄的組裝根邏輯：跨平台 `initKoin(...)` 進入點與 iOS framework 匯出設定（`baseName = "Shared"`）。`androidApp` 與 iOS bridge 專案設定 MUST 只依賴 `:shared:app`，不得直接依賴 `shared:common`、`shared:network` 等底層子模組。
