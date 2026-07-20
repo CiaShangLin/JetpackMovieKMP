@@ -1,1 +1,4 @@
 type: refactor
+workspace: worktree
+branch: refactor/migrate-android-designsystem
+base_branch: master
