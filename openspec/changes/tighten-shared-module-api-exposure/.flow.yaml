@@ -1,1 +1,4 @@
 type: refactor
+workspace: worktree
+branch: refactor/tighten-shared-module-api-exposure
+base_branch: master
