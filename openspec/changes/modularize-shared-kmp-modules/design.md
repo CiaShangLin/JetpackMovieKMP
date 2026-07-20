@@ -9,7 +9,7 @@ common   ← 無內部依賴
 model    ← 無內部依賴
 network  ← common, model（provider 子集額外依賴 datastore，見下方風險）
 datastore← common, model
-database ← model
+database ← common, model
 data     ← common, model, network, datastore, database
 domain   ← common, model, data
 (root)   ← 依賴以上全部，含 InitKoin／iOS framework 匯出／Greeting-Platform 殘留

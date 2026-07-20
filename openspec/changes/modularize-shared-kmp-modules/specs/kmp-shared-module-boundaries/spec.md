@@ -12,7 +12,7 @@
 - **THEN** 每個目錄下都存在各自的 `build.gradle.kts`，且 `shared/` 根目錄下不存在 `build.gradle.kts`
 
 ### Requirement: 模組依賴方向由 Gradle project dependency 強制驗證
-子模組間的依賴方向 MUST 對應現有依賴圖：`shared:network`、`shared:datastore` MUST 只依賴 `shared:common`、`shared:model`；`shared:database` MUST 只依賴 `shared:model`；`shared:data` MUST 依賴 `shared:common`、`shared:model`、`shared:network`、`shared:datastore`、`shared:database`；`shared:domain` MUST 依賴 `shared:common`、`shared:model`、`shared:data`；`shared:app` MUST 依賴全部 8 個子模組（含自身以外的 7 個）。`shared:common`、`shared:model` MUST NOT 依賴任何其他 `shared:*` 子模組。
+子模組間的依賴方向 MUST 對應現有依賴圖：`shared:network`、`shared:datastore` MUST 只依賴 `shared:common`、`shared:model`；`shared:database` MUST 只依賴 `shared:common`、`shared:model`；`shared:data` MUST 依賴 `shared:common`、`shared:model`、`shared:network`、`shared:datastore`、`shared:database`；`shared:domain` MUST 依賴 `shared:common`、`shared:model`、`shared:data`；`shared:app` MUST 依賴全部 8 個子模組（含自身以外的 7 個）。`shared:common`、`shared:model` MUST NOT 依賴任何其他 `shared:*` 子模組。
 
 #### Scenario: network 與 datastore 互不依賴
 - **WHEN** 檢查 `shared/network/build.gradle.kts` 與 `shared/datastore/build.gradle.kts` 的 dependencies 區塊
