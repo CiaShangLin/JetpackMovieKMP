@@ -23,12 +23,12 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            api(projects.shared.common)
             api(projects.shared.model)
-            api(projects.shared.network)
-            api(projects.shared.datastore)
-            api(projects.shared.database)
-            implementation(libs.androidx.paging.common)
+            api(libs.androidx.paging.common)
+            implementation(projects.shared.common)
+            implementation(projects.shared.network)
+            implementation(projects.shared.datastore)
+            implementation(projects.shared.database)
             implementation(libs.coil.network.ktor3)
             implementation(libs.koin.core)
         }

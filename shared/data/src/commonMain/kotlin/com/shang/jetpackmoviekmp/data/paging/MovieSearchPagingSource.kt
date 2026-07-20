@@ -12,7 +12,7 @@ import kotlinx.coroutines.CancellationException
  * @property movieDataSource 提供 `getMovieSearch` 呼叫的網路資料來源。
  * @property query 搜尋關鍵字，對應 TMDB `query` 查詢參數。
  */
-class MovieSearchPagingSource(
+internal class MovieSearchPagingSource(
     private val movieDataSource: MovieDataSource,
     private val query: String,
 ) : PagingSource<Int, MovieCardResult>() {

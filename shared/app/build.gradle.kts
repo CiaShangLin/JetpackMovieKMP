@@ -13,13 +13,6 @@ kotlin {
         iosTarget.binaries.framework {
             baseName = "Shared"
             isStatic = true
-            export(projects.shared.common)
-            export(projects.shared.model)
-            export(projects.shared.datastore)
-            export(projects.shared.network)
-            export(projects.shared.database)
-            export(projects.shared.data)
-            export(projects.shared.domain)
         }
     }
 
@@ -36,14 +29,17 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            api(projects.shared.common)
-            api(projects.shared.model)
-            api(projects.shared.datastore)
-            api(projects.shared.network)
-            api(projects.shared.database)
-            api(projects.shared.data)
-            api(projects.shared.domain)
+            implementation(projects.shared.common)
+            implementation(projects.shared.model)
+            implementation(projects.shared.datastore)
+            implementation(projects.shared.network)
+            implementation(projects.shared.database)
+            implementation(projects.shared.data)
+            implementation(projects.shared.domain)
             implementation(libs.koin.core)
+        }
+        androidMain.dependencies {
+            implementation(libs.koin.android)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

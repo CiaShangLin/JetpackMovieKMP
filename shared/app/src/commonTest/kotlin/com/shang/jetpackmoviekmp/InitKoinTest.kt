@@ -34,6 +34,7 @@ class InitKoinTest : KoinTest {
     private val getHomeMovieListUseCase: GetHomeMovieListUseCase by inject()
     private val getMovieDetailUseCase: GetMovieDetailUseCase by inject()
     private val getMovieRecommendUseCase: GetMovieRecommendUseCase by inject()
+    private val appDiagnostics: AppDiagnostics by inject()
 
     @BeforeTest
     fun setUp() {
@@ -102,5 +103,10 @@ class InitKoinTest : KoinTest {
     @Test
     fun initKoin_resolves_getMovieRecommendUseCase() {
         assertNotNull(getMovieRecommendUseCase)
+    }
+
+    @Test
+    fun initKoin_resolves_appDiagnostics() {
+        assertNotNull(appDiagnostics)
     }
 }

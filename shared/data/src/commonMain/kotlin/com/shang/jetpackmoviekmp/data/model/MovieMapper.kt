@@ -11,7 +11,7 @@ import com.shang.jetpackmoviekmp.model.MovieCardResult
  *
  * @return 對應的 [MovieCollectEntity]，可直接傳給 `MovieCollectDao.insertMovieCollect`。
  */
-fun MovieCardResult.asCollectEntity(): MovieCollectEntity {
+internal fun MovieCardResult.asCollectEntity(): MovieCollectEntity {
     return MovieCollectEntity(
         id = id,
         title = title,
@@ -29,7 +29,7 @@ fun MovieCardResult.asCollectEntity(): MovieCollectEntity {
  *
  * @return 對應的 [MovieHistoryEntity]，可直接傳給 `MovieHistoryDao.insertMovie`。
  */
-fun MovieCardResult.asHistoryEntity(): MovieHistoryEntity {
+internal fun MovieCardResult.asHistoryEntity(): MovieHistoryEntity {
     return MovieHistoryEntity(
         id = id,
         title = title,

@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 /**
  * [UserDataRepository] 的預設實作，包裝 [UserPreferenceDataSource]。
  */
-class UserDataRepositoryImpl(
+internal class UserDataRepositoryImpl(
     private val userPreferenceDataSource: UserPreferenceDataSource,
 ) : UserDataRepository {
     override val userData: Flow<UserData> = userPreferenceDataSource.userData
