@@ -7,6 +7,7 @@ import coil3.PlatformContext
 import coil3.SingletonImageLoader
 import com.shang.jetpackmoviekmp.core.ui.di.uiModule
 import com.shang.jetpackmoviekmp.di.mainModule
+import com.shang.jetpackmoviekmp.feature.home.di.homeModule
 import org.koin.android.ext.android.inject
 import org.koin.core.context.loadKoinModules
 
@@ -18,7 +19,7 @@ class JetpackMovieApplication : Application(), SingletonImageLoader.Factory {
         super.onCreate()
         val isDebug = applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE != 0
         initKoinAndroid(context = this, isDebug = isDebug)
-        loadKoinModules(listOf(uiModule(), mainModule()))
+        loadKoinModules(listOf(uiModule(), mainModule(), homeModule()))
     }
 
     override fun newImageLoader(context: PlatformContext): ImageLoader {
