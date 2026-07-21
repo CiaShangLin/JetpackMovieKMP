@@ -1,1 +1,4 @@
 type: bug-fix
+workspace: branch
+branch: bug-fix/fix-main-activity-reintegration
+base_branch: master
