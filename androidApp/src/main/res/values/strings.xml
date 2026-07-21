@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">JetpackMovieKMP</string>
+    <string name="nav_home">首頁</string>
 </resources>

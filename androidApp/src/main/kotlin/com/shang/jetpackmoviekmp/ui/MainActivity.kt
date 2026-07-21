@@ -40,6 +40,8 @@ import com.shang.jetpackmoviekmp.core.designsystem.theme.PrimaryContainer
 import com.shang.jetpackmoviekmp.core.designsystem.theme.SurfaceVariant
 import com.shang.jetpackmoviekmp.core.ui.ErrorScreen
 import com.shang.jetpackmoviekmp.core.ui.LoadingScreen
+import com.shang.jetpackmoviekmp.feature.home.navigation.HomeKey
+import com.shang.jetpackmoviekmp.feature.home.navigation.homeEntry
 import com.shang.jetpackmoviekmp.model.LanguageMode
 import com.shang.jetpackmoviekmp.model.ThemeMode
 import com.shang.jetpackmoviekmp.navigation.MainNavItem
@@ -221,12 +223,17 @@ fun SuccessScreen(backStack: NavBackStack<NavKey>) {
             }
         },
     ) {
-        // feature module 導入前的暫時骨架：entryProvider 目前只註冊佔位畫面，
-        // 待各分頁 feature module 導入後再依 MainNavItem 補上對應的 NavEntry。
+        // 待各分頁 feature module 導入後再依 MainNavItem 補上對應的 NavEntry，
+        // 尚未導入的分頁一律回退到 PlaceholderScreen。
         NavDisplay(
             backStack = backStack,
             onBack = { backStack.removeLastOrNull() },
-            entryProvider = { navKey -> NavEntry(navKey) { PlaceholderScreen() } },
+            entryProvider = { navKey ->
+                when (navKey) {
+                    HomeKey -> homeEntry(onMovieClick = {}).second
+                    else -> NavEntry(navKey) { PlaceholderScreen() }
+                }
+            },
         )
     }
 }

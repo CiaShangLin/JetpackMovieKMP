@@ -9,6 +9,7 @@
 - 修正錯誤的 import package 路徑，統一改為本專案實際命名空間：`com.shang.jetpackmoviekmp.data.repository.*`、`com.shang.jetpackmoviekmp.model.*`、`com.shang.jetpackmoviekmp.core.ui.*`、`com.shang.jetpackmoviekmp.core.designsystem.*`、`com.shang.jetpackmoviekmp.domain.usecase.GetHomeMovieListUseCase`。
 - 將 `HomeNavigation.kt` 由 classic Navigation Compose（`NavGraphBuilder.composable`、字串路由）改寫為 Navigation3 慣例：定義 `HomeKey : NavKey`，提供 `NavEntry` 建構方式，供 `androidApp` 的 `entryProvider` 與 `NavBackStack` 使用。
 - 在 `androidApp` 接上 `feature:home`：`settings.gradle.kts` 確認 `:feature:home` 已 include（已存在）、`androidApp/build.gradle.kts` 新增 `implementation(projects.feature.home)`、`MainNavItem` 補上 `HOME` 項目、`MainActivity.kt` 的 `entryProvider` 依 `HomeKey` 分派到 `HomeScreen`（取代目前的 `PlaceholderScreen` 佔位邏輯）、`JetpackMovieApplication`／Koin 啟動流程載入新增的 `homeModule()`。
+- 將 `feature/home` 原始碼的 package 由來源專案遺留的 `com.shang.home.*` 統一改為 `com.shang.jetpackmoviekmp.feature.home.*`，對齊 `build.gradle.kts` 既有的 `namespace` 宣告，也對齊 `core/ui`／`core/designsystem` 等既有模組的命名慣例；連帶更新 `androidApp` 對 `HomeKey`／`homeEntry`／`homeModule` 的 import。
 
 ## Capabilities
 

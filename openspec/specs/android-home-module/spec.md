@@ -1,4 +1,10 @@
-## ADDED Requirements
+# android-home-module Specification
+
+## Purpose
+
+定義 `feature/home` 模組遷移至本專案的驗收準則，涵蓋 Gradle 依賴宣告、package/namespace 對齊、Koin DI 注入（取代 Hilt）、Navigation3 導覽整合，以及 `androidApp` 端的實際接線與導覽驗證。
+
+## Requirements
 
 ### Requirement: `feature/home` 模組 MUST 可獨立編譯
 
@@ -22,6 +28,12 @@
 
 - **WHEN** 檢查 `feature/home/src/main/java` 下所有 `.kt` 檔案的 import 陳述式
 - **THEN** MUST NOT 出現 `com.shang.data.`、`com.shang.model.`、`com.shang.designsystem.`、`com.shang.ui.`（不含 `jetpackmoviekmp`）開頭的 import
+
+#### Scenario: `feature/home` 自身原始碼 package 對齊 namespace
+
+- **WHEN** 檢查 `feature/home` 模組 `src/main`／`src/test`／`src/androidTest` 下所有 `.kt` 檔案的 `package` 宣告
+- **THEN** MUST 使用 `com.shang.jetpackmoviekmp.feature.home`（含 `.ui`／`.navigation`／`.di` 子套件）為字首，對齊 `build.gradle.kts` 已宣告的 `namespace = "com.shang.jetpackmoviekmp.feature.home"`
+- **AND** MUST NOT 殘留來源專案遺留的 `com.shang.home.*`（不含 `jetpackmoviekmp` 中綴）
 
 ### Requirement: `HomeViewModel`／`HomeContentViewModel` MUST 透過 Koin 注入
 

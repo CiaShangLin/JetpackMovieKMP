@@ -19,6 +19,7 @@ dependencies {
     implementation(projects.shared.common)
     implementation(projects.shared.domain)
     implementation(projects.shared.data)
+    implementation(projects.feature.home)
 
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.core.ktx)
@@ -38,6 +39,7 @@ dependencies {
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.tooling.preview)
 

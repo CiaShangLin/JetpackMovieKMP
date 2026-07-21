@@ -1,13 +1,18 @@
 package com.shang.jetpackmoviekmp.navigation
 
 import androidx.annotation.StringRes
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.rounded.Home
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation3.runtime.NavKey
+import com.shang.jetpackmoviekmp.R
+import com.shang.jetpackmoviekmp.feature.home.navigation.HomeKey
 
 /**
  * 底部導覽列項目。`key` 對應 Navigation3 的 [NavKey]，取代舊版 `androidx.navigation` 的字串路由。
  *
- * 目前所有項目皆待 feature module 導入後才會補上，故此列舉暫時沒有任何實際成員。
+ * 除 [HOME] 外的其餘項目皆待對應 feature module 導入後才會補上。
  */
 enum class MainNavItem(
     val selectedIcon: ImageVector,
@@ -17,14 +22,14 @@ enum class MainNavItem(
     val key: NavKey,
 ) {
 
-//    HOME(
-//        selectedIcon = Icons.Rounded.Home,
-//        unselectedIcon = Icons.Outlined.Home,
-//        iconTextId = R.string.nav_home,
-//        titleTextId = R.string.nav_home,
-//        route = HOME_ROUTE,
-//    ),
-//
+    HOME(
+        selectedIcon = Icons.Rounded.Home,
+        unselectedIcon = Icons.Outlined.Home,
+        iconTextId = R.string.nav_home,
+        titleTextId = R.string.nav_home,
+        key = HomeKey,
+    ),
+
 //    COLLECT(
 //        selectedIcon = Icons.Rounded.Favorite,
 //        unselectedIcon = Icons.Outlined.Favorite,
