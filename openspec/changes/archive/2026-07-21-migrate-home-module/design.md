@@ -5,7 +5,7 @@
 - 依賴管理：Gradle Version Catalog（`gradle/libs.versions.toml`），無 buildSrc。
 - DI：Koin，每模組一個 `di/*Module.kt`，於 `shared/app`／`androidApp` 的 Koin 啟動流程 `loadKoinModules` 載入（範例：`core/ui` 的 `uiModule()`、`androidApp` 的 `mainModule()`）。
 - Navigation：Navigation3（`androidx.navigation3:navigation3-runtime`／`navigation3-ui`），以 `NavKey`／`NavEntry`／`NavBackStack`／`NavDisplay` 取代 classic `NavHost`／字串路由，`MainActivity.kt`（`f637cd6`）已建立骨架，`entryProvider` 目前只回傳 `PlaceholderScreen`。
-- package 命名空間統一為 `com.shang.jetpackmoviekmp.*`（`core.ui`、`core.designsystem`、`model`、`data.repository`、`domain.usecase`），複製進來的原始碼仍用舊專案的 `com.shang.data.*`／`com.shang.model.*`／`com.shang.designsystem.*`／`com.shang.ui.*`（無 `jetpackmoviekmp` 中綴），且部分 import 已經是新路徑（`HomeContentViewModel` 用 `com.shang.jetpackmoviekmp.*`），呈現不一致狀態，需統一改正。
+- package 命名空間統一為 `com.shang.jetpackmoviekmp.*`（`core.ui`、`core.designsystem`、`model`、`data.repository`、`domain.usecase`），複製進來的原始碼仍用舊專案的 `com.shang.data.*`／`com.shang.model.*`／`com.shang.designsystem.*`／`com.shang.ui.*`（無 `jetpackmoviekmp` 中綴），且部分 import 已經是新路徑（`HomeContentViewModel` 用 `com.shang.jetpackmoviekmp.*`），呈現不一致狀態，需統一改正。`feature/home` 模組自身的原始碼 package 也殘留來源專案的 `com.shang.home.*`，與 `build.gradle.kts` 的 `namespace = "com.shang.jetpackmoviekmp.feature.home"` 不一致，也與 `core/ui`（`com.shang.jetpackmoviekmp.core.ui`）等既有模組的命名慣例不一致，一併改正（見決策 5）。
 
 已確認 `shared/domain` 的 `GetHomeMovieListUseCase`、`shared/data` 的 `MovieRepository.getMovieGenres()`／`insertMovieCollect`／`deleteMovieCollect`、`UserDataRepository` 皆已存在且介面與 `HomeViewModel`／`HomeContentViewModel` 的呼叫方式相符，不需修改 `shared/*` 任何程式碼。
 
@@ -31,7 +31,7 @@
 `HomeContentViewModel` 原本用 `@HiltViewModel(assistedFactory = ...)` + `@AssistedInject` 傳入執行期才知道的 `movieGenre: MovieGenreBean.MovieGenre`。Koin 沒有獨立的 assisted-factory 機制，改用 Koin 原生的參數注入：
 
 ```kotlin
-// feature/home/src/main/java/com/shang/home/di/HomeModule.kt
+// feature/home/src/main/java/com/shang/jetpackmoviekmp/feature/home/di/HomeModule.kt
 fun homeModule() = module {
     viewModel {
         HomeViewModel(userDataRepository = get(), movieRepository = get())
@@ -65,11 +65,11 @@ viewModel: HomeContentViewModel = koinViewModel(
 比照 `MainActivity.kt` 的 `PlaceholderKey : NavKey` 慣例，`HomeNavigation.kt` 改為：
 
 ```kotlin
-package com.shang.home.navigation
+package com.shang.jetpackmoviekmp.feature.home.navigation
 
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavKey
-import com.shang.home.ui.HomeScreen
+import com.shang.jetpackmoviekmp.feature.home.ui.HomeScreen
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -83,6 +83,11 @@ fun homeEntry(onMovieClick: (Int) -> Unit): Pair<NavKey, NavEntry<NavKey>> =
 
 ### 4. `androidApp` 依賴新增而非 `feature/home` 反向依賴
 `androidApp/build.gradle.kts` 新增 `implementation(projects.feature.home)`（比照 `projects.core.ui`／`projects.core.designsystem` 既有寫法），維持既有的「上層 app 組裝、下層模組不知道彼此」依賴方向；`feature/home` 不會意識到 `androidApp` 或 `MainNavItem` 的存在。
+
+### 5. `feature/home` 原始碼 package 統一為 `com.shang.jetpackmoviekmp.feature.home`
+來源專案的 `com.shang.home.*` 只是巧合沿用，與本模組 `build.gradle.kts` 已宣告的 `namespace = "com.shang.jetpackmoviekmp.feature.home"` 本來就不一致（AGP 允許 namespace 與程式碼 package 不同名，但會造成命名混淆）。比照 `core/ui`（`com.shang.jetpackmoviekmp.core.ui`）、`core/designsystem`（`com.shang.jetpackmoviekmp.core.designsystem`）的既有慣例，將 `ui`／`navigation`／`di` 三個子套件與對應資料夾（`src/main`、`src/test`、`src/androidTest`）一併搬到 `com/shang/jetpackmoviekmp/feature/home/` 下，`androidApp` 端引用 `HomeKey`／`homeEntry`／`homeModule` 的 import 隨之更新。純機械性重新命名，不改變任何行為。
+
+**替代方案考慮**：曾考慮維持 `com.shang.home.*` 不變（改動範圍較小），但會讓這是專案裡唯一一個「namespace 與程式碼 package 不同」的模組，之後新增 feature module 時容易複製到錯誤慣例；改用統一慣例對長期可維護性較好，故選擇重新命名。
 
 ## Risks / Trade-offs
 
