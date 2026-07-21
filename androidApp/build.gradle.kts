@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 kotlin {
@@ -14,16 +15,23 @@ dependencies {
     implementation(projects.core.designsystem)
     implementation(projects.shared.app)
     implementation(projects.core.ui)
+    implementation(projects.shared.model)
+    implementation(projects.shared.common)
+    implementation(projects.shared.domain)
+    implementation(projects.shared.data)
 
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.core.splashscreen)
     implementation(libs.koin.android)
     implementation(libs.koin.compose)
+    implementation(libs.koin.compose.viewmodel)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.navigation3.runtime)
     implementation(libs.androidx.navigation3.ui)
+    implementation(libs.kotlinx.serialization.core)
     implementation(libs.androidx.paging.runtime)
     implementation(libs.androidx.paging.compose)
     implementation(libs.coil.compose)
@@ -34,6 +42,10 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
 
     debugImplementation(libs.androidx.compose.ui.tooling)
+
+    testImplementation(libs.kotlin.test)
+    testImplementation(libs.kotlin.test.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
 }
 
 android {
