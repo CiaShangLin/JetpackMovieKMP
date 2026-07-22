@@ -46,14 +46,7 @@ import com.shang.jetpackmoviekmp.model.LanguageMode
 import com.shang.jetpackmoviekmp.model.ThemeMode
 import com.shang.jetpackmoviekmp.navigation.MainNavItem
 import com.shang.jetpackmoviekmp.utils.LanguageSettingUtils
-import kotlinx.serialization.Serializable
 import org.koin.compose.viewmodel.koinViewModel
-
-/**
- * feature module 導入前的暫時佔位畫面，作為 [rememberNavBackStack] 的 start key。
- */
-@Serializable
-private data object PlaceholderKey : NavKey
 
 class MainActivity : ComponentActivity() {
 
@@ -77,7 +70,7 @@ class MainActivity : ComponentActivity() {
             }
 
             LanguageProvider(languageMode = userData.languageMode) {
-                val backStack = rememberNavBackStack(PlaceholderKey)
+                val backStack = rememberNavBackStack(HomeKey)
                 ThemeProvider(
                     themeMode = userData.themeMode,
                     activity = this@MainActivity,
