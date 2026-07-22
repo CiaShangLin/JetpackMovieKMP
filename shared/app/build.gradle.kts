@@ -13,6 +13,9 @@ kotlin {
         iosTarget.binaries.framework {
             baseName = "Shared"
             isStatic = true
+
+            export(projects.shared.common)
+            export(projects.shared.model)
         }
     }
 
@@ -29,8 +32,8 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            implementation(projects.shared.common)
-            implementation(projects.shared.model)
+            api(projects.shared.common)
+            api(projects.shared.model)
             implementation(projects.shared.datastore)
             implementation(projects.shared.network)
             implementation(projects.shared.database)
