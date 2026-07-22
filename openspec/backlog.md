@@ -80,7 +80,7 @@ transitive API 形式暴露給 `shared:domain` / `shared:app`。
 4. 評估下一步是否把 `MovieRepository` / `UserDataRepository` interface 移到 `shared:domain`，
    讓依賴方向演進為 `domain -> common/model`、`data -> domain/network/database/datastore`。
 
-## 添加 KMP-NativeCoroutines 函式庫
+## 添加 SKIE 函式庫
 - 類型: feature
 - 記錄日期: 2026-07-22
 - 來源: master
@@ -88,8 +88,10 @@ transitive API 形式暴露給 `shared:domain` / `shared:app`。
 - 狀態: 待處理
 
 目前 iOS 端為原生 SwiftUI，消費 `shared` 模組的 Kotlin Flow / coroutines 介面不便，之後需要
-導入 KMP-NativeCoroutines 函式庫，讓 Swift 端能以原生 async/await 或 Combine 消費 Flow，
-改善跨平台非同步 API 的互通性。
+導入 SKIE（Touchlab 出品的 Kotlin 編譯器 plugin），讓 suspend function 自動對應 Swift 原生
+async/await、Flow 自動對應 AsyncSequence、sealed class 對應 Swift enum，且無需手動加
+wrapper／annotation，改善跨平台非同步 API 的互通性。導入前需確認 SKIE 版本與專案 Kotlin
+2.4.0 的相容性。
 
 ## 在 shared iosMain 層新增 KoinHelper 供 iOS 端使用
 - 類型: feature
