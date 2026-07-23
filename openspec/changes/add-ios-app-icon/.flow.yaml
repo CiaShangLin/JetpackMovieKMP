@@ -1,1 +1,4 @@
 type: feature
+workspace: branch
+branch: feature/add-ios-app-icon
+base_branch: master
