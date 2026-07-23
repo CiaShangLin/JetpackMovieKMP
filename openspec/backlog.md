@@ -202,7 +202,7 @@ UI 語言與 API 語言狀態不一致。
 - 記錄日期: 2026-07-23
 - 來源: ios-splash-rewrite（實作中發現）
 - 前置依賴: 無
-- 狀態: 待處理
+- 狀態: 已處理（add-ios-lint-formatting）
 
 目前專案已有 Kotlin / Android 端 `ktlintCheck` 與 `ktlintFormat`，但 iOS Swift 程式碼尚未
 建立對應的 lint 與自動排版流程。後續需要評估導入 SwiftFormat / SwiftLint，決定規則檔、

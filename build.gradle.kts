@@ -70,16 +70,22 @@ subprojects {
     }
 }
 
-fun requireCommand(command: String, installHint: String) {
-    val isWindows = System.getProperty("os.name").lowercase().contains("windows")
-    val process = if (isWindows) {
-        ProcessBuilder("cmd", "/c", "where $command")
-    } else {
-        ProcessBuilder("sh", "-c", "command -v $command")
-    }.redirectErrorStream(true).start()
+fun toolCommand(command: String, installHint: String, vararg args: String): List<String> {
+    val missingMessage = "Missing required command `$command`. $installHint"
+    val commandWithArgs = listOf(command, *args).joinToString(" ")
 
-    if (process.waitFor() != 0) {
-        throw GradleException("Missing required command `$command`. $installHint")
+    return if (System.getProperty("os.name").lowercase().contains("windows")) {
+        listOf(
+            "cmd",
+            "/c",
+            "where $command >NUL 2>NUL || (echo $missingMessage && exit /b 1) && $commandWithArgs",
+        )
+    } else {
+        listOf(
+            "sh",
+            "-c",
+            "command -v $command >/dev/null 2>&1 || { echo '$missingMessage'; exit 1; }; $commandWithArgs",
+        )
     }
 }
 
@@ -90,10 +96,15 @@ tasks.register<Exec>("iosFormat") {
     description = "Format iOS Swift code with SwiftFormat"
 
     workingDir = rootDir
-    doFirst {
-        requireCommand("swiftformat", "Install SwiftFormat: brew install swiftformat")
-    }
-    commandLine("swiftformat", iosSwiftSourcePath, "--config", ".swiftformat")
+    commandLine(
+        toolCommand(
+            "swiftformat",
+            "Install SwiftFormat: brew install swiftformat",
+            iosSwiftSourcePath,
+            "--config",
+            ".swiftformat",
+        ),
+    )
 }
 
 tasks.register<Exec>("iosFormatCheck") {
@@ -101,10 +112,16 @@ tasks.register<Exec>("iosFormatCheck") {
     description = "Check iOS Swift formatting with SwiftFormat"
 
     workingDir = rootDir
-    doFirst {
-        requireCommand("swiftformat", "Install SwiftFormat: brew install swiftformat")
-    }
-    commandLine("swiftformat", "--lint", iosSwiftSourcePath, "--config", ".swiftformat")
+    commandLine(
+        toolCommand(
+            "swiftformat",
+            "Install SwiftFormat: brew install swiftformat",
+            "--lint",
+            iosSwiftSourcePath,
+            "--config",
+            ".swiftformat",
+        ),
+    )
 }
 
 tasks.register<Exec>("iosLint") {
@@ -112,10 +129,15 @@ tasks.register<Exec>("iosLint") {
     description = "Lint iOS Swift code with SwiftLint"
 
     workingDir = rootDir
-    doFirst {
-        requireCommand("swiftlint", "Install SwiftLint: brew install swiftlint")
-    }
-    commandLine("swiftlint", "lint", "--config", ".swiftlint.yml")
+    commandLine(
+        toolCommand(
+            "swiftlint",
+            "Install SwiftLint: brew install swiftlint",
+            "lint",
+            "--config",
+            ".swiftlint.yml",
+        ),
+    )
 }
 
 tasks.register("iosCodeStyleCheck") {

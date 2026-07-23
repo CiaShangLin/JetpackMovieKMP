@@ -1,5 +1,5 @@
-import SwiftUI
 import Shared
+import SwiftUI
 
 struct SplashView: View {
     @State
@@ -43,7 +43,7 @@ struct SplashView: View {
             ProgressView("載入中")
         case .success:
             ProgressView("準備完成")
-        case .failure(let error):
+        case let .failure(error):
             VStack(spacing: 12) {
                 Text(error)
                     .font(.body)
