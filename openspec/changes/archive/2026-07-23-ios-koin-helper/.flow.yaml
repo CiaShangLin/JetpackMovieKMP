@@ -2,3 +2,4 @@ type: feature
 workspace: worktree
 branch: feature/ios-koin-helper
 base_branch: master
+verify_selected: []
