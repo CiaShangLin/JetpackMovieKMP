@@ -69,3 +69,80 @@ subprojects {
         dependsOn(ktlintFormat, ktlintCheck)
     }
 }
+
+fun toolCommand(command: String, installHint: String, vararg args: String): List<String> {
+    val missingMessage = "Missing required command `$command`. $installHint"
+    val commandWithArgs = listOf(command, *args).joinToString(" ")
+
+    return if (System.getProperty("os.name").lowercase().contains("windows")) {
+        listOf(
+            "cmd",
+            "/c",
+            "where $command >NUL 2>NUL || (echo $missingMessage && exit /b 1) && $commandWithArgs",
+        )
+    } else {
+        listOf(
+            "sh",
+            "-c",
+            "command -v $command >/dev/null 2>&1 || { echo '$missingMessage'; exit 1; }; $commandWithArgs",
+        )
+    }
+}
+
+val iosSwiftSourcePath = "iosApp/iosApp"
+
+tasks.register<Exec>("iosFormat") {
+    group = LifecycleBasePlugin.VERIFICATION_GROUP
+    description = "Format iOS Swift code with SwiftFormat"
+
+    workingDir = rootDir
+    commandLine(
+        toolCommand(
+            "swiftformat",
+            "Install SwiftFormat: brew install swiftformat",
+            iosSwiftSourcePath,
+            "--config",
+            ".swiftformat",
+        ),
+    )
+}
+
+tasks.register<Exec>("iosFormatCheck") {
+    group = LifecycleBasePlugin.VERIFICATION_GROUP
+    description = "Check iOS Swift formatting with SwiftFormat"
+
+    workingDir = rootDir
+    commandLine(
+        toolCommand(
+            "swiftformat",
+            "Install SwiftFormat: brew install swiftformat",
+            "--lint",
+            iosSwiftSourcePath,
+            "--config",
+            ".swiftformat",
+        ),
+    )
+}
+
+tasks.register<Exec>("iosLint") {
+    group = LifecycleBasePlugin.VERIFICATION_GROUP
+    description = "Lint iOS Swift code with SwiftLint"
+
+    workingDir = rootDir
+    commandLine(
+        toolCommand(
+            "swiftlint",
+            "Install SwiftLint: brew install swiftlint",
+            "lint",
+            "--config",
+            ".swiftlint.yml",
+        ),
+    )
+}
+
+tasks.register("iosCodeStyleCheck") {
+    group = LifecycleBasePlugin.VERIFICATION_GROUP
+    description = "Check iOS Swift formatting and lint"
+
+    dependsOn("iosFormatCheck", "iosLint")
+}

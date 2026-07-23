@@ -1,0 +1,39 @@
+included:
+  - iosApp/iosApp
+
+excluded:
+  - iosApp/iosApp.xcodeproj
+  - iosApp/iosApp/Assets.xcassets
+  - iosApp/iosApp/Preview Content
+  - build
+  - .gradle
+
+disabled_rules:
+  - trailing_whitespace
+  - vertical_whitespace
+  - opening_brace
+  - colon
+  - comma
+
+opt_in_rules:
+  - empty_count
+  - force_unwrapping
+  - implicitly_unwrapped_optional
+
+line_length:
+  warning: 120
+  error: 160
+
+type_body_length:
+  warning: 300
+  error: 500
+
+function_body_length:
+  warning: 80
+  error: 120
+
+identifier_name:
+  min_length:
+    warning: 2
+  excluded:
+    - id

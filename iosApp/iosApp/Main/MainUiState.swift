@@ -1,5 +1,5 @@
-enum MainUiState{
-    case Loading
-    case Success
-    case Failure
+enum MainUiState {
+    case loading
+    case success
+    case failure
 }

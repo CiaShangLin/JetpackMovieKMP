@@ -2,7 +2,7 @@ import Shared
 import SwiftUI
 
 @main
-struct iOSApp: App {
+struct IosApp: App {
     @State
     private var isSplashFinished = false
 
@@ -25,8 +25,7 @@ struct iOSApp: App {
     }
 }
 
-private extension iOSApp {
-
+private extension IosApp {
     static var networkLoggingEnabled: Bool {
         let value = ProcessInfo.processInfo.environment["JM_DEBUG_NETWORK"]?.lowercased()
 
@@ -39,9 +38,9 @@ private extension iOSApp {
         }
 
         #if DEBUG
-        return true
+            return true
         #else
-        return false
+            return false
         #endif
     }
 }

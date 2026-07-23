@@ -32,14 +32,30 @@ Package namespace：`com.shang.jetpackmoviekmp`。版本統一管理於 `gradle/
 ./gradlew ktlintCheck
 ./gradlew ktlintFormat
 
+# iOS Swift lint / 自動格式化（需安裝 SwiftFormat、SwiftLint）
+./gradlew iosFormat
+./gradlew iosFormatCheck
+./gradlew iosLint
+./gradlew iosCodeStyleCheck
+
 # 覆蓋率驗證（data、network 模組有 80% 下限規則）
 ./gradlew :shared:data:koverVerify :shared:network:koverVerify
 
-# 完整驗證（含 ktlint）
+# 完整驗證（含 ktlint；不含 iOS Swift lint）
 ./gradlew check
 ```
 
+Windows PowerShell 使用：
+
+```powershell
+.\gradlew.bat iosFormat
+.\gradlew.bat iosFormatCheck
+.\gradlew.bat iosLint
+.\gradlew.bat iosCodeStyleCheck
+```
+
 注意：`preBuild` 已掛上 `ktlintFormat` + `ktlintCheck`，任何建置都會先跑 ktlint，格式錯誤會直接讓建置失敗。
+iOS Swift code style tasks 需要本機安裝 `swiftformat` 與 `swiftlint`；第一版未掛入 root `check` 或 Android `preBuild`，避免 Windows / Android-only 環境因缺少 Swift 工具而被阻塞。Windows 環境若未安裝 Swift 工具，至少需確認錯誤訊息能清楚指出缺少的工具；完整 iOS style check 建議在 macOS 與 Swift tooling 完整環境執行。
 
 ## API 金鑰設定
 

@@ -44,9 +44,17 @@ Swap `:shared:data` for any other shared module (`network`, `domain`, `database`
 
 - `./gradlew ktlintCheck` / `./gradlew ktlintFormat` — Kotlin code style check/format (also runs
   automatically before every build via `preBuild`).
-- `./gradlew check` — full verification, including ktlint.
+- `./gradlew iosFormat` — format iOS Swift code with SwiftFormat.
+- `./gradlew iosFormatCheck` — check iOS Swift formatting without modifying files.
+- `./gradlew iosLint` — lint iOS Swift code with SwiftLint.
+- `./gradlew iosCodeStyleCheck` — run iOS Swift format check and lint.
+- `./gradlew check` — full Kotlin/Android verification, including ktlint.
 - `shared/data` and `shared/network` enforce an 80% minimum test coverage via Kover
   (`./gradlew :shared:data:koverVerify :shared:network:koverVerify`).
+
+iOS Swift code style tasks require `swiftformat` and `swiftlint` to be installed. Windows environments
+may only be able to verify that missing-tool errors are reported clearly; run the full iOS style check
+on a macOS machine with the Swift tooling installed.
 
 ### API key setup
 
