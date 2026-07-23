@@ -1,1 +1,4 @@
 type: feature
+workspace: branch
+branch: feature/ios-splash-rewrite
+base_branch: master
