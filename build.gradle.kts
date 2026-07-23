@@ -69,3 +69,58 @@ subprojects {
         dependsOn(ktlintFormat, ktlintCheck)
     }
 }
+
+fun requireCommand(command: String, installHint: String) {
+    val isWindows = System.getProperty("os.name").lowercase().contains("windows")
+    val process = if (isWindows) {
+        ProcessBuilder("cmd", "/c", "where $command")
+    } else {
+        ProcessBuilder("sh", "-c", "command -v $command")
+    }.redirectErrorStream(true).start()
+
+    if (process.waitFor() != 0) {
+        throw GradleException("Missing required command `$command`. $installHint")
+    }
+}
+
+val iosSwiftSourcePath = "iosApp/iosApp"
+
+tasks.register<Exec>("iosFormat") {
+    group = LifecycleBasePlugin.VERIFICATION_GROUP
+    description = "Format iOS Swift code with SwiftFormat"
+
+    workingDir = rootDir
+    doFirst {
+        requireCommand("swiftformat", "Install SwiftFormat: brew install swiftformat")
+    }
+    commandLine("swiftformat", iosSwiftSourcePath, "--config", ".swiftformat")
+}
+
+tasks.register<Exec>("iosFormatCheck") {
+    group = LifecycleBasePlugin.VERIFICATION_GROUP
+    description = "Check iOS Swift formatting with SwiftFormat"
+
+    workingDir = rootDir
+    doFirst {
+        requireCommand("swiftformat", "Install SwiftFormat: brew install swiftformat")
+    }
+    commandLine("swiftformat", "--lint", iosSwiftSourcePath, "--config", ".swiftformat")
+}
+
+tasks.register<Exec>("iosLint") {
+    group = LifecycleBasePlugin.VERIFICATION_GROUP
+    description = "Lint iOS Swift code with SwiftLint"
+
+    workingDir = rootDir
+    doFirst {
+        requireCommand("swiftlint", "Install SwiftLint: brew install swiftlint")
+    }
+    commandLine("swiftlint", "lint", "--config", ".swiftlint.yml")
+}
+
+tasks.register("iosCodeStyleCheck") {
+    group = LifecycleBasePlugin.VERIFICATION_GROUP
+    description = "Check iOS Swift formatting and lint"
+
+    dependsOn("iosFormatCheck", "iosLint")
+}
