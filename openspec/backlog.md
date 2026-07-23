@@ -148,3 +148,27 @@ commit（無害但會累積）；且文件是直接 push 到 master、沒經過 
 
 尚未決定是否要改，待評估團隊是否需要「規劃文件也走 PR 審查」或「不想在 master 留下
 未實作的孤兒 commit」，之後有需要再回頭處理 `flow-discuss`／`flow-apply` 這兩個 skill。
+
+## 評估 Swift 友善的 Flow Result 匯出模型
+- 類型: refactor
+- 記錄日期: 2026-07-23
+- 來源: add-skie（實作驗證中發現）
+- 前置依賴: add-skie
+- 狀態: 待處理
+
+### 背景
+
+`add-skie` 導入 SKIE 後，`GetMovieDetailUseCase.invoke(movieId:)` 已可在 Swift 端以
+`for await` 迭代，SKIE 產生的 apinotes 顯示其回傳型別為 `SkieKotlinFlow<id>`。
+這代表 `Flow<Result<MovieDetailBean>>` 的 `Flow` 互通已成立，但 `kotlin.Result<T>` 的
+泛型成功/失敗語意在 Swift 端被 type erase 成 `Any`，無法以 Swift 型別系統直接辨識
+`Result.success(MovieDetailBean)` 與 `Result.failure(Throwable)`。
+
+### 後續調整
+
+1. 評估是否新增 Swift 友善的 sealed class / data class，例如 `MovieDetailResult`，避免直接匯出
+   `kotlin.Result<T>`。
+2. 若維持既有 UseCase 簽名，評估在 `shared/app` 或 `iosMain` 增加專供 Swift 消費的 wrapper，
+   將 `Result<T>` 轉成可被 SKIE 匯出為 Swift enum / class hierarchy 的型別。
+3. 補 iOS 端整合測試或 Xcode smoke test，實際覆蓋成功 movieId 與失敗 movieId，確認不只
+   `for await` 可編譯，也能在 runtime 明確區分成功與失敗。
