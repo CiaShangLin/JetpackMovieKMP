@@ -2,3 +2,5 @@ type: feature
 workspace: branch
 branch: feature/add-skie
 base_branch: master
+verify_selected: []
+verified: []
