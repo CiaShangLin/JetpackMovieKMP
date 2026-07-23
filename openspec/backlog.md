@@ -112,3 +112,39 @@ object KoinHelper : KoinComponent {
 供 Swift 端以 `KoinHelper.shared.xxx()` 的形式取得 Koin 注入的實例。目前 `iosApp` 尚未有任何
 `KoinHelper` 或 `koin.get<` 相關程式碼，這是全新要補上的部分，與 [[首頁 feature 層消費 domain
 UseCase 的架構設計]] 這則備忘錄中提到的 iOS 端 Koin↔Swift 橋接需求相關。
+
+## 評估 flow-discuss 討論產物改為跟隨分支/worktree commit
+- 類型: refactor
+- 記錄日期: 2026-07-23
+- 來源: master
+- 前置依賴: 無
+- 狀態: 待處理
+
+### 背景
+
+目前 `flow-discuss` 收尾時會直接把討論產物（`openspec/changes/<name>/` 底下的
+proposal/design/tasks/`.flow.yaml`）commit + push 到當前所在分支（通常是 master），
+之後 `flow-apply` 才從該分支（記錄為 `base_branch`）切出 feature branch 或建立 worktree。
+
+使用者提出疑問：討論文件是否該改成 commit 在 feature branch/worktree 裡，而不是先進 master。
+
+### 目前結論
+
+現況設計是必要的、非疏漏：`flow-apply` 第一步要讀取當前分支上已存在的 `.flow.yaml` 的
+`type` 欄位才能決定分支前綴（沒指定 change 名稱時還要用 `openspec list --json` 列出可選項），
+這個檔案必須先存在於目前分支才找得到；而 `flow-apply` 的前置檢查又會在工作目錄有未提交變更時
+直接停下詢問，因此討論產物必須先在 master commit 乾淨，flow-apply 才能順利往下走。
+
+這個設計的好處是討論產物像 RFC 一樣先落地到 master，任何分支都能看到目前有哪些 change
+在規劃中。取捨則是：change 若被放棄，master 會留下一個「文件已存在但功能沒做」的孤兒
+commit（無害但會累積）；且文件是直接 push 到 master、沒經過 PR 審查，跟後續實作的 PR
+是分開審查的。
+
+若之後要改成「文件也跟著分支/worktree 走」，需要同時修改 `flow-discuss`（討論完不 push，
+留在工作目錄）與 `flow-apply`（改成先建分支/worktree，再把未提交的文件一起 commit 上去），
+且會跟 flow-apply 現有「有未提交變更就停下詢問」的規則衝突，需要一併調整判斷邏輯。
+
+### 適用範圍
+
+尚未決定是否要改，待評估團隊是否需要「規劃文件也走 PR 審查」或「不想在 master 留下
+未實作的孤兒 commit」，之後有需要再回頭處理 `flow-discuss`／`flow-apply` 這兩個 skill。
