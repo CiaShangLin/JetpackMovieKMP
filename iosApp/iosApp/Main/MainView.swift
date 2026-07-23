@@ -3,7 +3,9 @@ import Shared
 
 struct MainView: View {
 
-    @State private var mainViewModel = MainViewModel()
+    @State private var mainViewModel = MainViewModel(
+        userDataRepository: KoinHelper.shared.userDataRepository()
+    )
     let bean:MovieGenreBean = MovieGenreBean(
         genres: [
             MovieGenreBean.MovieGenre(id: 1, name: "Gen"),

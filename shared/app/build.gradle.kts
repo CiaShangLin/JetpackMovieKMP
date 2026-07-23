@@ -16,6 +16,8 @@ kotlin {
 
             export(projects.shared.common)
             export(projects.shared.model)
+            export(projects.shared.data)
+            export(projects.shared.domain)
         }
     }
 
@@ -37,8 +39,8 @@ kotlin {
             implementation(projects.shared.datastore)
             implementation(projects.shared.network)
             implementation(projects.shared.database)
-            implementation(projects.shared.data)
-            implementation(projects.shared.domain)
+            api(projects.shared.data)
+            api(projects.shared.domain)
             implementation(libs.koin.core)
         }
         androidMain.dependencies {
