@@ -172,3 +172,72 @@ commit（無害但會累積）；且文件是直接 push 到 master、沒經過 
    將 `Result<T>` 轉成可被 SKIE 匯出為 Swift enum / class hierarchy 的型別。
 3. 補 iOS 端整合測試或 Xcode smoke test，實際覆蓋成功 movieId 與失敗 movieId，確認不只
    `for await` 可編譯，也能在 runtime 明確區分成功與失敗。
+
+## 評估 commonMain 通用 AppResult / AppError 取代跨 iOS 匯出的 Kotlin Result
+- 類型: refactor
+- 記錄日期: 2026-07-23
+- 來源: ios-splash-rewrite（實作中發現）
+- 前置依賴: 無
+- 狀態: 待處理
+
+### 背景
+
+`ios-splash-rewrite` 除錯確認：SKIE 可以讓 Swift 端正常以 `for await` 消費 `Flow`，
+但 `Flow<Result<ConfigurationBean>>` 迭代出的元素在 Swift runtime 會是
+`Optional(Success(ConfigurationBean(...)))` 這類 Kotlin `Result` boxed value，而不是
+`ConfigurationBean` 本體，因此 Swift 端用 `as? ConfigurationBean` 無法判斷成功。
+
+本次 Splash 先用 `shared/app` iosMain 的 `IosConfigurationLoader` 作為局部 wrapper，
+在 Kotlin 端把 `Result<ConfigurationBean>` 拆成 `IosConfigurationLoadState.Success/Failure`
+後再匯出給 Swift。這是最小修正，但不應每個 UseCase 都各自手寫一次 bridge。
+
+### 後續調整
+
+1. 評估在 `commonMain` 定義通用 sealed result，例如：
+   ```kotlin
+   sealed interface AppResult<out T> {
+       data class Success<T>(val data: T) : AppResult<T>
+       data class Failure(val error: AppError) : AppResult<Nothing>
+   }
+   ```
+2. 不要把所有錯誤都硬轉成 `NetworkException`。`NetworkException` 應維持只代表 network
+   request 流程中的錯誤；若要做跨 UseCase 的通用錯誤模型，應另定義更高階的 `AppError` /
+   `DomainError`，例如 `Network(NetworkException)`、`Database`、`LocalStorage`、`Unknown`。
+3. 長期可評估讓 domain UseCase 從 `Flow<Result<T>>` 漸進改成 `Flow<AppResult<T>>`，
+   讓 Android / common / iOS 都消費同一組明確狀態；短期仍可保留局部 iosMain wrapper，
+   避免在目前 change 中擴大重構範圍。
+
+## iOS 端導入統一 App Log 機制
+- 類型: feature
+- 記錄日期: 2026-07-23
+- 來源: ios-splash-rewrite（實作中發現）
+- 前置依賴: 無
+- 狀態: 待處理
+
+iOS 端目前除錯主要靠 `print`、Xcode console 與 Ktor network logging。後續需要規劃一套
+App log 機制，讓 Swift / shared bridge / network 相關訊息能以一致格式輸出，並能依 Debug /
+Release 或環境變數動態控制開關，避免正式版輸出過多敏感或雜訊 log。
+
+## iOS 端多國語言設置
+- 類型: feature
+- 記錄日期: 2026-07-23
+- 來源: ios-splash-rewrite（實作中發現）
+- 前置依賴: 無
+- 狀態: 待處理
+
+iOS SwiftUI 畫面目前仍直接寫固定文案，例如 Splash 的「載入中」、「準備完成」、「重試」與
+錯誤訊息。後續需要補 iOS 端 localization 設置，評估使用 `Localizable.strings` /
+String Catalog，並與 shared 層既有語言設定、TMDB API `language` 參數的來源協調，避免
+UI 語言與 API 語言狀態不一致。
+
+## iOS 端 lint 與自動排版流程
+- 類型: refactor
+- 記錄日期: 2026-07-23
+- 來源: ios-splash-rewrite（實作中發現）
+- 前置依賴: 無
+- 狀態: 待處理
+
+目前專案已有 Kotlin / Android 端 `ktlintCheck` 與 `ktlintFormat`，但 iOS Swift 程式碼尚未
+建立對應的 lint 與自動排版流程。後續需要評估導入 SwiftFormat / SwiftLint，決定規則檔、
+Xcode build phase 或 CLI 驗證指令，並把常用指令補到專案文件，讓 Swift 檔案格式與風格能
+穩定檢查。

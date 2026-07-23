@@ -1,6 +1,7 @@
 package com.shang.jetpackmoviekmp
 
 import com.shang.jetpackmoviekmp.data.repository.UserDataRepository
+import com.shang.jetpackmoviekmp.domain.usecase.GetConfigurationUseCase
 import com.shang.jetpackmoviekmp.domain.usecase.GetMovieDetailUseCase
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
@@ -16,6 +17,10 @@ import org.koin.core.component.get
  * 物件；需要依賴的物件不得在內部直接呼叫 `KoinHelper`。
  */
 object KoinHelper : KoinComponent {
+
+    fun getConfigurationUseCase(): GetConfigurationUseCase = getKoin().get()
+
+    fun getConfigurationLoader(): IosConfigurationLoader = IosConfigurationLoader(getKoin().get())
 
     /**
      * 解析使用者偏好設定 repository，作為 iOS 端新增 accessor 的命名範例。
