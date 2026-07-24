@@ -92,15 +92,3 @@ commit（無害但會累積）；且文件是直接 push 到 master、沒經過 
 iOS 端目前除錯主要靠 `print`、Xcode console 與 Ktor network logging。後續需要規劃一套
 App log 機制，讓 Swift / shared bridge / network 相關訊息能以一致格式輸出，並能依 Debug /
 Release 或環境變數動態控制開關，避免正式版輸出過多敏感或雜訊 log。
-
-## iOS 端多國語言設置
-- 類型: feature
-- 記錄日期: 2026-07-23
-- 來源: ios-splash-rewrite（實作中發現）
-- 前置依賴: 無
-- 狀態: 待處理
-
-iOS SwiftUI 畫面目前仍直接寫固定文案，例如 Splash 的「載入中」、「準備完成」、「重試」與
-錯誤訊息。後續需要補 iOS 端 localization 設置，評估使用 `Localizable.strings` /
-String Catalog，並與 shared 層既有語言設定、TMDB API `language` 參數的來源協調，避免
-UI 語言與 API 語言狀態不一致。
