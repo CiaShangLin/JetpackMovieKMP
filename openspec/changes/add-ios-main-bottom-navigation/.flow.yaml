@@ -1,1 +1,4 @@
 type: feature
+workspace: branch
+branch: feature/add-ios-main-bottom-navigation
+base_branch: master
