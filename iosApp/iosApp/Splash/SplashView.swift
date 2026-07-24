@@ -40,16 +40,16 @@ struct SplashView: View {
     private var content: some View {
         switch viewModel.uiState {
         case .loading:
-            ProgressView("載入中")
+            ProgressView("splash_loading")
         case .success:
-            ProgressView("準備完成")
-        case let .failure(error):
+            ProgressView("splash_ready")
+        case .failure:
             VStack(spacing: 12) {
-                Text(error)
+                Text("splash_error_message")
                     .font(.body)
                     .multilineTextAlignment(.center)
 
-                Button("重試") {
+                Button("splash_retry_button") {
                     Task {
                         await viewModel.retry()
 

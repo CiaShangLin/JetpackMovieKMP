@@ -22,6 +22,7 @@ final class SplashViewModel {
 
     func loadConfiguration() async {
         uiState = .loading
+        de
         for await state in configurationLoader.invoke() {
             if let success = state as? IosConfigurationLoadStateSuccess {
                 uiState = .success(data: success.data)
@@ -29,15 +30,15 @@ final class SplashViewModel {
             }
 
             if let failure = state as? IosConfigurationLoadStateFailure {
-                uiState = .failure(error: failure.message)
+                uiState = .failure(debugMessage: failure.message)
                 return
             }
 
-            uiState = .failure(error: "載入失敗，請稍後再試")
+            uiState = .failure(debugMessage: "Unknown IosConfigurationLoadState variant")
             return
         }
 
-        uiState = .failure(error: "載入失敗，請稍後再試")
+        uiState = .failure(debugMessage: "Configuration load flow completed without emitting a state")
     }
 
     func retry() async {
