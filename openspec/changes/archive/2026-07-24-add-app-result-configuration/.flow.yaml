@@ -2,3 +2,7 @@ type: feature
 workspace: branch
 branch: feature/add-app-result-configuration
 base_branch: master
+verify_selected:
+  - code-review
+verified:
+  - code-review

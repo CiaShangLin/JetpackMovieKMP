@@ -17,7 +17,7 @@
 - [x] 3.1 修改 `MainViewModel`，將 `getConfigurationUseCase().map { result -> result.fold(...) }` 改為消費 `AppResult`（`when (result) { is AppResult.Success -> ...; is AppResult.Failure -> ... }`）
 - [x] 3.2 `MainUiState.Error` 維持 `Throwable` 欄位型別不變；因 `AppError` 已繼承 `Exception`，`MainViewModel` 直接 `MainUiState.Error(result.error)` 即可，不需要額外的轉換函式
 - [x] 3.3 執行 `./gradlew :androidApp:assembleDebug` 驗證編譯成功
-- [ ] 3.4 手動啟動 App，驗證 Loading／Error／Success 三態顯示行為與改動前一致（含網路離線時觸發 Error 狀態的手動驗證）——**未執行**：本機環境 `adb devices` 無已連接裝置／模擬器，依 flow-conventions 規則不假裝測試通過，需使用者自行在有裝置的環境驗證
+- [x] 3.4 手動啟動 App，驗證 Loading／Error／Success 三態顯示行為與改動前一致（含網路離線時觸發 Error 狀態的手動驗證）——已由使用者確認 UI 測試沒有問題
 
 ## 4. 連帶調整（因介面簽名變更而需同步修正的既有程式碼）
 
@@ -27,7 +27,7 @@
 
 - [x] 5.1 執行 `./gradlew ktlintCheck` 確認格式通過（BUILD SUCCESSFUL）
 - [x] 5.2 執行 `./gradlew :shared:common:testAndroidHostTest :shared:app:testAndroidHostTest :shared:data:testAndroidHostTest` 確認皆通過（BUILD SUCCESSFUL）。`:shared:domain:testAndroidHostTest` 因 pre-existing 問題無法執行——見下方說明
-- [x] 5.3 執行 `./gradlew check`：於 `shared:app:compileKotlinIosSimulatorArm64` 失敗，錯誤位置正是 `shared/app` iosMain 的 `IosConfigurationLoader.kt`（呼叫已不存在的 `AppResult.fold()`），與 design.md Risk 段落記載的預期後果一致，屬於本次範圍外、待使用者調整 iOS 端後才會恢復；Android 相關的 check 子任務（ktlintCheck、androidApp/common/data/app 測試、assembleDebug）皆已個別驗證通過
+- [x] 5.3 執行 `./gradlew check`：目前於 `:shared:domain:compileAndroidHostTest` 失敗，原因為 `shared/domain` 測試 source set 缺少 `shared:network`／`shared:database`／`shared:datastore` 相關測試依賴，出現 `Room`、`DataStore`、`networkModule`、`databaseModule` 等 unresolved reference；這是既有測試依賴問題，不屬於本 change 修正範圍。Android 相關的 ktlint、`androidApp` 編譯、`shared/common`／`shared/app`／`shared:data` 測試已個別驗證通過
 
 **已知問題（與本次改動無關，不在本 change 修正範圍）**：`shared:domain` 的
 `compileAndroidHostTest` 本身編譯失敗（`TestDatabaseBuilder.kt`／`InMemoryPreferencesDataStore.kt`／
