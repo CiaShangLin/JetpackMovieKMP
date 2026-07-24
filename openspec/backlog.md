@@ -82,13 +82,42 @@ commit（無害但會累積）；且文件是直接 push 到 master、沒經過 
 5. 補 iOS 端整合測試或 Xcode smoke test，實際覆蓋成功與失敗案例，確認不只 `for await`
    可編譯，也能在 runtime 明確區分成功與失敗。
 
-## iOS 端導入統一 App Log 機制
+## 統一改用 Kermit 作為 KMP 跨平台 Logger
+
 - 類型: feature
-- 記錄日期: 2026-07-23
-- 來源: ios-splash-rewrite（實作中發現）
+- 記錄日期: 2026-07-24
+- 來源: master（討論中決定）
 - 前置依賴: 無
 - 狀態: 待處理
 
-iOS 端目前除錯主要靠 `print`、Xcode console 與 Ktor network logging。後續需要規劃一套
-App log 機制，讓 Swift / shared bridge / network 相關訊息能以一致格式輸出，並能依 Debug /
-Release 或環境變數動態控制開關，避免正式版輸出過多敏感或雜訊 log。
+### 背景
+
+原本規劃在 `shared/commonMain` 自訂 `AppLogger` 介面，DI 初始化時注入是否 debug，
+底層實際 Logger 物件由 Android/iOS 各自提供實作。討論中發現 iOS 端有個關鍵限制：
+Swift 的 `os.Logger`（unified logging）是 Swift struct，不能被 Kotlin/Native cinterop
+呼叫，若堅持自訂介面，iOS 端需要讓 Swift 實作 Kotlin 匯出的介面、再透過 `InitKoinIos`
+注入，設計上多一層複雜度。
+
+進一步調查 KMP 生態系後發現 [Kermit](https://kermit.touchlab.co/docs/)（Touchlab 維護，
+社群事實標準）已經解決這個問題：其 `platformLogWriter()` 提供的 `OSLogWriter` 是直接從
+Kotlin/Native 透過 cinterop 呼叫 C 版 `os_log` API（非 Swift `Logger` struct），支援
+`subsystem`／`category`／`publicLogging`，Android 對應 Logcat，兩端都能在 Kotlin 這層
+直接完成，不需要 Swift 端注入實作。Kermit 也有 `Logger.setMinSeverity(...)` 可在初始化
+時依 debug/release 設定 log 門檻，對應原本「DI 注入是否 debug」的需求。
+
+### 結論
+
+不再自建 `AppLogger` 介面，改為導入 Kermit 作為統一的 KMP logging 方案。
+
+### 後續調整
+
+1. 在 `shared/common`（或依規模評估獨立模組）導入 Kermit 依賴，設定 `platformLogWriter()`。
+2. 依 build type／環境變數在初始化時設定 `Logger.setMinSeverity(...)`，取代原本自訂的
+   debug flag 注入設計。
+3. 棄用現有 iOS-only 的 `OSAppLogger.swift`／`AppLog.swift`（`ios-unified-app-logger`
+   change 產物），改由 Kermit 的 `OSLogWriter` 取代，注意其 subsystem/category 設定是否
+   涵蓋原本客製的 os.Logger level mapping 需求。
+4. 評估是否要把 Ktor client 的 network logging 也接進 Kermit，讓 network log 與其他
+   app log 走同一套輸出格式。
+5. 讓 `shared/data`、`shared/domain` 現有錯誤處理路徑（Repository catch block 等）開始
+   使用 Kermit 記錄 log，這是原本 iOS-only 方案做不到的部分。
