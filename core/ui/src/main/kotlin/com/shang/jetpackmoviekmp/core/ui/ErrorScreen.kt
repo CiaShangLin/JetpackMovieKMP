@@ -16,6 +16,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.shang.jetpackmoviekmp.common.AppError
 import com.shang.jetpackmoviekmp.common.NetworkException
 
 @Composable
@@ -58,6 +59,8 @@ fun ErrorScreen(
  */
 fun Throwable.toErrorText(): Int {
     return when (this) {
+        is AppError.Network -> exception.toErrorText()
+        is AppError.Unknown -> R.string.default_error_text
         is NetworkException.HttpError -> when (httpCode) {
             in 400..499 -> R.string.server_error_text
             in 500..599 -> R.string.server_error_text

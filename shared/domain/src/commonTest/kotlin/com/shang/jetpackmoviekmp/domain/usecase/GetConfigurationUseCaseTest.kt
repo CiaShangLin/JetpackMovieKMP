@@ -1,5 +1,7 @@
 package com.shang.jetpackmoviekmp.domain.usecase
 
+import com.shang.jetpackmoviekmp.common.AppError
+import com.shang.jetpackmoviekmp.common.AppResult
 import com.shang.jetpackmoviekmp.domain.FakeMovieRepository
 import com.shang.jetpackmoviekmp.domain.FakeUserDataRepository
 import com.shang.jetpackmoviekmp.model.ConfigurationBean
@@ -11,7 +13,7 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
+import kotlin.test.assertIs
 
 class GetConfigurationUseCaseTest {
 
@@ -35,7 +37,7 @@ class GetConfigurationUseCaseTest {
 
         val result = useCase(movieRepository, userDataRepository).invoke().first()
 
-        assertEquals(Result.success(configuration), result)
+        assertEquals(AppResult.Success(configuration), result)
         assertEquals(configuration, userDataRepository.userData.first().configuration)
     }
 
@@ -51,8 +53,8 @@ class GetConfigurationUseCaseTest {
 
         val result = useCase(movieRepository, userDataRepository).invoke().first()
 
-        assertTrue(result.isSuccess)
-        assertEquals(cachedConfiguration, result.getOrNull())
+        val success = assertIs<AppResult.Success<ConfigurationBean>>(result)
+        assertEquals(cachedConfiguration, success.data)
     }
 
     @Test
@@ -67,7 +69,7 @@ class GetConfigurationUseCaseTest {
 
         val result = useCase(movieRepository, userDataRepository).invoke().first()
 
-        assertTrue(result.isFailure)
-        assertEquals(error, result.exceptionOrNull())
+        val failure = assertIs<AppResult.Failure>(result)
+        assertEquals(AppError.Unknown, failure.error)
     }
 }

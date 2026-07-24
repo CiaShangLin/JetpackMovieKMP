@@ -20,8 +20,6 @@ object KoinHelper : KoinComponent {
 
     fun getConfigurationUseCase(): GetConfigurationUseCase = getKoin().get()
 
-    fun getConfigurationLoader(): IosConfigurationLoader = IosConfigurationLoader(getKoin().get())
-
     /**
      * 解析使用者偏好設定 repository，作為 iOS 端新增 accessor 的命名範例。
      */

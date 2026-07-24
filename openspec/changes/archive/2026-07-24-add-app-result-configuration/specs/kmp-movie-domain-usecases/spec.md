@@ -6,15 +6,15 @@
 
 #### Scenario: API 呼叫成功時寫入快取並回傳成功
 
-- **WHEN** 呼叫 `GetConfigurationUseCase()` 且 `MovieRepository.getConfiguration()` 回傳 `AppResult.Success(configuration)`
+- **WHEN** 呼叫 `GetConfigurationUseCase()` 且 `MovieRepository.getConfiguration()` 回傳 `Result.success(configuration)`
 - **THEN** `UserDataRepository.setConfiguration(configuration)` 被呼叫，且回傳的 `Flow` emit `AppResult.Success(configuration)`
 
 #### Scenario: API 呼叫失敗但本地有快取時退回快取
 
-- **WHEN** 呼叫 `GetConfigurationUseCase()` 且 `MovieRepository.getConfiguration()` 回傳 `AppResult.Failure(...)`，`UserDataRepository.userData` 目前的 configuration 不為 null
+- **WHEN** 呼叫 `GetConfigurationUseCase()` 且 `MovieRepository.getConfiguration()` 回傳 `Result.failure(...)`，`UserDataRepository.userData` 目前的 configuration 不為 null
 - **THEN** 回傳的 `Flow` emit `AppResult.Success(cachedConfiguration)`
 
 #### Scenario: API 呼叫失敗且本地無快取時回傳原始錯誤
 
-- **WHEN** 呼叫 `GetConfigurationUseCase()` 且 `MovieRepository.getConfiguration()` 回傳 `AppResult.Failure(error)`，`UserDataRepository.userData` 目前的 configuration 為 null
-- **THEN** 回傳的 `Flow` emit `AppResult.Failure(error)`
+- **WHEN** 呼叫 `GetConfigurationUseCase()` 且 `MovieRepository.getConfiguration()` 回傳 `Result.failure(error)`，`UserDataRepository.userData` 目前的 configuration 為 null
+- **THEN** 回傳的 `Flow` emit `AppResult.Failure(error.toAppError())`

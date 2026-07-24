@@ -1,5 +1,7 @@
 package com.shang.jetpackmoviekmp.domain.usecase
 
+import com.shang.jetpackmoviekmp.common.AppResult
+import com.shang.jetpackmoviekmp.common.toAppError
 import com.shang.jetpackmoviekmp.data.repository.MovieRepository
 import com.shang.jetpackmoviekmp.data.repository.UserDataRepository
 import com.shang.jetpackmoviekmp.model.ConfigurationBean
@@ -30,10 +32,14 @@ class GetConfigurationUseCase(
      * 成功時將結果寫入本地快取後回傳；失敗時若本地已有快取的 configuration，
      * 視為成功回傳快取內容，皆無快取才回傳原始錯誤。
      *
-     * @return configuration 的 [Flow]，成功（含退回快取的情況）為 [Result.success]，
-     *   失敗且無快取為 [Result.failure]
+     * 這裡是實際會被 iOS 端透過 `KoinHelper` 呼叫的邊界，因此把 [MovieRepository] 內部
+     * 使用的 `kotlin.Result<T>` 轉換為可被 SKIE 明確匯出成 Swift enum 的 [AppResult]；
+     * [MovieRepository] 本身不需要跟著改動。
+     *
+     * @return configuration 的 [Flow]，成功（含退回快取的情況）為 [AppResult.Success]，
+     *   失敗且無快取為 [AppResult.Failure]
      */
-    operator fun invoke(): Flow<Result<ConfigurationBean>> =
+    operator fun invoke(): Flow<AppResult<ConfigurationBean>> =
         // 從 repository 發出 Configuration 的遠端請求
         movieRepository.getConfiguration()
             .transform { result ->
@@ -41,16 +47,16 @@ class GetConfigurationUseCase(
                     onSuccess = {
                         // API 成功，將設定資料寫入本地快取（DataStore）
                         userDataRepository.setConfiguration(it)
-                        emit(Result.success(it))
+                        emit(AppResult.Success(it))
                     },
                     onFailure = {
                         val config = userDataRepository.userData.firstOrNull()?.configuration
                         if (config != null) {
                             // 若有快取資料，則回傳 Success 狀態給 UI
-                            emit(Result.success(config))
+                            emit(AppResult.Success(config))
                         } else {
                             // 若沒有快取資料，則回傳原本的錯誤
-                            emit(Result.failure(it))
+                            emit(AppResult.Failure(it.toAppError()))
                         }
                     },
                 )
