@@ -22,7 +22,7 @@ final class SplashViewModel {
 
     func loadConfiguration() async {
         uiState = .loading
-        de
+
         for await state in configurationLoader.invoke() {
             if let success = state as? IosConfigurationLoadStateSuccess {
                 uiState = .success(data: success.data)

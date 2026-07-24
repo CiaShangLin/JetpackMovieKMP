@@ -41,15 +41,16 @@ private extension IosApp {
 
 ```swift
 protocol AppLogger {
-    func debug(_ message: @autoclosure () -> String, category: String)
-    func info(_ message: @autoclosure () -> String, category: String)
-    func warning(_ message: @autoclosure () -> String, category: String)
-    func error(_ message: @autoclosure () -> String, category: String)
+    func debug(_ category: String, _ message: @autoclosure () -> String)
+    func info(_ category: String, _ message: @autoclosure () -> String)
+    func warning(_ category: String, _ message: @autoclosure () -> String)
+    func error(_ category: String, _ message: @autoclosure () -> String)
 }
 ```
 
 - 方法對應 debug/info/warning/error 四個 level，對齊 backlog 提到「一致格式輸出」的需求；不額外做到 Android 常見的 verbose/assert 等更細分 level，避免過度設計。
 - `message` 用 `@autoclosure` 延遲字串組裝，`isDebug = false` 時可略過昂貴的字串插值運算。
+- 參數順序為 `(category, message)`，對齊 Android `Log.d(TAG, message)` 的慣例，讓熟悉 Android 開發的成員能沿用相同的呼叫直覺。
 - `category` 讓呼叫端標註來源（例如 `"network"`、`"lifecycle"`），對應 `os.Logger` 原生的 category 概念，方便未來篩選。
 
 **替代方案考量**：曾考慮直接用 Kotlin/Native 端定義 `expect`/`actual` 的共用 Logger 介面，但使用者已明確要求「先只做 Swift 端原生封裝」，且目前沒有共用需求，強行做 expect/actual 會超出本次範圍，故不採用。
