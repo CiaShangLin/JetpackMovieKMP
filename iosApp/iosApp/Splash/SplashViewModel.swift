@@ -25,12 +25,12 @@ final class SplashViewModel {
 
         for await result in getConfigurationUseCase.invoke() {
             switch onEnum(of: result) {
-            case .success(let success):
+            case let .success(success):
                 uiState = .success(data: success.data as! ConfigurationBean)
                 return
-            case .failure(let failure):
+            case let .failure(failure):
                 switch onEnum(of: failure.error) {
-                case .network(let network):
+                case let .network(network):
                     uiState = .failure(
                         debugMessage: network.exception.message ?? "網路錯誤，請稍後再試"
                     )
@@ -42,8 +42,7 @@ final class SplashViewModel {
         }
 
         uiState = .failure(
-            debugMessage:
-                "Configuration load flow completed without emitting a state"
+            debugMessage: "Configuration load flow completed without emitting a state"
         )
     }
 
