@@ -12,26 +12,26 @@ struct OSAppLogger: AppLogger {
         self.subsystem = subsystem
     }
 
-    func debug(_ message: @autoclosure () -> String, category: String) {
+    func debug(_ category: String, _ message: @autoclosure () -> String) {
         // isDebug = false 時提早 return，message() 完全不會被呼叫，避免付出組字串的成本
         guard isDebug else { return }
         let resolvedMessage = message()
         logger(category: category).debug("\(resolvedMessage, privacy: .public)")
     }
 
-    func info(_ message: @autoclosure () -> String, category: String) {
+    func info(_ category: String, _ message: @autoclosure () -> String) {
         // 同上：提早 return 讓 @autoclosure 包住的字串插值不會被求值
         guard isDebug else { return }
         let resolvedMessage = message()
         logger(category: category).info("\(resolvedMessage, privacy: .public)")
     }
 
-    func warning(_ message: @autoclosure () -> String, category: String) {
+    func warning(_ category: String, _ message: @autoclosure () -> String) {
         let resolvedMessage = message()
         logger(category: category).warning("\(resolvedMessage, privacy: .public)")
     }
 
-    func error(_ message: @autoclosure () -> String, category: String) {
+    func error(_ category: String, _ message: @autoclosure () -> String) {
         let resolvedMessage = message()
         logger(category: category).error("\(resolvedMessage, privacy: .public)")
     }

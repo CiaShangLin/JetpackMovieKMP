@@ -4,8 +4,8 @@
 /// 但字串插值實際上不會在呼叫當下求值，而是延遲到實作內部呼叫 `message()` 時才執行。
 /// 這讓 `isDebug == false` 時可以在組字串前就 `return`，避免白白付出組字串的成本。
 protocol AppLogger {
-    func debug(_ message: @autoclosure () -> String, category: String)
-    func info(_ message: @autoclosure () -> String, category: String)
-    func warning(_ message: @autoclosure () -> String, category: String)
-    func error(_ message: @autoclosure () -> String, category: String)
+    func debug(_ category: String, _ message: @autoclosure () -> String)
+    func info(_ category: String, _ message: @autoclosure () -> String)
+    func warning(_ category: String, _ message: @autoclosure () -> String)
+    func error(_ category: String, _ message: @autoclosure () -> String)
 }
