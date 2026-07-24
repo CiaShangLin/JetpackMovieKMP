@@ -7,7 +7,7 @@ struct IosApp: App {
     private var isSplashFinished = false
 
     init() {
-        InitKoinIosKt.doInitKoinIos(isDebug: Self.networkLoggingEnabled)
+        InitKoinIosKt.doInitKoinIos(isDebug: AppDebugFlag.isDebugLoggingEnabled)
     }
 
     var body: some Scene {
@@ -22,25 +22,5 @@ struct IosApp: App {
                 }
             }
         }
-    }
-}
-
-private extension IosApp {
-    static var networkLoggingEnabled: Bool {
-        let value = ProcessInfo.processInfo.environment["JM_DEBUG_NETWORK"]?.lowercased()
-
-        if ["1", "true", "yes"].contains(value) {
-            return true
-        }
-
-        if ["0", "false", "no"].contains(value) {
-            return false
-        }
-
-        #if DEBUG
-            return true
-        #else
-            return false
-        #endif
     }
 }
