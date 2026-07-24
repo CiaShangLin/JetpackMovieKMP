@@ -1,6 +1,7 @@
 package com.shang.jetpackmoviekmp
 
 import androidx.paging.PagingData
+import com.shang.jetpackmoviekmp.common.AppResult
 import com.shang.jetpackmoviekmp.data.repository.MovieRepository
 import com.shang.jetpackmoviekmp.data.repository.UserDataRepository
 import com.shang.jetpackmoviekmp.domain.usecase.GetConfigurationUseCase
@@ -46,7 +47,7 @@ class AppDiagnosticsTest {
 
         // Then
         assertEquals(
-            expected = Result.success(configuration).toString(),
+            expected = AppResult.Success(configuration).toString(),
             actual = summary,
             message = "應回傳 configuration use case 的結果摘要",
         )

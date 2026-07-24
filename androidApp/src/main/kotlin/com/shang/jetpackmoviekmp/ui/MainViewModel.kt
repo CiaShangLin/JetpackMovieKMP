@@ -2,6 +2,7 @@ package com.shang.jetpackmoviekmp.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.shang.jetpackmoviekmp.common.AppResult
 import com.shang.jetpackmoviekmp.data.repository.UserDataRepository
 import com.shang.jetpackmoviekmp.domain.usecase.GetConfigurationUseCase
 import com.shang.jetpackmoviekmp.model.UserData
@@ -28,10 +29,10 @@ class MainViewModel(
         .flatMapLatest {
             getConfigurationUseCase()
                 .map { result ->
-                    result.fold(
-                        onSuccess = { MainUiState.Success(it) },
-                        onFailure = { MainUiState.Error(it) },
-                    )
+                    when (result) {
+                        is AppResult.Success -> MainUiState.Success(result.data)
+                        is AppResult.Failure -> MainUiState.Error(result.error)
+                    }
                 }
                 .onStart { emit(MainUiState.Loading) }
         }

@@ -4,7 +4,7 @@ import SwiftUI
 struct SplashView: View {
     @State
     private var viewModel = SplashViewModel(
-        configurationLoader: KoinHelper.shared.getConfigurationLoader()
+        getConfigurationUseCase: KoinHelper.shared.getConfigurationUseCase()
     )
 
     @State

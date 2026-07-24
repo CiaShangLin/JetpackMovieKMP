@@ -26,4 +26,8 @@
 
 #### Scenario: AppError 定義位於 common，本次只包含 Network 與 Unknown
 - **WHEN** 解析 `com.shang.jetpackmoviekmp.common.AppError`
-- **THEN** 該型別存在於 `shared:common` 模組，為 `sealed interface AppError`，包含 `Network(val exception: NetworkException)` 與 `Unknown` 兩個子型別；不包含 `Database`／`LocalStorage` 等本次尚無實際呼叫路徑驗證的分類
+- **THEN** 該型別存在於 `shared:common` 模組，為 `sealed class AppError : Exception`，包含 `Network(val exception: NetworkException)` 與 `Unknown` 兩個子型別；不包含 `Database`／`LocalStorage` 等本次尚無實際呼叫路徑驗證的分類
+
+#### Scenario: AppError 繼承 Exception，呼叫端可直接當 Throwable 使用
+- **WHEN** 檢查 `com.shang.jetpackmoviekmp.common.AppError` 的宣告
+- **THEN** `AppError` MUST 繼承 `kotlin.Exception`（而非單純 `sealed interface`），使呼叫端可直接把 `AppError` 實例當作 `Throwable` 持有（例如 `androidApp` 的 `MainUiState.Error(val throwable: Throwable)`），不需要額外的轉換函式；`AppError.Network` 的 `cause` MUST 等於其攜帶的 `NetworkException`

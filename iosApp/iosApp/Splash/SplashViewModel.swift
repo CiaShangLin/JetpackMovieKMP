@@ -4,7 +4,7 @@ import Shared
 @Observable
 @MainActor
 final class SplashViewModel {
-    private let configurationLoader: IosConfigurationLoader
+    private let getConfigurationUseCase: GetConfigurationUseCase
 
     private(set) var uiState: SplashUiState = .loading
 
@@ -16,29 +16,35 @@ final class SplashViewModel {
         return false
     }
 
-    init(configurationLoader: IosConfigurationLoader) {
-        self.configurationLoader = configurationLoader
+    init(getConfigurationUseCase: GetConfigurationUseCase) {
+        self.getConfigurationUseCase = getConfigurationUseCase
     }
 
     func loadConfiguration() async {
         uiState = .loading
 
-        for await state in configurationLoader.invoke() {
-            if let success = state as? IosConfigurationLoadStateSuccess {
-                uiState = .success(data: success.data)
+        for await result in getConfigurationUseCase.invoke() {
+            switch onEnum(of: result) {
+            case .success(let success):
+                uiState = .success(data: success.data as! ConfigurationBean)
+                return
+            case .failure(let failure):
+                switch onEnum(of: failure.error) {
+                case .network(let network):
+                    uiState = .failure(
+                        debugMessage: network.exception.message ?? "網路錯誤，請稍後再試"
+                    )
+                case .unknown:
+                    uiState = .failure(debugMessage: "發生未知錯誤")
+                }
                 return
             }
-
-            if let failure = state as? IosConfigurationLoadStateFailure {
-                uiState = .failure(debugMessage: failure.message)
-                return
-            }
-
-            uiState = .failure(debugMessage: "Unknown IosConfigurationLoadState variant")
-            return
         }
 
-        uiState = .failure(debugMessage: "Configuration load flow completed without emitting a state")
+        uiState = .failure(
+            debugMessage:
+                "Configuration load flow completed without emitting a state"
+        )
     }
 
     func retry() async {
