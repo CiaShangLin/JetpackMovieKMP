@@ -1,1 +1,4 @@
 type: feature
+workspace: branch
+branch: feature/add-ios-home-movie-list
+base_branch: master
