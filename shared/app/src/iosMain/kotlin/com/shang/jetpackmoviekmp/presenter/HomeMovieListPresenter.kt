@@ -1,7 +1,7 @@
 package com.shang.jetpackmoviekmp.presenter
 
-import androidx.paging.CombinedLoadStates
 import androidx.paging.ItemSnapshotList
+import androidx.paging.LoadState
 import com.shang.jetpackmoviekmp.domain.usecase.GetHomeMovieListUseCase
 import com.shang.jetpackmoviekmp.model.MovieCardResult
 import kotlinx.coroutines.CoroutineDispatcher
@@ -9,8 +9,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.launch
 
 /**
@@ -55,8 +55,22 @@ class HomeMovieListPresenter(
     /** 建立新一代 `PagingSource`，對應下拉刷新。 */
     fun refresh() = pagingDataPresenter.refresh()
 
-    /** 觀察 refresh／prepend／append 的載入中／失敗／完成狀態。 */
-    val loadStateFlow: StateFlow<CombinedLoadStates?> get() = pagingDataPresenter.loadStateFlow
+    /**
+     * 觀察 refresh／append 的載入中／失敗／完成狀態。
+     *
+     * 內部把 `androidx.paging.LoadState`／`CombinedLoadStates` 轉成 [HomeMovieListLoadStates]
+     * 再暴露出去，因為前者是第三方依賴型別，未列在 iOS framework 的 `export()` 清單內，
+     * 無法直接跨到 Swift 使用（詳見 [HomeMovieListLoadState] 的 KDoc）。
+     */
+    val loadStateFlow: Flow<HomeMovieListLoadStates>
+        get() = pagingDataPresenter.loadStateFlow.mapNotNull { combined ->
+            combined?.let {
+                HomeMovieListLoadStates(
+                    refresh = it.refresh.toHomeMovieListLoadState(),
+                    append = it.append.toHomeMovieListLoadState(),
+                )
+            }
+        }
 
     /** 每次已呈現的清單內容更新時發出訊號，供 Swift 端觸發重新讀取 [snapshot]。 */
     val onPagesUpdatedFlow: Flow<Unit> get() = pagingDataPresenter.onPagesUpdatedFlow
@@ -65,4 +79,10 @@ class HomeMovieListPresenter(
     fun clear() {
         scope.cancel()
     }
+}
+
+private fun LoadState.toHomeMovieListLoadState(): HomeMovieListLoadState = when (this) {
+    is LoadState.Loading -> HomeMovieListLoadState.Loading
+    is LoadState.NotLoading -> HomeMovieListLoadState.Idle
+    is LoadState.Error -> HomeMovieListLoadState.Error(message = error.message ?: "發生未知錯誤")
 }

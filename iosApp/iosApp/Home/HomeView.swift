@@ -44,14 +44,9 @@ struct HomeView: View {
         var body: some View {
             VStack(spacing: 0) {
                 genreTabBar
-
-                // TODO: tasks.md 9.3 完成後（GetHomeMovieListSnapshotUseCase 接上真實電影清單），
-                // 在這裡用 genrePage(for:).tag(index) 恢復每個分類的電影卡片渲染。
                 TabView(selection: $selectedTabIndex) {
                     ForEach(Array(genres.enumerated()), id: \.element.id) { index, _ in
-                        Color.clear
-                            .tag(index)
-                    }
+                        HomeContentView(movieGenre: genres[index]).tag(index)                    }
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
             }

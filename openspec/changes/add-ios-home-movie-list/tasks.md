@@ -9,10 +9,11 @@
 
 - [x] 2.1 在 `shared/app/src/iosMain/kotlin/.../presenter/` 新增內部 `PagingDataPresenter<MovieCardResult>` 子類別（暫定 `HomeMoviePagingDataPresenter`），覆寫 `presentPagingDataEvent` 為 no-op（狀態變化交由內建 `loadStateFlow`／`onPagesUpdatedFlow` 對外可觀察）
 - [x] 2.2 新增 `HomeMovieListPresenter.kt`：建構子注入 `GetHomeMovieListUseCase` 與 genre，內部建立 `CoroutineScope(SupervisorJob() + ioDispatcher)`，啟動協程 `getHomeMovieListUseCase(withGenres, internalScope).collectLatest { pagingData -> pagingDataPresenter.collectFrom(pagingData) }`
-- [x] 2.3 對外暴露 `get(index)`、`retry()`、`refresh()`、`loadStateFlow`、`onPagesUpdatedFlow`（直接委派給內部 `pagingDataPresenter`）
+- [x] 2.3 對外暴露 `get(index)`、`retry()`、`refresh()`、`loadStateFlow`、`onPagesUpdatedFlow`（直接委派給內部 `pagingDataPresenter`）——實作時發現 `loadStateFlow` 不能直接暴露 Paging 原生的 `CombinedLoadStates`（第三方型別未列在 iOS framework `export()` 清單，且整包 export `paging-common` 會與其內部 `PagingLogger.DEBUG` 撞名導致 Objective-C header 編譯失敗），改為透過 2.7 新增的自訂型別轉換後再暴露
 - [x] 2.4 實作 `clear()`：取消內部 `CoroutineScope`
 - [x] 2.5 在 `KoinHelper.kt` 新增工廠方法（暫定 `fun createHomeMovieListPresenter(withGenres: String): HomeMovieListPresenter`），比照既有具名 accessor 慣例
 - [x] 2.6 執行 `./gradlew :shared:app:iosSimulatorArm64Test`（若既有測試存在）或視需要為 `HomeMovieListPresenter` 補充可在 `iosTest` 執行的驗證（例如確認 `clear()` 呼叫後 scope 被取消）——已在 `KoinHelperTest.kt` 新增 `createHomeMovieListPresenter_afterInitKoin_resolvesPresenterAndClears`，測試通過
+- [x] 2.7（實作時新增，對應 design.md 決策 5）新增 `HomeMovieListLoadState.kt`：`sealed interface HomeMovieListLoadState { Idle / Loading / Error(message) }` 與 `data class HomeMovieListLoadStates(refresh, append)`，`HomeMovieListPresenter.loadStateFlow` 內部用 `mapNotNull` 把 `pagingDataPresenter.loadStateFlow`（`CombinedLoadStates`）轉成這個自訂型別；已跑 `xcodebuild -scheme iosApp -destination 'generic/platform=iOS Simulator' build` 確認 Swift 端可正常使用（`onEnum(of:)` 分支、`Optional` 型別宣告，因 sealed interface 橋接為 protocol 不支援 enum 字面量預設值）
 
 ## 3. iOS：HomeContentView 串接分頁電影清單（使用者實作）
 

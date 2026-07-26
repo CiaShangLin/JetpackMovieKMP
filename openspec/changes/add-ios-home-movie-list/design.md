@@ -40,9 +40,10 @@ iOS 端目前已完成分類 Tab（Genre）：`HomeViewModel.swift` 直接注入
 
 對外暴露（透過 SKIE 匯出給 Swift）：
 - `get(index): MovieCardResult?`——存取指定 index 的項目，同時觸發 Paging 3 依 `prefetchDistance` 判斷是否要載入下一頁（比照 Compose `LazyPagingItems` 存取 item 的行為）
+- `snapshot(): ItemSnapshotList<MovieCardResult>`——目前已呈現清單的完整快照；Kotlin `List` 型別會被 Kotlin/Native 自動橋接成原生 Swift `Array`（`.count` 取筆數，不是 `.size`），這是內建 collection 橋接機制，不受決策 5 的第三方型別限制影響
 - `retry()`——重試失敗的載入（不重建 `PagingSource`）
 - `refresh()`——建立新一代 `PagingSource`，對應下拉刷新
-- `loadStateFlow: StateFlow<CombinedLoadStates?>`——觀察 refresh／append 的載入中／失敗／完成狀態
+- `loadStateFlow: Flow<HomeMovieListLoadStates>`——觀察 refresh／append 的載入中／失敗／完成狀態；型別為決策 5 新增的自訂型別，不是 Paging 原生的 `CombinedLoadStates`
 - `onPagesUpdatedFlow: Flow<Unit>`——每次已呈現的清單內容更新時發出訊號，供 Swift 端觸發重新讀取 `snapshot()`／逐一 `get(index)` 更新畫面
 - `clear()`——取消內部 `CoroutineScope`
 
@@ -65,6 +66,19 @@ iOS 端目前已完成分類 Tab（Genre）：`HomeViewModel.swift` 直接注入
 
 **理由**：這與 Compose `LazyPagingItems` 的使用方式完全對應（`items[index]` 存取即觸發），維持 Android／iOS 兩端「存取即載入」語意一致，不需要另外設計一套「偵測捲到底」的手動觸發邏輯。
 
+### 5. 新增 `HomeMovieListLoadState`／`HomeMovieListLoadStates`，不直接暴露 `androidx.paging.LoadState`／`CombinedLoadStates`
+
+**決策**：在 `shared/app/src/iosMain/.../presenter/HomeMovieListLoadState.kt` 新增自有型別（`sealed interface HomeMovieListLoadState { Idle / Loading / Error(message) }` 與 `data class HomeMovieListLoadStates(refresh, append)`），`HomeMovieListPresenter.loadStateFlow` 內部把 `pagingDataPresenter.loadStateFlow`（`StateFlow<CombinedLoadStates?>`）用 `mapNotNull` 轉成這個自有型別後再對外暴露，取代決策 2 原本規劃直接暴露 `CombinedLoadStates` 的做法。
+
+**理由（實作時發現的技術限制）**：`androidx.paging.LoadState`／`CombinedLoadStates` 是第三方依賴（`paging-common`）的型別，`shared/app` 的 iOS framework `binaries.framework { export(...) }` 清單只列了本專案自己的 4 個模組（`shared.common`／`shared.model`／`shared.data`／`shared.domain`），並未包含 `paging-common`；未列入 `export()` 的第三方型別無法產生對應的 Objective-C header，Swift 端會出現「cannot find type 'LoadState' in scope」。實作時實際嘗試把 `export(libs.androidx.paging.common)` 加進去驗證，結果整個 `paging-common` 的 public API 被匯出後，其內部 `PagingLogger` 類別剛好有個成員字面命名為 `DEBUG`，產生的 Objective-C header 內 `@property (class, readonly) int32_t DEBUG` 被 Xcode Debug build 的 C 巨集 `#define DEBUG 1` 直接文字取代，變成無效語法，導致整個 `Shared.framework` header 編譯失敗（`error: expected member name or ';' after declaration specifiers`）。`export()` 是「整包依賴」層級的開關，無法只匯出 `LoadState`、排除 `PagingLogger`，因此此路徑不可行，改為本決策的「自訂型別 + 內部轉換」方案——因為型別是本模組自己宣告的，不需要額外 `export()` 就能被 Swift 使用（跟 `HomeMovieListPresenter`／`KoinHelper` 本身一樣，是框架產出模組自己的宣告）。
+
+**替代方案考慮（已否決）**：
+- 把 `androidx.paging.common` 加進 `shared/app` 的 `export()` 清單，直接暴露原生 `LoadState`／`CombinedLoadStates`——已否決，見上方理由：會與 `paging-common` 內部 `PagingLogger.DEBUG` 產生 Objective-C header 層級的巨集衝突，導致整個 framework 編譯失敗，且無法只 export 套件內特定型別排除其他成員
+
+**對決策 2 的影響**：這代表決策 2「不要重新發明 Paging 狀態機」的精神仍然成立（我們沒有自己維護頁碼／`hasNextPage`／清單累積邏輯，這些仍完全交給 Paging 3 處理），但「對外暴露的型別」這一層無法直接沿用 Paging 原生型別，需要薄薄一層轉換——這層轉換純粹是型別轉換（`LoadState` 三個 case 對應 `HomeMovieListLoadState` 三個 case），不涉及狀態機邏輯本身。
+
+**額外發現**：`HomeMovieListLoadState` 是 `sealed interface`，橋接到 Swift 是 protocol（`any HomeMovieListLoadState`），不支援 `= .idle` 這種 enum 字面量語法當作 Swift stored property 的預設值（只能在 SKIE 的 `onEnum(of:)` switch 內以這種簡寫分支），Swift 端型別需宣告為 Optional（`HomeMovieListLoadState?`，預設 `nil`）。
+
 ## Risks / Trade-offs
 
 - **[Risk] `iosMain` 首次出現「持有狀態、需要顯式釋放」的 Presenter 類別，若 Swift 端忘記呼叫 `clear()` 會造成 `CoroutineScope` 洩漏** → **Mitigation**：`tasks.md` 明確列出「肉眼確認 `clear()` 有被呼叫」的驗證步驟，並在 KDoc 中明確標註呼叫端必須負責釋放
@@ -74,6 +88,6 @@ iOS 端目前已完成分類 Tab（Genre）：`HomeViewModel.swift` 直接注入
 
 ## Open Questions
 
-- Presenter／內部 `PagingDataPresenter` 子類別的確切命名，留待實作時與使用者確認（本文件暫定 `HomeMovieListPresenter`／`HomeMoviePagingDataPresenter`）
+- ~~Presenter／內部 `PagingDataPresenter` 子類別的確切命名~~——已定案：`HomeMovieListPresenter`／`HomeMoviePagingDataPresenter`（實作時未再調整）
 - `HomeMovieListPresenter` 是每個 Genre 各建立一個實例（比照 Android 每個分類一個 `HomeContentViewModel`），還是單一 Presenter 內部依 Genre 切換多組分頁狀態——本文件採前者（較貼近既有 Android 設計），但實作時可再與使用者確認
-- Swift 端如何把 `get(index)`／`snapshot()` 轉成 SwiftUI 可用的 `[MovieCardData]` 陣列（例如是否需要一個中介的 `ObservableObject` wrapper 觀察 `onPagesUpdatedFlow` 後重新讀取 `snapshot()`）——這屬於 Swift 端實作細節，留待 `tasks.md` 第 3 節實作時決定
+- ~~Swift 端如何把 `get(index)`／`snapshot()` 轉成 SwiftUI 可用的 `[MovieCardData]` 陣列~~——已定案：`HomeContentViewModel`（Swift）觀察 `onPagesUpdatedFlow` 後讀取 `snapshot().count` 更新 `itemCount`，畫面用 `ForEach(0..<itemCount)` 逐一呼叫 `item(at:)`（內部委派 `presenter.get(index:)`）取得資料，不需要中介的陣列快取
