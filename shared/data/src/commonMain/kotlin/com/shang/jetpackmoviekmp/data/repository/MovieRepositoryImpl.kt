@@ -3,7 +3,9 @@ package com.shang.jetpackmoviekmp.data.repository
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
+import com.shang.jetpackmoviekmp.common.AppResult
 import com.shang.jetpackmoviekmp.common.NetworkException
+import com.shang.jetpackmoviekmp.common.toAppError
 import com.shang.jetpackmoviekmp.data.model.asCollectEntity
 import com.shang.jetpackmoviekmp.data.model.asHistoryEntity
 import com.shang.jetpackmoviekmp.data.paging.MovieGenrePagingSource
@@ -51,13 +53,13 @@ internal class MovieRepositoryImpl(
         }.flowOn(ioDispatcher)
     }
 
-    override fun getMovieGenres(): Flow<Result<MovieGenreBean>> {
+    override fun getMovieGenres(): Flow<AppResult<MovieGenreBean>> {
         return flow {
             val response = movieDataSource.getMovieGenres()
             if (response.isSuccess) {
-                emit(Result.success(response.data!!))
+                emit(AppResult.Success(response.data!!))
             } else {
-                emit(Result.failure(response.error ?: unexpectedNetworkFailure()))
+                emit(AppResult.Failure((response.error ?: unexpectedNetworkFailure()).toAppError()))
             }
         }.flowOn(ioDispatcher)
     }

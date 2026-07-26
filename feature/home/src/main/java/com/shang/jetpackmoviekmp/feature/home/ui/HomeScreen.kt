@@ -27,8 +27,8 @@ import com.shang.jetpackmoviekmp.core.designsystem.component.JMTab
 import com.shang.jetpackmoviekmp.core.ui.ErrorScreen
 import com.shang.jetpackmoviekmp.core.ui.LoadingScreen
 import com.shang.jetpackmoviekmp.core.ui.MovieCard
-import com.shang.jetpackmoviekmp.core.ui.asMovieCardData
 import com.shang.jetpackmoviekmp.model.MovieGenreBean
+import com.shang.jetpackmoviekmp.model.asMovieCardData
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 

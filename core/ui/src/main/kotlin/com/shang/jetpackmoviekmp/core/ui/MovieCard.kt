@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import coil3.request.ImageRequest
 import com.shang.jetpackmoviekmp.core.designsystem.component.JMAsyncImage
 import com.shang.jetpackmoviekmp.core.designsystem.theme.StarRatingColor
+import com.shang.jetpackmoviekmp.model.MovieCardData
 
 /** Preview 使用的示範圖片 URL。 */
 private const val DEMO_URL =

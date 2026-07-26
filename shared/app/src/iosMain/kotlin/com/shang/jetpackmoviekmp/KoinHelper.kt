@@ -1,5 +1,6 @@
 package com.shang.jetpackmoviekmp
 
+import com.shang.jetpackmoviekmp.data.repository.MovieRepository
 import com.shang.jetpackmoviekmp.data.repository.UserDataRepository
 import com.shang.jetpackmoviekmp.domain.usecase.GetConfigurationUseCase
 import com.shang.jetpackmoviekmp.domain.usecase.GetMovieDetailUseCase
@@ -29,4 +30,10 @@ object KoinHelper : KoinComponent {
      * 解析電影詳情 UseCase，供 iOS 端驗證與消費 `Flow<Result<MovieDetailBean>>`。
      */
     fun getMovieDetailUseCase(): GetMovieDetailUseCase = getKoin().get()
+
+    /**
+     * 解析 [MovieRepository]，供 iOS 端直接呼叫 `getMovieGenres()`
+     * 取得可被 SKIE 匯出的 `Flow<AppResult<MovieGenreBean>>`。
+     */
+    fun getMovieRepository(): MovieRepository = getKoin().get()
 }

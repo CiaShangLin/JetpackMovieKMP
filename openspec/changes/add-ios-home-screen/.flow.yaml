@@ -1,4 +1,0 @@
-type: feature
-workspace: branch
-branch: feature/add-ios-home-screen
-base_branch: master

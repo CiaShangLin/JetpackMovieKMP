@@ -1,10 +1,10 @@
 package com.shang.jetpackmoviekmp.feature.home.ui
 
 import androidx.paging.PagingData
-import com.shang.jetpackmoviekmp.core.ui.asMovieCardData
 import com.shang.jetpackmoviekmp.domain.usecase.GetHomeMovieListUseCase
 import com.shang.jetpackmoviekmp.model.MovieCardResult
 import com.shang.jetpackmoviekmp.model.MovieGenreBean
+import com.shang.jetpackmoviekmp.model.asMovieCardData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first

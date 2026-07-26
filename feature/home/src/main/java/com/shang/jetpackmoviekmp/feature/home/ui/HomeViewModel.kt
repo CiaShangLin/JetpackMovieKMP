@@ -2,6 +2,7 @@ package com.shang.jetpackmoviekmp.feature.home.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.shang.jetpackmoviekmp.common.AppResult
 import com.shang.jetpackmoviekmp.data.repository.MovieRepository
 import com.shang.jetpackmoviekmp.data.repository.UserDataRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,15 +22,11 @@ class HomeViewModel(
     val movieGenres =
         _refreshTrigger.flatMapLatest {
             movieRepository.getMovieGenres()
-                .map {
-                    it.fold(
-                        onSuccess = {
-                            HomeUiState.Success(it)
-                        },
-                        onFailure = {
-                            HomeUiState.Error(it.cause)
-                        },
-                    )
+                .map { result ->
+                    when (result) {
+                        is AppResult.Success -> HomeUiState.Success(result.data)
+                        is AppResult.Failure -> HomeUiState.Error(result.error)
+                    }
                 }
         }
             .stateIn(

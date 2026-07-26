@@ -1,5 +1,6 @@
 package com.shang.jetpackmoviekmp.data.repository
 
+import com.shang.jetpackmoviekmp.common.AppResult
 import com.shang.jetpackmoviekmp.model.ConfigurationBean
 import com.shang.jetpackmoviekmp.model.MovieCardResult
 import com.shang.jetpackmoviekmp.model.MovieDetailBean
@@ -12,6 +13,7 @@ import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
@@ -77,7 +79,7 @@ class MovieRepositoryImplTest {
 
         val result = repository(dataSource).getMovieGenres().first()
 
-        assertEquals(genres, result.getOrNull())
+        assertEquals(AppResult.Success(genres), result)
     }
 
     @Test
@@ -88,7 +90,7 @@ class MovieRepositoryImplTest {
 
         val result = repository(dataSource).getMovieGenres().first()
 
-        assertTrue(result.isFailure)
+        assertIs<AppResult.Failure>(result)
     }
 
     @Test

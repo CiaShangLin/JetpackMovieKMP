@@ -18,7 +18,7 @@ iOS 端目前只有 `MainView` + `MainTab` 提供的底部導覽骨架，`HomeVi
 
 **Non-Goals:**
 - 不在本次 change 內實作真正的無限捲動分頁（Paging 3 的 iOS 對應方案）；第一版首頁清單為「一次性載入單頁資料」，分頁能力列為後續 change 的 backlog
-- 不新增或修改 Android 端 `feature/home`、`core/ui` 的既有實作
+- 不變更 Android 端 `feature/home`、`core/ui` 的既有**外部行為與畫面呈現**；有兩個例外：決策 2 要求的 `MovieCardData` 搬移（`core/ui` → `shared/model`，只影響 import 路徑，不改變欄位、轉換邏輯或畫面行為），以及決策 3 要求的 `MovieRepository.getMovieGenres()` 回傳型別調整（`Result` → `AppResult`），後者會連動修改 `HomeViewModel.kt` 內部處理結果的方式，但 `HomeUiState.Success`／`HomeUiState.Error` 對外行為與畫面呈現不變
 - 不處理電影詳情頁、收藏頁、搜尋頁本身的畫面實作，只確保電影卡片元件的介面設計上可供它們日後重用
 
 ## Decisions
@@ -43,13 +43,17 @@ iOS 端目前只有 `MainView` + `MainTab` 提供的底部導覽骨架，`HomeVi
 
 **對 Android 的影響**：`core/ui/MovieCardData.kt` 移除，改為使用 `shared/model` 新位置的型別；`core/ui/MovieCard.kt`、`feature/home` 內對 `MovieCardData` 的 import 需要更新。欄位內容、轉換邏輯本身不變，Android 端可觀察行為（畫面呈現）不受影響。
 
-### 3. 分類 Tab 的資料來源與 UseCase 邊界（已與使用者確認）
+### 3. 分類 Tab 的資料來源與 UseCase 邊界（已與使用者確認調整，覆蓋既有慣例）
 
-**決策**：新增 `GetMovieGenresUseCase`（`shared/domain`），比照 `GetConfigurationUseCase` 的既有慣例，把 `MovieRepository.getMovieGenres()` 回傳的 `Flow<Result<MovieGenreBean>>` 在邊界處轉成 `Flow<AppResult<MovieGenreBean>>`，並在 `KoinHelper` 新增 `getMovieGenresUseCase()` accessor 供 iOS 呼叫。
+**決策**：不新增額外的 `GetMovieGenresUseCase`，改為直接修改 `MovieRepository.getMovieGenres()` 的回傳型別，把 `Flow<Result<MovieGenreBean>>` 改成 `Flow<AppResult<MovieGenreBean>>`；`MovieRepositoryImpl` 內部同步改用 `AppResult.Success`／`AppResult.Failure`（失敗時透過既有的 `Throwable.toAppError()` 轉換）。iOS 端透過 `KoinHelper` 新增的 `getMovieRepository()` accessor 直接取得 `MovieRepository`，呼叫 `getMovieGenres()` 即可拿到可被 SKIE 匯出的 `AppResult`，不需要額外的 UseCase 包裝層（accessor 命名沿用 `KoinHelper` 既有的 `get*()` UseCase accessor 慣例，例如 `getConfigurationUseCase()`／`getMovieDetailUseCase()`）。
 
-**理由**：Android 的 `HomeViewModel` 是直接注入 `MovieRepository` 呼叫 `getMovieGenres()`（因為 Android 端本來就慣於直接處理 `kotlin.Result`），但 iOS 邊界目前的既有慣例（`GetConfigurationUseCase`）是「凡是 Swift 要消費的資料流，一律在 UseCase 層轉成 `AppResult`，讓 SKIE 能匯出成乾淨的 Swift enum」。延續這個慣例可讓 iOS 端所有透過 `KoinHelper` 取得的資料流處理方式一致（`onEnum(of:)` 模式），不需要額外處理 `kotlin.Result` 的匯出細節。
+**理由**：使用者希望把 `AppResult` 轉換收斂到 `MovieRepository` 這一層，讓所有呼叫者共用同一份結果型別，避免日後每多一個 iOS 消費端就要多寫一支「只做轉型」的 UseCase。
 
-**替代方案考慮**：在 iOS 端直接呼叫 `KoinHelper.movieRepository()` 取得 `MovieRepository` 再自行呼叫 `getMovieGenres()`——這會讓 iOS 直接依賴 `kotlin.Result`（而非 `AppResult`），與 `GetConfigurationUseCase` 建立的既有慣例不一致，故不採用。
+**對既有慣例的影響（需注意）**：這個決策**覆蓋**了 `GetConfigurationUseCase.kt` 現有 KDoc 記載的既有慣例——該慣例主張 `MovieRepository` 應維持 `kotlin.Result`，`AppResult` 轉換只在個別 UseCase 邊界發生，`MovieRepository` 本身不需要跟著改動。本次刻意不遵循這個慣例，範圍限定在 `getMovieGenres()` 這一個方法，其餘 `MovieRepository` 方法（`getConfiguration()`、`getMovieDetail()` 等）維持現狀不動，不做全面重構。
+
+**對 Android 的影響**：`MovieRepositoryImpl.getMovieGenres()` 實作需要改寫；`feature/home` 的 `HomeViewModel.kt` 原本用 `kotlin.Result.fold(onSuccess=, onFailure=)` 處理，需要改寫成對 `AppResult.Success`／`AppResult.Failure` 的判斷，但 `HomeUiState.Success`／`HomeUiState.Error` 對外行為與畫面呈現不變。以下測試需要同步調整（mock 的 `Result.success/failure` 改成 `AppResult.Success/Failure`）：`shared/data` 的 `MovieRepositoryImplTest.kt`、`feature/home` 的 `HomeViewModelTestFakes.kt`／`HomeViewModelTest.kt`、`shared/domain` 的 `DomainTestFakes.kt`、`shared/app` 的 `AppDiagnosticsTest.kt`、`androidApp` 的 `MainViewModelTestFakes.kt`（皆有各自的 `getMovieGenres()` fake 實作）。
+
+**原本考慮過的替代方案（本次變更前的原決策，已由使用者否決）**：新增獨立的 `GetMovieGenresUseCase`（`shared/domain`），比照 `GetConfigurationUseCase` 的既有慣例在 UseCase 邊界轉換、不動 `MovieRepository`——被否決，理由同上（使用者希望轉換收斂到 Repository 層，而非在每個 iOS 消費端各自包一層 UseCase）。
 
 ### 4. 電影清單的分頁策略（本次 change 的關鍵取捨，已與使用者確認：本次先不做持續載入/無限捲動）
 

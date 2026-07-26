@@ -1,6 +1,7 @@
 package com.shang.jetpackmoviekmp.ui
 
 import androidx.paging.PagingData
+import com.shang.jetpackmoviekmp.common.AppResult
 import com.shang.jetpackmoviekmp.data.repository.MovieRepository
 import com.shang.jetpackmoviekmp.data.repository.UserDataRepository
 import com.shang.jetpackmoviekmp.model.ConfigurationBean
@@ -26,7 +27,7 @@ internal class FakeMovieRepository : MovieRepository {
 
     override fun getConfiguration(): Flow<Result<ConfigurationBean>> = flowOf(configurationResult)
 
-    override fun getMovieGenres(): Flow<Result<MovieGenreBean>> = flowOf(Result.success(MovieGenreBean()))
+    override fun getMovieGenres(): Flow<AppResult<MovieGenreBean>> = flowOf(AppResult.Success(MovieGenreBean()))
 
     override fun getMovieListPager(withGenres: String): Flow<PagingData<MovieCardResult>> =
         flowOf(PagingData.empty())

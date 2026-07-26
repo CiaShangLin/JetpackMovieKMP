@@ -1,5 +1,7 @@
 package com.shang.jetpackmoviekmp.feature.home.ui
 
+import com.shang.jetpackmoviekmp.common.AppError
+import com.shang.jetpackmoviekmp.common.AppResult
 import com.shang.jetpackmoviekmp.model.MovieGenreBean
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -42,7 +44,7 @@ class HomeViewModelTest {
         // Arrange
         val genres = MovieGenreBean(genres = listOf(MovieGenreBean.MovieGenre(id = 28, name = "Action")))
         val movieRepository = FakeMovieRepository().apply {
-            movieGenresResult = Result.success(genres)
+            movieGenresResult = AppResult.Success(genres)
         }
         val viewModel = createViewModel(movieRepository = movieRepository)
 
@@ -58,7 +60,7 @@ class HomeViewModelTest {
     fun `movieGenres 在 repository 回傳失敗時進入 Error`() = runTest(dispatcher) {
         // Arrange
         val movieRepository = FakeMovieRepository().apply {
-            movieGenresResult = Result.failure(IllegalStateException("boom"))
+            movieGenresResult = AppResult.Failure(AppError.Unknown)
         }
         val viewModel = createViewModel(movieRepository = movieRepository)
 
@@ -74,14 +76,14 @@ class HomeViewModelTest {
     fun `retry 會重新觸發 movieGenres 載入`() = runTest(dispatcher) {
         // Arrange：先讓第一次載入失敗
         val movieRepository = FakeMovieRepository().apply {
-            movieGenresResult = Result.failure(IllegalStateException("boom"))
+            movieGenresResult = AppResult.Failure(AppError.Unknown)
         }
         val viewModel = createViewModel(movieRepository = movieRepository)
         val job = viewModel.movieGenres.launchIn(this)
         assertIs<HomeUiState.Error>(viewModel.movieGenres.value)
 
         val genres = MovieGenreBean(genres = listOf(MovieGenreBean.MovieGenre(id = 28, name = "Action")))
-        movieRepository.movieGenresResult = Result.success(genres)
+        movieRepository.movieGenresResult = AppResult.Success(genres)
 
         // Act
         viewModel.retry()

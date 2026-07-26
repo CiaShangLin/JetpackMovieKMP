@@ -1,0 +1,12 @@
+type: feature
+workspace: branch
+branch: feature/add-ios-home-screen
+base_branch: master
+verify_selected:
+  - junit
+  - kdoc
+  - code-review
+verified:
+  - junit
+  - kdoc
+  - code-review
