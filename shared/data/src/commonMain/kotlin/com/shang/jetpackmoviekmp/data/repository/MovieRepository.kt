@@ -1,6 +1,7 @@
 package com.shang.jetpackmoviekmp.data.repository
 
 import androidx.paging.PagingData
+import com.shang.jetpackmoviekmp.common.AppResult
 import com.shang.jetpackmoviekmp.model.ConfigurationBean
 import com.shang.jetpackmoviekmp.model.MovieCardResult
 import com.shang.jetpackmoviekmp.model.MovieCastAndCrewBean
@@ -29,9 +30,13 @@ interface MovieRepository {
     /**
      * 取得 TMDB 可用的電影類型清單。
      *
-     * @return 電影類型的 [Flow]，成功為 [Result.success]，失敗（network 錯誤）為 [Result.failure]。
+     * 這支方法是本專案目前唯一一個直接回傳 [AppResult] 的 [MovieRepository] 方法
+     * （其餘方法維持 `kotlin.Result`），因為 iOS 端（`HomeViewModel`）需要直接消費
+     * 這支方法、不透過額外的 UseCase 包裝層做 `Result` → `AppResult` 轉換。
+     *
+     * @return 電影類型的 [Flow]，成功為 [AppResult.Success]，失敗（network 錯誤）為 [AppResult.Failure]。
      */
-    fun getMovieGenres(): Flow<Result<MovieGenreBean>>
+    fun getMovieGenres(): Flow<AppResult<MovieGenreBean>>
 
     /**
      * 依電影類型分頁載入 discover 電影列表。

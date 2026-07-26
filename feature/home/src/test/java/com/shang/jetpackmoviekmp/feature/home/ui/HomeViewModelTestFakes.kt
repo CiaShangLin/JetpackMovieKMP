@@ -1,6 +1,7 @@
 package com.shang.jetpackmoviekmp.feature.home.ui
 
 import androidx.paging.PagingData
+import com.shang.jetpackmoviekmp.common.AppResult
 import com.shang.jetpackmoviekmp.data.repository.MovieRepository
 import com.shang.jetpackmoviekmp.data.repository.UserDataRepository
 import com.shang.jetpackmoviekmp.model.ConfigurationBean
@@ -28,7 +29,7 @@ import java.util.concurrent.CountDownLatch
  */
 internal class FakeMovieRepository : MovieRepository {
 
-    var movieGenresResult: Result<MovieGenreBean> = Result.success(MovieGenreBean())
+    var movieGenresResult: AppResult<MovieGenreBean> = AppResult.Success(MovieGenreBean())
     var movieListPager: Flow<PagingData<MovieCardResult>> = flowOf(PagingData.empty())
 
     var insertMovieCollectCallCount: Int = 0
@@ -41,7 +42,7 @@ internal class FakeMovieRepository : MovieRepository {
 
     override fun getConfiguration(): Flow<Result<ConfigurationBean>> = flowOf(Result.success(ConfigurationBean()))
 
-    override fun getMovieGenres(): Flow<Result<MovieGenreBean>> = flowOf(movieGenresResult)
+    override fun getMovieGenres(): Flow<AppResult<MovieGenreBean>> = flowOf(movieGenresResult)
 
     override fun getMovieListPager(withGenres: String): Flow<PagingData<MovieCardResult>> = movieListPager
 

@@ -1,6 +1,4 @@
-﻿package com.shang.jetpackmoviekmp.core.ui
-
-import com.shang.jetpackmoviekmp.model.MovieCardResult
+package com.shang.jetpackmoviekmp.model
 
 /**
  * 電影卡片元件顯示所需的 UI 資料。
@@ -40,7 +38,7 @@ fun MovieCardData.asMovieCardResult(): MovieCardResult =
     )
 
 /**
- * 將 shared model 的 [MovieCardResult] 轉為 Android UI card 所需資料。
+ * 將 shared model 的 [MovieCardResult] 轉為 UI card 所需資料。
  *
  * @return 對應的 [MovieCardData]。
  */

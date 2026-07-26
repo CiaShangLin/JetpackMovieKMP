@@ -33,6 +33,9 @@ kotlin {
             implementation(libs.kotlin.test)
             implementation(libs.kotlinx.coroutines.test)
             implementation(libs.koin.test)
+            implementation(projects.shared.database)
+            implementation(projects.shared.datastore)
+            implementation(projects.shared.network)
         }
     }
 }

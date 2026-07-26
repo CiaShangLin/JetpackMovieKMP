@@ -2,11 +2,11 @@ package com.shang.jetpackmoviekmp.feature.home.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.shang.jetpackmoviekmp.core.ui.MovieCardData
-import com.shang.jetpackmoviekmp.core.ui.asMovieCardResult
 import com.shang.jetpackmoviekmp.data.repository.MovieRepository
 import com.shang.jetpackmoviekmp.domain.usecase.GetHomeMovieListUseCase
+import com.shang.jetpackmoviekmp.model.MovieCardData
 import com.shang.jetpackmoviekmp.model.MovieGenreBean
+import com.shang.jetpackmoviekmp.model.asMovieCardResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
