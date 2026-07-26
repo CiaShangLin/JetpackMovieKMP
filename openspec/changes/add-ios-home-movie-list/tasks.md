@@ -1,18 +1,18 @@
 ## 1. 前置準備
 
-- [ ] 1.1 對照閱讀既有 `GetHomeMovieListUseCase`（`shared/domain`）與 Android `HomeContentViewModel`／Compose `collectAsLazyPagingItems()` 的既有呼叫方式
-- [ ] 1.2 閱讀 `androidx.paging.PagingDataPresenter` 原始碼與 KDoc（`get`/`peek`/`snapshot`/`collectFrom`/`retry`/`refresh`/`loadStateFlow`/`onPagesUpdatedFlow` 的行為），確認子類別只需覆寫 `presentPagingDataEvent` 作為通知 hook，不需要自己儲存清單
-- [ ] 1.3 對照閱讀 iOS 既有 `HomeViewModel.swift`（`for await` + `onEnum(of:)` 模式）、`KoinHelper.kt` 既有具名 accessor 慣例，以及 `MovieCardView.swift`（`shared/model` 共用資料模型）
-- [ ] 1.4 確認 `design.md` 的 4 個 Decisions 沒有疑問（若有想調整的地方，先回頭修改 `design.md` 再開始實作）
+- [x] 1.1 對照閱讀既有 `GetHomeMovieListUseCase`（`shared/domain`）與 Android `HomeContentViewModel`／Compose `collectAsLazyPagingItems()` 的既有呼叫方式
+- [x] 1.2 閱讀 `androidx.paging.PagingDataPresenter` 原始碼與 KDoc（`get`/`peek`/`snapshot`/`collectFrom`/`retry`/`refresh`/`loadStateFlow`/`onPagesUpdatedFlow` 的行為），確認子類別只需覆寫 `presentPagingDataEvent` 作為通知 hook，不需要自己儲存清單
+- [x] 1.3 對照閱讀 iOS 既有 `HomeViewModel.swift`（`for await` + `onEnum(of:)` 模式）、`KoinHelper.kt` 既有具名 accessor 慣例，以及 `MovieCardView.swift`（`shared/model` 共用資料模型）
+- [x] 1.4 確認 `design.md` 的 4 個 Decisions 沒有疑問（若有想調整的地方，先回頭修改 `design.md` 再開始實作）
 
 ## 2. shared/app：iOS 專用分頁 Presenter
 
-- [ ] 2.1 在 `shared/app/src/iosMain/kotlin/.../presenter/` 新增內部 `PagingDataPresenter<MovieCardResult>` 子類別（暫定 `HomeMoviePagingDataPresenter`），覆寫 `presentPagingDataEvent` 為 no-op（狀態變化交由內建 `loadStateFlow`／`onPagesUpdatedFlow` 對外可觀察）
-- [ ] 2.2 新增 `HomeMovieListPresenter.kt`：建構子注入 `GetHomeMovieListUseCase` 與 genre，內部建立 `CoroutineScope(SupervisorJob() + ioDispatcher)`，啟動協程 `getHomeMovieListUseCase(withGenres, internalScope).collectLatest { pagingData -> pagingDataPresenter.collectFrom(pagingData) }`
-- [ ] 2.3 對外暴露 `get(index)`、`retry()`、`refresh()`、`loadStateFlow`、`onPagesUpdatedFlow`（直接委派給內部 `pagingDataPresenter`）
-- [ ] 2.4 實作 `clear()`：取消內部 `CoroutineScope`
-- [ ] 2.5 在 `KoinHelper.kt` 新增工廠方法（暫定 `fun createHomeMovieListPresenter(withGenres: String): HomeMovieListPresenter`），比照既有具名 accessor 慣例
-- [ ] 2.6 執行 `./gradlew :shared:app:iosSimulatorArm64Test`（若既有測試存在）或視需要為 `HomeMovieListPresenter` 補充可在 `iosTest` 執行的驗證（例如確認 `clear()` 呼叫後 scope 被取消）
+- [x] 2.1 在 `shared/app/src/iosMain/kotlin/.../presenter/` 新增內部 `PagingDataPresenter<MovieCardResult>` 子類別（暫定 `HomeMoviePagingDataPresenter`），覆寫 `presentPagingDataEvent` 為 no-op（狀態變化交由內建 `loadStateFlow`／`onPagesUpdatedFlow` 對外可觀察）
+- [x] 2.2 新增 `HomeMovieListPresenter.kt`：建構子注入 `GetHomeMovieListUseCase` 與 genre，內部建立 `CoroutineScope(SupervisorJob() + ioDispatcher)`，啟動協程 `getHomeMovieListUseCase(withGenres, internalScope).collectLatest { pagingData -> pagingDataPresenter.collectFrom(pagingData) }`
+- [x] 2.3 對外暴露 `get(index)`、`retry()`、`refresh()`、`loadStateFlow`、`onPagesUpdatedFlow`（直接委派給內部 `pagingDataPresenter`）
+- [x] 2.4 實作 `clear()`：取消內部 `CoroutineScope`
+- [x] 2.5 在 `KoinHelper.kt` 新增工廠方法（暫定 `fun createHomeMovieListPresenter(withGenres: String): HomeMovieListPresenter`），比照既有具名 accessor 慣例
+- [x] 2.6 執行 `./gradlew :shared:app:iosSimulatorArm64Test`（若既有測試存在）或視需要為 `HomeMovieListPresenter` 補充可在 `iosTest` 執行的驗證（例如確認 `clear()` 呼叫後 scope 被取消）——已在 `KoinHelperTest.kt` 新增 `createHomeMovieListPresenter_afterInitKoin_resolvesPresenterAndClears`，測試通過
 
 ## 3. iOS：HomeContentView 串接分頁電影清單（使用者實作）
 
@@ -27,8 +27,8 @@
 
 ## 4. 收尾與整合驗證
 
-- [ ] 4.1 執行 `./gradlew ktlintCheck`，確認新增／修改的 Kotlin 檔案格式正確
-- [ ] 4.2 執行 `./gradlew :shared:domain:testAndroidHostTest :shared:data:testAndroidHostTest`，確認未修改任何 `shared/domain`／`shared/data` 程式碼、既有測試仍然通過
-- [ ] 4.3 執行 `./gradlew :feature:home:testDebugUnitTest`，確認 Android 端既有首頁測試未受影響
+- [x] 4.1 執行 `./gradlew ktlintCheck`，確認新增／修改的 Kotlin 檔案格式正確
+- [x] 4.2 執行 `./gradlew :shared:domain:testAndroidHostTest :shared:data:testAndroidHostTest`，確認未修改任何 `shared/domain`／`shared/data` 程式碼、既有測試仍然通過
+- [x] 4.3 執行 `./gradlew :feature:home:testDebugUnitTest`，確認 Android 端既有首頁測試未受影響
 - [ ] 4.4 視環境需要執行 `./gradlew iosFormat iosLint`（需本機已安裝 SwiftFormat／SwiftLint），確認新增的 Swift 檔案符合專案風格
 - [ ] 4.5 在實機或模擬器完整跑一次首頁：分類切換、電影清單顯示、下拉刷新、捲動自動載入下一頁、斷網失敗與重試、收藏按鈕 callback，確認皆與 Android 端對照行為一致
