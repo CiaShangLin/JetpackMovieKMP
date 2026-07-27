@@ -12,11 +12,9 @@ struct HomeContentView: View {
         homeViewModel: HomeViewModel
     ) {
         self.movieGenre = movieGenre
-        _viewModel = State(
-            initialValue: HomeContentViewModel(
-                movieGenre: movieGenre,
-                homeViewModel: homeViewModel
-            )
+        viewModel = HomeContentViewModel(
+            movieGenre: movieGenre,
+            homeViewModel: homeViewModel
         )
     }
 
@@ -34,8 +32,13 @@ struct HomeContentView: View {
         case let .success(itemCount):
             ScrollView {
                 LazyVGrid(
-                    columns: [GridItem(.adaptive(minimum: 160), spacing: 12)],
-                    spacing: 12
+                    columns: [
+                        GridItem(
+                            .adaptive(minimum: JMSize.movieGridMinWidth),
+                            spacing: JMSpacing.spacing12
+                        )
+                    ],
+                    spacing: JMSpacing.spacing12
                 ) {
                     ForEach(0 ..< itemCount, id: \.self) { index in
                         if let movie = viewModel.item(at: index) {
@@ -44,8 +47,7 @@ struct HomeContentView: View {
                             )
                         }
                     }
-                }.padding(.horizontal, 16)
-
+                }.padding(.horizontal, JMSpacing.spacing16)
                 appendFooter
             }
             .refreshable {

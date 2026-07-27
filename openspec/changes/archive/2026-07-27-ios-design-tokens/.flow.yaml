@@ -2,3 +2,5 @@ type: refactor
 workspace: worktree
 branch: refactor/ios-design-tokens
 base_branch: master
+verify_selected: []
+verified: []

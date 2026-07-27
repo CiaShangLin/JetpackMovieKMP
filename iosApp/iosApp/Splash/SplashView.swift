@@ -13,16 +13,16 @@ struct SplashView: View {
     let onFinished: () -> Void
 
     var body: some View {
-        VStack(spacing: 28) {
+        VStack(spacing: JMSpacing.spacing28) {
             Image(systemName: "film.stack.fill")
-                .font(.system(size: 72, weight: .semibold))
+                .font(.system(size: JMSize.size72, weight: .semibold))
                 .foregroundStyle(.blue)
                 .opacity(isLogoVisible ? 1 : 0)
                 .scaleEffect(isLogoVisible ? 1 : 0.92)
             content
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .padding(24)
+        .padding(JMSpacing.spacing24)
         .background(Color(.systemBackground))
         .task {
             withAnimation(.easeOut(duration: 0.6)) {
@@ -44,7 +44,7 @@ struct SplashView: View {
         case .success:
             ProgressView("splash_ready")
         case .failure:
-            VStack(spacing: 12) {
+            VStack(spacing: JMSpacing.spacing12) {
                 Text("splash_error_message")
                     .font(.body)
                     .multilineTextAlignment(.center)
