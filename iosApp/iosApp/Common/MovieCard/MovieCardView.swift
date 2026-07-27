@@ -22,7 +22,7 @@ struct MovieCardView: View {
     }
 
     private var posterSection: some View {
-        ZStack(alignment: .bottom) {
+        ZStack(alignment: .bottomLeading) {
             AsyncImage(url: URL(string: data.movieCardPosterPath)) { image in
                 image.resizable().aspectRatio(contentMode: .fill)
             } placeholder: {
@@ -66,7 +66,7 @@ struct MovieCardView: View {
     private var titleSection: some View {
         Text(data.movieCardTitle)
             .font(.headline)
-            .lineLimit(2)
+            .lineLimit(2, reservesSpace: true)
             .padding(.horizontal, 8)
             .padding(.top, 8)
     }
@@ -82,7 +82,17 @@ struct MovieCardView: View {
 }
 
 #Preview {
-    MovieCardView(data: HomeMockData.movieCards[0])
-        .frame(width: 180)
-        .padding()
+    MovieCardView(
+        data: MovieCardData(
+            movieCardId: 1,
+            movieCardTitle: "Sample Movie",
+            movieCardPosterPath: "https://fastly.picsum.photos/id/1020/400/300.jpg",
+            movieCardReleaseDate: "2023-10-01",
+            movieCardVoteAverage: 8.7,
+            movieCardIsCollect: false,
+            movieCardTimestamp: 0
+        )
+    )
+    .frame(width: 180)
+    .padding()
 }

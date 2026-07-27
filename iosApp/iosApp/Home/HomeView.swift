@@ -24,7 +24,7 @@ struct HomeView: View {
             LoadingView()
 
         case let .success(genres):
-            HomeSuccessView(genres: genres)
+            HomeSuccessView(genres: genres, viewModel: viewModel)
 
         case .failure:
             ErrorView(onRetry: {
@@ -37,6 +37,7 @@ struct HomeView: View {
 
     struct HomeSuccessView: View {
         let genres: [MovieGenreBean.MovieGenre]
+        let viewModel: HomeViewModel
 
         @State
         private var selectedTabIndex = 0
@@ -46,7 +47,11 @@ struct HomeView: View {
                 genreTabBar
                 TabView(selection: $selectedTabIndex) {
                     ForEach(Array(genres.enumerated()), id: \.element.id) { index, _ in
-                        HomeContentView(movieGenre: genres[index]).tag(index)                    }
+                        HomeContentView(
+                            movieGenre: genres[index],
+                            homeViewModel: viewModel
+                        ).tag(index)
+                    }
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
             }

@@ -7,7 +7,8 @@ final class HomeContentViewModel {
 
     private let movieGenre: MovieGenreBean.MovieGenre
     private let movieRepository: MovieRepository
-    private let homeMovieListPresenter: HomeMovieListPresenter
+    private let homeViewModel: HomeViewModel
+    private var homeMovieListPresenter: HomeMovieListPresenter?
     private(set) var state: HomeContentUiState = .loading
     private(set) var itemCount: Int = 0
     private(set) var appendLoadState: HomeMovieListLoadState?
@@ -15,48 +16,57 @@ final class HomeContentViewModel {
     init(
         movieGenre: MovieGenreBean.MovieGenre,
         movieRepository: MovieRepository,
-        homeMovieListPresenter: HomeMovieListPresenter
+        homeViewModel: HomeViewModel
     ) {
         self.movieGenre = movieGenre
         self.movieRepository = movieRepository
-        self.homeMovieListPresenter = homeMovieListPresenter
-    }
-
-    deinit {
-        homeMovieListPresenter.clear()
+        self.homeViewModel = homeViewModel
     }
 
     func start() async {
-        async let pages: Void = observePagesUpdated()
-        async let loadStates: Void = observeLoadStates()
+        // 延後到這裡（畫面真正出現、`.task` 觸發時）才跟 `HomeViewModel` 要 presenter，
+        // 對應 genre 才第一次被建立；避免在 `init` 就建立，導致 TabView(.page) 的 ForEach
+        // 一次把所有 genre 的 presenter 都建出來、同時打 API。
+        let presenter = homeViewModel.presenter(for: movieGenre)
+        homeMovieListPresenter = presenter
+
+        // `onPagesUpdatedFlow` 不會對新訂閱者重播過去的事件；presenter 可能在這個畫面
+        // 真正出現、開始訂閱之前就已經載入完成，所以先同步讀一次目前的 snapshot 補上既有資料，
+        // 再開始監聽之後的更新，避免錯過事件導致永遠停在 Loading。
+        itemCount = presenter.snapshot().count
+        if itemCount > 0 {
+            state = .success(itemCount: itemCount)
+        }
+
+        async let pages: Void = observePagesUpdated(presenter: presenter)
+        async let loadStates: Void = observeLoadStates(presenter: presenter)
         _ = await (pages, loadStates)
     }
 
     func item(at index: Int) -> MovieCardResult? {
-        homeMovieListPresenter.get(index: Int32(index))
+        homeMovieListPresenter?.get(index: Int32(index))
     }
 
     func refresh() {
-        homeMovieListPresenter.refresh()
+        homeMovieListPresenter?.refresh()
     }
 
     func retry() {
-        homeMovieListPresenter.retry()
+        homeMovieListPresenter?.retry()
     }
 
-    private func observePagesUpdated() async {
-        for await _ in homeMovieListPresenter.onPagesUpdatedFlow {
-            itemCount = homeMovieListPresenter.snapshot().count
+    private func observePagesUpdated(presenter: HomeMovieListPresenter) async {
+        for await _ in presenter.onPagesUpdatedFlow {
+            itemCount = presenter.snapshot().count
             if itemCount > 0 {
-                state = .success
+                state = .success(itemCount: itemCount)
             }
         }
     }
 
-    private func observeLoadStates() async {
-        for await combined in homeMovieListPresenter.loadStateFlow {
+    private func observeLoadStates(presenter: HomeMovieListPresenter) async {
+        for await combined in presenter.loadStateFlow {
             appendLoadState = combined.append
-
             guard itemCount == 0 else { continue }
             switch onEnum(of: combined.refresh) {
             case .loading:

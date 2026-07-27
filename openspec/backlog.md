@@ -121,3 +121,66 @@ Kotlin/Native 透過 cinterop 呼叫 C 版 `os_log` API（非 Swift `Logger` str
    app log 走同一套輸出格式。
 5. 讓 `shared/data`、`shared/domain` 現有錯誤處理路徑（Repository catch block 等）開始
    使用 Kermit 記錄 log，這是原本 iOS-only 方案做不到的部分。
+
+## 評估抽出共用的 Paging Append Footer 元件
+
+- 類型: refactor
+- 記錄日期: 2026-07-27
+- 來源: add-ios-home-movie-list（實作中發現）
+- 前置依賴: 無
+- 狀態: 待處理
+
+### 背景
+
+`iosApp/iosApp/Home/page/HomeContentView.swift` 的 `appendFooter`（顯示 Paging append
+載入中／失敗重試按鈕的清單尾端元件）目前做成私有的 `@ViewBuilder` computed property，
+沒有抽成共用元件。
+
+原因：目前只有 Home 這一個消費者，`FavoritesView`／`HistoryView` 都還是空的 placeholder
+畫面（`Text("main_favorite_placeholder")` 等），沒有分頁需求；且 `appendFooter` 目前綁定的
+型別是 `HomeMovieListLoadState`（Home 專屬的 Kotlin sealed interface，透過 `onEnum(of:)`
+橋接），若之後 Favorites／History 也要做分頁，八成會比照現有模式各自有自己的 LoadState
+型別，屆時才能看清楚共用介面該怎麼切（例如改用 `isLoading: Bool`／`hasError: Bool`／
+`onRetry: () -> Void` 這種跟具體 Kotlin 型別解耦的參數）。
+
+### 後續調整
+
+等之後真的有第二個分頁畫面（例如 Favorites 或 History 導入分頁）時，再回頭評估是否要把
+兩邊共通的 append footer 邏輯抽成共用 View，並設計跟 Kotlin sealed interface 解耦的介面。
+
+## 評估 iOS MovieCard 圖片載入機制（AsyncImage vs Coil 對應方案）
+
+- 類型: refactor
+- 記錄日期: 2026-07-27
+- 來源: add-ios-home-movie-list（實作中發現）
+- 前置依賴: 無
+- 狀態: 待處理
+
+### 背景
+
+`iosApp/iosApp/Common/MovieCard/MovieCardView.swift` 的 `posterSection` 目前用原生
+`AsyncImage(url:)` 載入海報圖，還沒有評估是否需要類似 Android 端 Coil（`core/ui` 有
+`Coil HostInterceptor`）那樣的快取／攔截機制。
+
+### 後續調整
+
+找時間確認 iOS 端要不要導入第三方圖片載入套件（例如 Kingfisher）以取得跟 Android 端
+一致的快取行為，或是評估 `AsyncImage` 目前的快取表現是否已經夠用、可以先不處理。
+
+## 統一管理 iOS 共用 spacing/padding 數值
+
+- 類型: refactor
+- 記錄日期: 2026-07-27
+- 來源: add-ios-home-movie-list（實作中發現）
+- 前置依賴: 無
+- 狀態: 待處理
+
+### 背景
+
+目前 `HomeContentView`／`MovieCardView` 裡的間距數值（例如 `LazyVGrid` 的 `spacing: 12`、
+`padding(.horizontal, 16)`、卡片內部 `padding(8)` 等）都是直接寫死的數字，散落在各個檔案。
+
+### 後續調整
+
+之後如果畫面變多，需要討論是否要建立類似 Design Token 的共用常數（例如一個 `Spacing`
+enum 或 extension），統一管理這些數值，避免各處各自硬編碼、風格不一致。

@@ -17,7 +17,7 @@
 
 ## 3. iOS：HomeContentView 串接分頁電影清單（使用者實作）
 
-- [ ] 3.1 建立一個暫時的測試畫面，驗證 `presenter.get(index)` 在 Swift 端呼叫時不會拋出執行緒相關例外（對應 design.md Risk：`@MainThread` 標註與 Kotlin/Native `Dispatchers.Main` 的行為確認）
+- [x] 3.1 建立一個暫時的測試畫面，驗證 `presenter.get(index)` 在 Swift 端呼叫時不會拋出執行緒相關例外（對應 design.md Risk：`@MainThread` 標註與 Kotlin/Native `Dispatchers.Main` 的行為確認）——在 `HomeContentViewModel` 的觀察迴圈暫時加 `print`，實機模擬器跑起來確認 `loadStateFlow`／`onPagesUpdatedFlow`／`get(index)` 皆正常運作、無執行緒例外，且真的打到 TMDB API 拿到真實資料（`item(0) = 奥德賽`）
 - [ ] 3.2 建立 `iosApp/iosApp/Home/HomeContentView.swift`：接收目前 Genre 對應的 `HomeMovieListPresenter`，觀察 `onPagesUpdatedFlow`（`for await`）後讀取 `snapshot()` 更新畫面用的陣列，並觀察 `loadStateFlow` 決定載入中／錯誤狀態
 - [ ] 3.3 用 `LazyVGrid`（或既有 Android 對照的版面）呈現電影清單，逐筆將 `MovieCardResult` 轉成 `MovieCardData`（`asMovieCardData()`），交給既有 `MovieCardView` 呈現；每一列渲染時呼叫 `presenter.get(index)` 取得資料（觸發 Paging 3 依 `prefetchDistance` 判斷是否載入下一頁）
 - [ ] 3.4 加上 `.refreshable { presenter.refresh() }` 實作下拉刷新
