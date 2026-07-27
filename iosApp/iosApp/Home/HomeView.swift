@@ -43,7 +43,7 @@ struct HomeView: View {
         private var selectedTabIndex = 0
 
         var body: some View {
-            VStack(spacing: 0) {
+            VStack(spacing: JMSpacing.spacing0) {
                 genreTabBar
                 TabView(selection: $selectedTabIndex) {
                     ForEach(Array(genres.enumerated()), id: \.element.id) { index, _ in
@@ -59,7 +59,7 @@ struct HomeView: View {
 
         private var genreTabBar: some View {
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 16) {
+                HStack(spacing: JMSpacing.spacing16) {
                     ForEach(Array(genres.enumerated()), id: \.element.id) { index, genre in
                         Button {
                             selectedTabIndex = index
@@ -71,12 +71,12 @@ struct HomeView: View {
                                     selectedTabIndex == index ? Color.accentColor : Color.secondary
                                 )
                         }
-                        .padding(.vertical, 8)
+                        .padding(.vertical, JMSpacing.spacing8)
                     }
                 }
-                .padding(.horizontal, 16)
+                .padding(.horizontal, JMSpacing.spacing16)
             }
-            .frame(height: 44)
+            .frame(height: JMSize.size44)
         }
     }
 }

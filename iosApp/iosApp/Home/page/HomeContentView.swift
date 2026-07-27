@@ -9,7 +9,7 @@ struct HomeContentView: View {
 
     init(movieGenre: MovieGenreBean.MovieGenre, homeViewModel: HomeViewModel) {
         self.movieGenre = movieGenre
-        self.viewModel = HomeContentViewModel(
+        viewModel = HomeContentViewModel(
             movieGenre: movieGenre,
             homeViewModel: homeViewModel
         )
@@ -26,25 +26,30 @@ struct HomeContentView: View {
         switch viewModel.state {
         case .loading:
             LoadingView()
-        case .success(let itemCount):
+        case let .success(itemCount):
             ScrollView {
                 LazyVGrid(
-                    columns: [GridItem(.adaptive(minimum: 160), spacing: 12)],
-                    spacing: 12
+                    columns: [
+                        GridItem(
+                            .adaptive(minimum: JMSize.movieGridMinWidth),
+                            spacing: JMSpacing.spacing12
+                        )
+                    ],
+                    spacing: JMSpacing.spacing12
                 ) {
-                    ForEach(0..<itemCount, id: \.self) { index in
+                    ForEach(0 ..< itemCount, id: \.self) { index in
                         if let movie = viewModel.item(at: index) {
                             MovieCardView(data: movie.asMovieCardData())
                         }
                     }
-                }.padding(.horizontal, 16)
-                
+                }.padding(.horizontal, JMSpacing.spacing16)
+
                 appendFooter
             }
             .refreshable {
                 viewModel.refresh()
             }
-        case .failure(let message):
+        case let .failure(message):
             ErrorView(
                 message: LocalizedStringKey(message),
                 onRetry: {
@@ -53,7 +58,7 @@ struct HomeContentView: View {
             )
         }
     }
-    
+
     @ViewBuilder
     private var appendFooter: some View {
         if let appendLoadState = viewModel.appendLoadState {

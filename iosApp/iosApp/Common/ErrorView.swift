@@ -5,7 +5,7 @@ struct ErrorView: View {
     var onRetry: () -> Void
 
     var body: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: JMSpacing.spacing16) {
             Text(message)
                 .font(.body)
                 .multilineTextAlignment(.center)
@@ -15,6 +15,6 @@ struct ErrorView: View {
                 .buttonStyle(.borderedProminent)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .padding(16)
+        .padding(JMSpacing.spacing16)
     }
 }

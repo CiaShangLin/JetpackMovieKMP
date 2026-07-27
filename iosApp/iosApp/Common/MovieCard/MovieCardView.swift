@@ -7,15 +7,18 @@ struct MovieCardView: View {
     var onCollectTap: (MovieCardData) -> Void = { _ in }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        VStack(alignment: .leading, spacing: JMSpacing.spacing0) {
             posterSection
             titleSection
             releaseDateSection
         }
         .background(Color(.systemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.primary.opacity(0.1), lineWidth: 1))
-        .shadow(radius: 4)
+        .clipShape(RoundedRectangle(cornerRadius: JMRadius.radius12))
+        .overlay(
+            RoundedRectangle(cornerRadius: JMRadius.radius12)
+                .stroke(Color.primary.opacity(JMOpacity.opacity10), lineWidth: JMSize.size1)
+        )
+        .shadow(radius: JMSize.size4)
         .onTapGesture {
             onMovieTap(data)
         }
@@ -26,9 +29,9 @@ struct MovieCardView: View {
             AsyncImage(url: URL(string: data.movieCardPosterPath)) { image in
                 image.resizable().aspectRatio(contentMode: .fill)
             } placeholder: {
-                Color.gray.opacity(0.2)
+                Color.gray.opacity(JMOpacity.opacity20)
             }
-            .aspectRatio(3.0 / 4.0, contentMode: .fill)
+            .aspectRatio(JMRatio.moviePoster, contentMode: .fill)
             .clipped()
 
             ratingBadge
@@ -39,16 +42,16 @@ struct MovieCardView: View {
     }
 
     private var ratingBadge: some View {
-        HStack(spacing: 4) {
+        HStack(spacing: JMSpacing.spacing4) {
             Image(systemName: "star.fill")
                 .foregroundStyle(.yellow)
             Text(String(format: "%.1f", data.movieCardVoteAverage))
                 .font(.footnote.bold())
         }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 2)
+        .padding(.horizontal, JMSpacing.spacing8)
+        .padding(.vertical, JMSpacing.spacing2)
         .background(Color(.secondarySystemBackground), in: Capsule())
-        .padding(8)
+        .padding(JMSpacing.spacing8)
     }
 
     private var collectButton: some View {
@@ -57,27 +60,27 @@ struct MovieCardView: View {
         } label: {
             Image(systemName: data.movieCardIsCollect ? "heart.fill" : "heart")
         }
-        .padding(8)
+        .padding(JMSpacing.spacing8)
         .background(Color(.tertiarySystemBackground), in: Circle())
         .buttonStyle(.plain)
-        .padding(8)
+        .padding(JMSpacing.spacing8)
     }
 
     private var titleSection: some View {
         Text(data.movieCardTitle)
             .font(.headline)
             .lineLimit(2, reservesSpace: true)
-            .padding(.horizontal, 8)
-            .padding(.top, 8)
+            .padding(.horizontal, JMSpacing.spacing8)
+            .padding(.top, JMSpacing.spacing8)
     }
 
     private var releaseDateSection: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: JMSpacing.spacing8) {
             Image(systemName: "calendar")
             Text(data.movieCardReleaseDate)
                 .font(.subheadline)
         }
-        .padding(8)
+        .padding(JMSpacing.spacing8)
     }
 }
 
