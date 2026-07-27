@@ -18,12 +18,12 @@
 ## 3. iOS：HomeContentView 串接分頁電影清單（使用者實作）
 
 - [x] 3.1 建立一個暫時的測試畫面，驗證 `presenter.get(index)` 在 Swift 端呼叫時不會拋出執行緒相關例外（對應 design.md Risk：`@MainThread` 標註與 Kotlin/Native `Dispatchers.Main` 的行為確認）——在 `HomeContentViewModel` 的觀察迴圈暫時加 `print`，實機模擬器跑起來確認 `loadStateFlow`／`onPagesUpdatedFlow`／`get(index)` 皆正常運作、無執行緒例外，且真的打到 TMDB API 拿到真實資料（`item(0) = 奥德賽`）
-- [ ] 3.2 建立 `iosApp/iosApp/Home/HomeContentView.swift`：接收目前 Genre 對應的 `HomeMovieListPresenter`，觀察 `onPagesUpdatedFlow`（`for await`）後讀取 `snapshot()` 更新畫面用的陣列，並觀察 `loadStateFlow` 決定載入中／錯誤狀態
-- [ ] 3.3 用 `LazyVGrid`（或既有 Android 對照的版面）呈現電影清單，逐筆將 `MovieCardResult` 轉成 `MovieCardData`（`asMovieCardData()`），交給既有 `MovieCardView` 呈現；每一列渲染時呼叫 `presenter.get(index)` 取得資料（觸發 Paging 3 依 `prefetchDistance` 判斷是否載入下一頁）
-- [ ] 3.4 加上 `.refreshable { presenter.refresh() }` 實作下拉刷新
-- [ ] 3.5 `loadStateFlow` 反映 append 載入中時，清單底部顯示載入指示；反映失敗時顯示重試按鈕，呼叫 `presenter.retry()`
-- [ ] 3.6 `loadStateFlow` 反映 refresh 失敗且目前無任何已載入資料時，顯示既有 `ErrorView.swift`，重試按鈕呼叫 `presenter.refresh()`
-- [ ] 3.7 修改 `HomeView.swift`／`HomeViewModel.swift`：每個 Genre Tab 透過 `KoinHelper.shared.createHomeMovieListPresenter(withGenres:)` 建立對應 `HomeMovieListPresenter` 實例並持有；畫面消失（例如 Tab 被銷毀或使用者離開首頁）時呼叫 `presenter.clear()`
+- [x] 3.2 建立 `iosApp/iosApp/Home/HomeContentView.swift`：接收目前 Genre 對應的 `HomeMovieListPresenter`，觀察 `onPagesUpdatedFlow`（`for await`）後讀取 `snapshot()` 更新畫面用的陣列，並觀察 `loadStateFlow` 決定載入中／錯誤狀態
+- [x] 3.3 用 `LazyVGrid`（或既有 Android 對照的版面）呈現電影清單，逐筆將 `MovieCardResult` 轉成 `MovieCardData`（`asMovieCardData()`），交給既有 `MovieCardView` 呈現；每一列渲染時呼叫 `presenter.get(index)` 取得資料（觸發 Paging 3 依 `prefetchDistance` 判斷是否載入下一頁）——`asMovieCardData()` 沿用 `shared/model` 既有共用 extension，不需另外在 Swift 端重寫
+- [x] 3.4 加上 `.refreshable { presenter.refresh() }` 實作下拉刷新
+- [x] 3.5 `loadStateFlow` 反映 append 載入中時，清單底部顯示載入指示；反映失敗時顯示重試按鈕，呼叫 `presenter.retry()`
+- [x] 3.6 `loadStateFlow` 反映 refresh 失敗且目前無任何已載入資料時，顯示既有 `ErrorView.swift`，重試按鈕呼叫 `presenter.refresh()`
+- [x] 3.7 修改 `HomeView.swift`／`HomeViewModel.swift`：每個 Genre Tab 透過 `KoinHelper.shared.createHomeMovieListPresenter(withGenres:)` 建立對應 `HomeMovieListPresenter` 實例並持有；畫面消失（例如 Tab 被銷毀或使用者離開首頁）時呼叫 `presenter.clear()`——實作時發現 presenter 不能放在 `HomeContentView.init`／`HomeContentViewModel`：`TabView(.page)` 的 `ForEach` 每次切 Tab 都會對所有 genre 重新求值 `init`，若在那裡建立 presenter 會導致每切一次 Tab 全部 genre 都重新打 API；改成 `HomeViewModel` 持有 `[genreId: HomeMovieListPresenter]`，`presenter(for:)` 延後到對應 `HomeContentView.task` 真正觸發時才第一次建立並快取，`HomeViewModel.deinit` 統一 `clear()` 全部 presenter；另外 `onPagesUpdatedFlow` 不會對新訂閱者重播事件，`HomeContentViewModel.start()` 需先同步讀一次 `snapshot()` 補上既有資料，避免重新訂閱時錯過事件卡在 Loading
 - [ ] 3.8 在模擬器或實機驗證：切換分類 Tab 各自顯示正確電影清單、下拉刷新、捲動到清單尾端自動載入下一頁、（可暫時斷網）觸發失敗畫面與重試、點擊收藏按鈕確認 `onCollectTap` callback 有觸發
 
 ## 4. 收尾與整合驗證
