@@ -1,11 +1,15 @@
 package com.shang.jetpackmoviekmp
 
+import com.shang.jetpackmoviekmp.common.di.CommonDispatcher
 import com.shang.jetpackmoviekmp.data.repository.MovieRepository
 import com.shang.jetpackmoviekmp.data.repository.UserDataRepository
 import com.shang.jetpackmoviekmp.domain.usecase.GetConfigurationUseCase
+import com.shang.jetpackmoviekmp.domain.usecase.GetHomeMovieListUseCase
 import com.shang.jetpackmoviekmp.domain.usecase.GetMovieDetailUseCase
+import com.shang.jetpackmoviekmp.presenter.HomeMovieListPresenter
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
+import org.koin.core.qualifier.named
 
 /**
  * 提供 iOS 端可呼叫的 Koin 依賴橋接物件。
@@ -36,4 +40,20 @@ object KoinHelper : KoinComponent {
      * 取得可被 SKIE 匯出的 `Flow<AppResult<MovieGenreBean>>`。
      */
     fun getMovieRepository(): MovieRepository = getKoin().get()
+
+    /**
+     * 建立一個 iOS 專用的首頁電影清單分頁 Presenter，內部沿用既有
+     * [GetHomeMovieListUseCase] 並自行管理 `CoroutineScope`。
+     *
+     * 每個 Genre 應各自呼叫一次取得獨立實例（比照 Android 每個分類分頁各自一個
+     * `HomeContentViewModel`），呼叫端須在畫面消失時呼叫回傳物件的 `clear()`。
+     *
+     * @param withGenres 指定查詢的電影類型 id 字串
+     */
+    fun createHomeMovieListPresenter(withGenres: String): HomeMovieListPresenter =
+        HomeMovieListPresenter(
+            getHomeMovieListUseCase = getKoin().get<GetHomeMovieListUseCase>(),
+            withGenres = withGenres,
+            ioDispatcher = getKoin().get(qualifier = named(CommonDispatcher.IO)),
+        )
 }
