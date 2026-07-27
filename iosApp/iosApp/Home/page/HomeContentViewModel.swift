@@ -4,7 +4,6 @@ import Shared
 @Observable
 @MainActor
 final class HomeContentViewModel {
-
     private let movieGenre: MovieGenreBean.MovieGenre
     private let homeViewModel: HomeViewModel
     private var homeMovieListPresenter: HomeMovieListPresenter?
@@ -70,7 +69,7 @@ final class HomeContentViewModel {
                 state = .loading
             case .idle:
                 break
-            case .error(let error):
+            case let .error(error):
                 state = .failure(message: error.message)
             }
         }

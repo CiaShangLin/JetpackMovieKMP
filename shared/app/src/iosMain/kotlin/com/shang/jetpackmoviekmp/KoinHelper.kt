@@ -1,5 +1,6 @@
 package com.shang.jetpackmoviekmp
 
+import com.shang.jetpackmoviekmp.common.BaseHostUrlProvider
 import com.shang.jetpackmoviekmp.common.di.CommonDispatcher
 import com.shang.jetpackmoviekmp.data.repository.MovieRepository
 import com.shang.jetpackmoviekmp.data.repository.UserDataRepository
@@ -40,6 +41,11 @@ object KoinHelper : KoinComponent {
      * 取得可被 SKIE 匯出的 `Flow<AppResult<MovieGenreBean>>`。
      */
     fun getMovieRepository(): MovieRepository = getKoin().get()
+
+    /**
+     * 解析圖片 CDN base URL provider，供 iOS 圖片元件組裝 TMDB 相對圖片路徑。
+     */
+    fun getBaseHostUrlProvider(): BaseHostUrlProvider = getKoin().get()
 
     /**
      * 建立一個 iOS 專用的首頁電影清單分頁 Presenter，內部沿用既有

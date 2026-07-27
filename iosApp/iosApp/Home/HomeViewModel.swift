@@ -6,9 +6,9 @@ import Shared
 final class HomeViewModel {
     private let movieRepository: MovieRepository
     private(set) var uiState: HomeUiState = .loading
-    // `deinit` 在 Swift 是 nonisolated context，無法直接存取 MainActor-isolated 的 var，
-    // 用 nonisolated(unsafe) 讓 deinit 能同步呼叫 clear()；deinit 執行時保證沒有其他程式碼
-    // 會同時存取這個物件，因此手動略過隔離檢查是安全的。
+    /// `deinit` 在 Swift 是 nonisolated context，無法直接存取 MainActor-isolated 的 var，
+    /// 用 nonisolated(unsafe) 讓 deinit 能同步呼叫 clear()；deinit 執行時保證沒有其他程式碼
+    /// 會同時存取這個物件，因此手動略過隔離檢查是安全的。
     private nonisolated(unsafe) var presenters: [Int32: HomeMovieListPresenter] = [:]
 
     init(movieRepository: MovieRepository) {
@@ -24,7 +24,11 @@ final class HomeViewModel {
         for await result in movieRepository.getMovieGenres() {
             switch onEnum(of: result) {
             case let .success(success):
-                let genres = (success.data as! MovieGenreBean).genres
+                guard let data = success.data as? MovieGenreBean else {
+                    uiState = .failure(debugMessage: "電影分類資料格式錯誤")
+                    return
+                }
+                let genres = data.genres
                 uiState = .success(genres: genres)
             case let .failure(failure):
                 switch onEnum(of: failure.error) {

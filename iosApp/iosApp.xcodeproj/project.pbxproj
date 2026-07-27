@@ -7,10 +7,22 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6B2B4FA12D1C477995D4B31E /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 6B2B4FA02D1C477995D4B31E /* Kingfisher */; };
 		D30E89D930147C32008C592B /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = D30E89D830147C32008C592B /* Lottie */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		6B2B4FAA2D1C477995D4B31E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 159AC80355B77D377247001B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C8566F677837A247121906AD;
+			remoteInfo = iosApp;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
+		6B2B4FA42D1C477995D4B31E /* iosAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = iosAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A86082D0E36B4D6072B294DF /* JetpackMovieKMP.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = JetpackMovieKMP.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -38,6 +50,11 @@
 			path = Configuration;
 			sourceTree = "<group>";
 		};
+		6B2B4FA52D1C477995D4B31E /* iosAppTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = iosAppTests;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -45,7 +62,15 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6B2B4FA12D1C477995D4B31E /* Kingfisher in Frameworks */,
 				D30E89D930147C32008C592B /* Lottie in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6B2B4FA62D1C477995D4B31E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -57,6 +82,7 @@
 			children = (
 				D1A60BCE2ADC7C9D76508EC1 /* Configuration */,
 				09DA0E625729E646F48082A2 /* iosApp */,
+				6B2B4FA52D1C477995D4B31E /* iosAppTests */,
 				C16EB165B8453D6C6DB9AF35 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -65,6 +91,7 @@
 			isa = PBXGroup;
 			children = (
 				A86082D0E36B4D6072B294DF /* JetpackMovieKMP.app */,
+				6B2B4FA42D1C477995D4B31E /* iosAppTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -91,10 +118,34 @@
 			name = iosApp;
 			packageProductDependencies = (
 				D30E89D830147C32008C592B /* Lottie */,
+				6B2B4FA02D1C477995D4B31E /* Kingfisher */,
 			);
 			productName = iosApp;
 			productReference = A86082D0E36B4D6072B294DF /* JetpackMovieKMP.app */;
 			productType = "com.apple.product-type.application";
+		};
+		6B2B4FA72D1C477995D4B31E /* iosAppTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6B2B4FAE2D1C477995D4B31E /* Build configuration list for PBXNativeTarget "iosAppTests" */;
+			buildPhases = (
+				6B2B4FA82D1C477995D4B31E /* Sources */,
+				6B2B4FA62D1C477995D4B31E /* Frameworks */,
+				6B2B4FA92D1C477995D4B31E /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				6B2B4FAB2D1C477995D4B31E /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				6B2B4FA52D1C477995D4B31E /* iosAppTests */,
+			);
+			name = iosAppTests;
+			packageProductDependencies = (
+			);
+			productName = iosAppTests;
+			productReference = 6B2B4FA42D1C477995D4B31E /* iosAppTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
 
@@ -108,6 +159,10 @@
 				TargetAttributes = {
 					C8566F677837A247121906AD = {
 						CreatedOnToolsVersion = 16.2;
+					};
+					6B2B4FA72D1C477995D4B31E = {
+						CreatedOnToolsVersion = 16.2;
+						TestTargetID = C8566F677837A247121906AD;
 					};
 				};
 			};
@@ -123,6 +178,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				D30E89D730147C32008C592B /* XCRemoteSwiftPackageReference "lottie-ios" */,
+				6B2B4F9F2D1C477995D4B31E /* XCRemoteSwiftPackageReference "Kingfisher" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = C16EB165B8453D6C6DB9AF35 /* Products */;
@@ -130,12 +186,20 @@
 			projectRoot = "";
 			targets = (
 				C8566F677837A247121906AD /* iosApp */,
+				6B2B4FA72D1C477995D4B31E /* iosAppTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		1778915BA438727628A7AA70 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6B2B4FA92D1C477995D4B31E /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -174,7 +238,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		6B2B4FA82D1C477995D4B31E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		6B2B4FAB2D1C477995D4B31E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C8566F677837A247121906AD /* iosApp */;
+			targetProxy = 6B2B4FAA2D1C477995D4B31E /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		4B76090B28FDAAA92EDB796F /* Release */ = {
@@ -358,6 +437,54 @@
 			};
 			name = Debug;
 		};
+		6B2B4FAC2D1C477995D4B31E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = "${TEAM_ID}";
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.shang.jetpackmoviekmp.iosAppTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/JetpackMovieKMP.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/JetpackMovieKMP";
+			};
+			name = Debug;
+		};
+		6B2B4FAD2D1C477995D4B31E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = "${TEAM_ID}";
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.shang.jetpackmoviekmp.iosAppTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/JetpackMovieKMP.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/JetpackMovieKMP";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -379,9 +506,26 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		6B2B4FAE2D1C477995D4B31E /* Build configuration list for PBXNativeTarget "iosAppTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6B2B4FAC2D1C477995D4B31E /* Debug */,
+				6B2B4FAD2D1C477995D4B31E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		6B2B4F9F2D1C477995D4B31E /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/onevcat/Kingfisher.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.0.0;
+			};
+		};
 		D30E89D730147C32008C592B /* XCRemoteSwiftPackageReference "lottie-ios" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/airbnb/lottie-ios";
@@ -393,6 +537,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		6B2B4FA02D1C477995D4B31E /* Kingfisher */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 6B2B4F9F2D1C477995D4B31E /* XCRemoteSwiftPackageReference "Kingfisher" */;
+			productName = Kingfisher;
+		};
 		D30E89D830147C32008C592B /* Lottie */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = D30E89D730147C32008C592B /* XCRemoteSwiftPackageReference "lottie-ios" */;
