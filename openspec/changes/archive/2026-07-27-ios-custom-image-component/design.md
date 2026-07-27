@@ -4,13 +4,13 @@ iOS 端目前在 `iosApp/iosApp/Common/MovieCard/MovieCardView.swift` 直接使�
 
 SwiftUI `AsyncImage` 的快取與控制能力不足以支撐電影列表常見的重複圖片載入場景；本次採用 Kingfisher 作為 iOS 圖片載入與快取底層。Kingfisher 是成熟的 Swift 圖片載入套件，提供 SwiftUI `KFImage`、記憶體快取、磁碟快取、placeholder、載入狀態 callback 與圖片處理能力，社群採用度高，適合做為 iOS 端對應 Android Coil 的方案。
 
-`BaseHostUrlProvider` 已由 `shared/datastore` 的 `DatastoreBaseHostUrlProvider` 實作，並在 shared Koin module 中完成綁定；iOS 端透過 `shared/app` 匯出的 `KoinHelper` 取得需要的 shared 依賴。既有 `KoinHelper` 註解要求 Swift 消費端應在組裝根取得依賴，再透過建構子往下傳遞，避免 View 內部直接呼叫 Koin。
+`BaseHostUrlProvider` 已由 `shared/datastore` 的 `DatastoreBaseHostUrlProvider` 實作，並在 shared Koin module 中完成綁定；iOS 端透過 `shared/app` 匯出的 `KoinHelper` 取得需要的 shared 依賴。圖片使用情境目前只有電影遠端圖片一種，因此 `RemoteAsyncImage` 提供簡化 API，預設在內部集中取得 `BaseHostUrlProvider`，避免每個 feature View 重複傳遞相同依賴。
 
 ## Goals / Non-Goals
 
 **Goals:**
 
-- 建立 iOS 專用 SwiftUI 圖片元件，底層使用 Kingfisher `KFImage`，統一處理 TMDB 相對圖片路徑與完整 URL。
+- 建立 iOS 專用 SwiftUI 圖片元件 `RemoteAsyncImage`，底層使用 Kingfisher `KFImage`，統一處理 TMDB 相對圖片路徑與完整 URL。
 - 將 URL 補 host 規則對齊 Android Coil `HostInterceptor`：base host 空字串時不改寫、`http/https` 完整 URL 不改寫、其他相對路徑組成 `${baseUrl}original${path}`。
 - 透過 Kingfisher 提供記憶體與磁碟快取，避免相同 URL 重複下載。
 - 讓圖片元件提供 Loading、Success、Error 三種狀態 UI 擴充點。
@@ -38,19 +38,20 @@ Kingfisher 提供 SwiftUI `KFImage`、記憶體快取、磁碟快取、placehold
 
 替代方案包含繼續使用 SwiftUI `AsyncImage` 或使用 Nuke。`AsyncImage` 對快取與載入控制不足；Nuke 主 repo 仍有維護且 `NukeUI` 已併入主 repo，但社群採用度低於 Kingfisher。基於穩定性與團隊可維護性，本次選擇 Kingfisher。
 
-### Decision: SwiftUI View 不直接呼叫 Koin，依賴由呼叫端注入
+### Decision: `RemoteAsyncImage` 預設自行取得 shared `BaseHostUrlProvider`
 
-遵循既有 iOS Koin bridge 規範，`shared/app` 新增 `KoinHelper.getBaseHostUrlProvider()`，由 iOS 組裝點或父層 ViewModel 取得後傳入圖片元件或 URL resolver。這避免 View 自行觸碰全域 Koin，也讓 Preview 與測試可傳入假的 resolver。
+`shared/app` 新增 `KoinHelper.getBaseHostUrlProvider()`，讓 Swift 可取得 shared `BaseHostUrlProvider`。由於目前遠端圖片只有 TMDB 圖片 host 一種需求，`RemoteAsyncImage(path:)` 預設可在內部建立 resolver，並由 resolver 透過 `KoinHelper.shared.getBaseHostUrlProvider()` 取得 provider。這讓 `MovieCardView` 等消費端只需傳入圖片 path，避免每層 View 重複傳遞相同 provider。
 
-替代方案是在圖片元件內直接使用 `KoinHelper.shared`，實作較短，但會讓 View 與 DI container 耦合，Preview 也更難隔離。
+為了維持測試與客製彈性，完整 initializer 仍允許傳入自訂 URL resolver；resolver 也可在測試中傳入假的 `BaseHostUrlProvider`。`MovieImageURLResolver` 只有在輸入不是 `http://` 或 `https://` 完整 URL 時才會讀取 provider，完整 URL 會直接保留，不觸發 host 補齊。
+
+替代方案是由 Home 組裝根一路把 `BaseHostUrlProvider` 傳到每個卡片，但目前使用情境單一，會增加不必要的參數傳遞與樣板程式碼。
 
 ### Decision: URL 組合規則對齊 Android `HostInterceptor`
 
 iOS 元件 SHALL 使用相同判斷：
 
-- base host 為空字串時保留原始輸入。
 - 原始輸入以 `http://` 或 `https://` 開頭時保留原始輸入。
-- 其他輸入視為 TMDB 相對路徑，組成 `${baseUrl}original${path}`。
+- 其他輸入視為 TMDB 相對路徑；若 base host 不為空字串，組成 `${baseUrl}original${path}`；若 base host 為空字串，則不產生錯誤拼接 URL，交由元件顯示 Error fallback。
 
 這能維持 Android 與 iOS 顯示同尺寸資源。未來若要支援 `w500` 等尺寸，應另開需求定義 size policy，而不是在本次需求中分歧。
 
@@ -76,7 +77,7 @@ Kingfisher `KFImage` 可提供載入中 placeholder、成功圖片內容與失�
 
 1. 在 `shared/app` 新增 `KoinHelper` accessor，讓 Swift 可取得 `BaseHostUrlProvider`。
 2. 在 iOS Xcode project 加入 Kingfisher Swift Package dependency。
-3. 在 `iosApp` 新增 iOS 共用圖片元件與 URL resolver，底層封裝 `KFImage`。
+3. 在 `iosApp` 新增 `RemoteAsyncImage` 與 URL resolver，底層封裝 `KFImage`，預設可自行取得 shared `BaseHostUrlProvider`。
 4. 將 `MovieCardView` 的海報區改用新圖片元件。
 5. 補上 `shared/app` iOS Koin 解析測試與 Swift URL resolver 狀態／URL 組合測試。
 
