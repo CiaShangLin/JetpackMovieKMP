@@ -26,7 +26,11 @@ final class SplashViewModel {
         for await result in getConfigurationUseCase.invoke() {
             switch onEnum(of: result) {
             case let .success(success):
-                uiState = .success(data: success.data as! ConfigurationBean)
+                guard let data = success.data as? ConfigurationBean else {
+                    uiState = .failure(debugMessage: "Configuration data type mismatch")
+                    return
+                }
+                uiState = .success(data: data)
                 return
             case let .failure(failure):
                 switch onEnum(of: failure.error) {

@@ -7,7 +7,10 @@ struct HomeContentView: View {
     @State
     private var viewModel: HomeContentViewModel
 
-    init(movieGenre: MovieGenreBean.MovieGenre, homeViewModel: HomeViewModel) {
+    init(
+        movieGenre: MovieGenreBean.MovieGenre,
+        homeViewModel: HomeViewModel
+    ) {
         self.movieGenre = movieGenre
         viewModel = HomeContentViewModel(
             movieGenre: movieGenre,
@@ -39,11 +42,12 @@ struct HomeContentView: View {
                 ) {
                     ForEach(0 ..< itemCount, id: \.self) { index in
                         if let movie = viewModel.item(at: index) {
-                            MovieCardView(data: movie.asMovieCardData())
+                            MovieCardView(
+                                data: movie.asMovieCardData()
+                            )
                         }
                     }
                 }.padding(.horizontal, JMSpacing.spacing16)
-
                 appendFooter
             }
             .refreshable {

@@ -24,7 +24,10 @@ struct HomeView: View {
             LoadingView()
 
         case let .success(genres):
-            HomeSuccessView(genres: genres, viewModel: viewModel)
+            HomeSuccessView(
+                genres: genres,
+                viewModel: viewModel
+            )
 
         case .failure:
             ErrorView(onRetry: {

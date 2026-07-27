@@ -2,3 +2,7 @@ type: feature
 workspace: worktree
 branch: feature/ios-custom-image-component
 base_branch: master
+verify_selected:
+  - code-review
+verified:
+  - code-review

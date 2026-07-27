@@ -26,14 +26,9 @@ struct MovieCardView: View {
 
     private var posterSection: some View {
         ZStack(alignment: .bottomLeading) {
-            AsyncImage(url: URL(string: data.movieCardPosterPath)) { image in
-                image.resizable().aspectRatio(contentMode: .fill)
-            } placeholder: {
-                Color.gray.opacity(JMOpacity.opacity20)
-            }
-            .aspectRatio(JMRatio.moviePoster, contentMode: .fill)
-            .clipped()
-
+            RemoteAsyncImage(path: data.movieCardPosterPath)
+                .aspectRatio(3.0 / 4.0, contentMode: .fill)
+                .clipped()
             ratingBadge
         }
         .overlay(alignment: .topTrailing) {

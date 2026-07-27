@@ -1,5 +1,6 @@
 package com.shang.jetpackmoviekmp
 
+import com.shang.jetpackmoviekmp.common.BaseHostUrlProvider
 import com.shang.jetpackmoviekmp.data.repository.UserDataRepository
 import com.shang.jetpackmoviekmp.database.getTestDatabaseBuilder
 import com.shang.jetpackmoviekmp.datastore.InMemoryPreferencesDataStore
@@ -47,6 +48,22 @@ class KoinHelperTest {
 
         // Assert
         assertIs<GetMovieDetailUseCase>(useCase)
+    }
+
+    @Test
+    fun getBaseHostUrlProvider_afterInitKoin_resolvesProvider() {
+        // Arrange
+        initKoin(
+            dataStore = InMemoryPreferencesDataStore(),
+            databaseBuilder = { getTestDatabaseBuilder() },
+            isDebug = true,
+        )
+
+        // Act
+        val provider = KoinHelper.getBaseHostUrlProvider()
+
+        // Assert
+        assertIs<BaseHostUrlProvider>(provider)
     }
 
     @Test
