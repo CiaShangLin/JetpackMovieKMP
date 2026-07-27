@@ -6,7 +6,6 @@ import Shared
 final class HomeContentViewModel {
 
     private let movieGenre: MovieGenreBean.MovieGenre
-    private let movieRepository: MovieRepository
     private let homeViewModel: HomeViewModel
     private var homeMovieListPresenter: HomeMovieListPresenter?
     private(set) var state: HomeContentUiState = .loading
@@ -15,11 +14,9 @@ final class HomeContentViewModel {
 
     init(
         movieGenre: MovieGenreBean.MovieGenre,
-        movieRepository: MovieRepository,
         homeViewModel: HomeViewModel
     ) {
         self.movieGenre = movieGenre
-        self.movieRepository = movieRepository
         self.homeViewModel = homeViewModel
     }
 
