@@ -28,13 +28,13 @@ PR #29 將 `MovieCardView` 的 `AsyncImage` 替換為 `RemoteAsyncImage`，後�
 
 替代方案：在 `RemoteAsyncImage` 內硬編碼電影海報比例。此做法會使演員頭像或未來的橫幅圖片被限制為 3:4，因此不採用。
 
-### `RemoteAsyncImage` 不得以 fallback 的固有尺寸決定父層大小
+### `RemoteAsyncImage` 以互斥狀態呈現圖片內容
 
-元件 SHALL 以可延展的容器呈現其 Loading、Success、Error 狀態；呼叫端提供有限寬高時，各狀態 MUST 填滿相同邊界。預設 fallback 僅繪製內容，不得要求額外最小寬高。
+Loading SHALL 繼續使用 `KFImage.placeholder` 顯示呼叫端提供的 `loadingContent`。當 URL 無效或 Kingfisher 載入失敗時，元件 SHALL 直接顯示 `errorContent`，而非將 Error UI 疊在失敗的 `KFImage` 上。外層 `ZStack` 與只用於該堆疊的成功狀態追蹤 SHALL 移除；預設 Error 內容內部為了在背景上顯示圖示所使用的 `ZStack` 得保留。
 
-理由：共用圖片元件須可安全放入 `LazyVGrid`、`List` 與固定 frame，避免在非成功狀態改變父層量測結果。
+理由：圖片元件只需在三種狀態間切換，沒有 Error 覆蓋失敗圖片的視覺需求。移除不必要的堆疊可避免 Loading／Error fallback 的固有尺寸參與父層量測，並保留 Kingfisher 既有 placeholder 行為。
 
-替代方案：僅在首頁為 placeholder 加固定 `frame`。這會留下共用元件在其他呼叫端再次造成 layout 回歸的風險，因此不採用。
+替代方案：保留外層 `ZStack` 並只為 placeholder 加固定 `frame`。這會保留不必要的覆蓋層與其他呼叫端再次 layout 回歸的風險，因此不採用。
 
 ### 窄欄文字必須可在卡片邊界內排版
 

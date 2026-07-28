@@ -1,6 +1,6 @@
 ## 1. iosApp 共用圖片元件
 
-- [ ] 1.1 檢查並調整 `RemoteAsyncImage` 的容器與預設 fallback，使 Loading、Success、Error 在父層提供有限尺寸時使用相同邊界。
+- [ ] 1.1 簡化 `RemoteAsyncImage`：保留 Kingfisher `placeholder` 作為 Loading、在 Error 時直接替換圖片內容，並移除不必要的外層 `ZStack` 與成功狀態追蹤。
 - [ ] 1.2 擴充 `MovieImageURLResolverTests` 或新增對應 XCTest，驗證圖片狀態與 fallback 尺寸策略的可測試部分。
 
 ## 2. iosApp 電影卡與首頁格線
