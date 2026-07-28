@@ -1,9 +1,115 @@
+import Shared
 import SwiftUI
 
-/// 收藏分頁的暫時內容頁。
 struct FavoritesView: View {
-    var body: some View {
-        Text("main_favorite_placeholder")
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+    @State
+    private var viewModel: FavoritesViewModel
+
+    init(movieRepository: MovieRepository) {
+        _viewModel = State(initialValue: FavoritesViewModel(movieRepository: movieRepository))
     }
+
+    var body: some View {
+        FavoritesContentView(
+            uiState: viewModel.uiState,
+            onCollectTap: { movie in
+                Task {
+                    await viewModel.toggleMovieCollectStatus(data: movie)
+                }
+            }
+        )
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .task {
+                await viewModel.loadFavorites()
+            }
+    }
+}
+
+private struct FavoritesContentView: View {
+    let uiState: FavoritesUiState
+    let onCollectTap: (MovieCardData) -> Void
+
+    var body: some View {
+        content
+    }
+
+    @ViewBuilder
+    private var content: some View {
+        switch uiState {
+        case .empty:
+            FavoritesEmptyView()
+        case let .success(movies):
+            favoritesGrid(movies: movies)
+        }
+    }
+
+    private func favoritesGrid(movies: [MovieCardResult]) -> some View {
+        ScrollView {
+            LazyVGrid(
+                columns: [
+                    GridItem(
+                        .adaptive(minimum: JMSize.movieGridMinWidth),
+                        spacing: JMSpacing.spacing12
+                    )
+                ],
+                spacing: JMSpacing.spacing12
+            ) {
+                ForEach(movies, id: \.id) { movie in
+                    MovieCardView(
+                        data: movie.asMovieCardData(),
+                        onCollectTap: onCollectTap
+                    )
+                }
+            }
+            .padding(.horizontal, JMSpacing.spacing16)
+            .padding(.vertical, JMSpacing.spacing12)
+        }
+    }
+
+    private struct FavoritesEmptyView: View {
+        var body: some View {
+            VStack(spacing: JMSpacing.spacing12) {
+                Image(systemName: "heart.slash")
+                    .font(.system(size: JMSize.size44, weight: .light))
+                    .symbolRenderingMode(.hierarchical)
+                    .foregroundStyle(.secondary)
+                Text("favorites_empty")
+                    .font(.headline)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+    }
+}
+
+#Preview("Empty") {
+    FavoritesContentView(
+        uiState: .empty,
+        onCollectTap: { _ in }
+    )
+}
+
+#Preview("With favorites") {
+    FavoritesContentView(
+        uiState: .success(data: [
+            MovieCardResult(
+                adult: false,
+                backdropPath: "",
+                genreIds: [],
+                id: 1,
+                originalLanguage: "en",
+                originalTitle: "Preview movie",
+                overview: "",
+                popularity: 0,
+                posterPath: "",
+                releaseDate: "2026-01-01",
+                title: "Preview movie",
+                video: false,
+                voteAverage: 8,
+                voteCount: 1,
+                isCollect: true,
+                timestamp: 0
+            )
+        ]),
+        onCollectTap: { _ in }
+    )
 }

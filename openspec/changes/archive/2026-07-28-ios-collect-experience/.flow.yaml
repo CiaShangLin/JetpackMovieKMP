@@ -2,3 +2,6 @@ type: feature
 workspace: branch
 branch: feature/ios-collect-experience
 base_branch: master
+verify_selected:
+  - code-review
+verified: []

@@ -4,10 +4,17 @@ import SwiftUI
 
 /// 首頁分頁的暫時內容頁。
 struct HomeView: View {
+    private let movieRepository: MovieRepository
+
     @State
-    private var viewModel = HomeViewModel(
-        movieRepository: KoinHelper.shared.getMovieRepository()
-    )
+    private var viewModel: HomeViewModel
+
+    init(
+        movieRepository: MovieRepository
+    ) {
+        self.movieRepository = movieRepository
+        _viewModel = State(initialValue: HomeViewModel(movieRepository: movieRepository))
+    }
 
     var body: some View {
         content
@@ -26,7 +33,8 @@ struct HomeView: View {
         case let .success(genres):
             HomeSuccessView(
                 genres: genres,
-                viewModel: viewModel
+                viewModel: viewModel,
+                movieRepository: movieRepository
             )
 
         case .failure:
@@ -41,6 +49,7 @@ struct HomeView: View {
     struct HomeSuccessView: View {
         let genres: [MovieGenreBean.MovieGenre]
         let viewModel: HomeViewModel
+        let movieRepository: MovieRepository
 
         @State
         private var selectedTabIndex = 0
@@ -49,10 +58,11 @@ struct HomeView: View {
             VStack(spacing: JMSpacing.spacing0) {
                 genreTabBar
                 TabView(selection: $selectedTabIndex) {
-                    ForEach(Array(genres.enumerated()), id: \.element.id) { index, _ in
+                    ForEach(genres.indices, id: \.self) { index in
                         HomeContentView(
                             movieGenre: genres[index],
-                            homeViewModel: viewModel
+                            homeViewModel: viewModel,
+                            movieRepository: movieRepository
                         ).tag(index)
                     }
                 }
@@ -63,7 +73,8 @@ struct HomeView: View {
         private var genreTabBar: some View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: JMSpacing.spacing16) {
-                    ForEach(Array(genres.enumerated()), id: \.element.id) { index, genre in
+                    ForEach(genres.indices, id: \.self) { index in
+                        let genre = genres[index]
                         Button {
                             selectedTabIndex = index
                         } label: {
