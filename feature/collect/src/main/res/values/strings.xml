@@ -1,0 +1,4 @@
+<resources>
+    <string name="collect_title">我的收藏</string>
+    <string name="collect_empty">目前沒有收藏</string>
+</resources>

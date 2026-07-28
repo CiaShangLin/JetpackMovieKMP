@@ -2,11 +2,14 @@ package com.shang.jetpackmoviekmp.navigation
 
 import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation3.runtime.NavKey
 import com.shang.jetpackmoviekmp.R
+import com.shang.jetpackmoviekmp.feature.collect.navigation.CollectKey
 import com.shang.jetpackmoviekmp.feature.home.navigation.HomeKey
 
 /**
@@ -30,13 +33,13 @@ enum class MainNavItem(
         key = HomeKey,
     ),
 
-//    COLLECT(
-//        selectedIcon = Icons.Rounded.Favorite,
-//        unselectedIcon = Icons.Outlined.Favorite,
-//        iconTextId = R.string.nav_favor,
-//        titleTextId = R.string.nav_favor,
-//        route = COLLECT_ROUTE,
-//    ),
+    COLLECT(
+        selectedIcon = Icons.Rounded.Favorite,
+        unselectedIcon = Icons.Outlined.Favorite,
+        iconTextId = R.string.nav_favor,
+        titleTextId = R.string.nav_favor,
+        key = CollectKey,
+    ),
 //
 //    SEARCH(
 //        selectedIcon = Icons.Rounded.Search,
