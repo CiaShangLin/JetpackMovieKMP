@@ -1,14 +1,21 @@
+import Shared
 import SwiftUI
 
 /// Splash 完成後顯示的 iOS 主畫面，負責組合五個底部導覽分頁。
 struct MainView: View {
+    private let movieRepository: MovieRepository
+
     @State
     private var selectedTab: MainTab = .home
+
+    init(movieRepository: MovieRepository) {
+        self.movieRepository = movieRepository
+    }
 
     var body: some View {
         TabView(selection: $selectedTab) {
             ForEach(MainTab.allCases, id: \.self) { tab in
-                tab.content
+                tab.content(movieRepository: movieRepository)
                     .tag(tab)
                     .tabItem {
                         Image(systemName: tab.iconName)

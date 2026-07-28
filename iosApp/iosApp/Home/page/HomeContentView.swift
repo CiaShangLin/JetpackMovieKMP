@@ -9,10 +9,12 @@ struct HomeContentView: View {
 
     init(
         movieGenre: MovieGenreBean.MovieGenre,
-        homeViewModel: HomeViewModel
+        homeViewModel: HomeViewModel,
+        movieRepository: MovieRepository
     ) {
         self.movieGenre = movieGenre
         viewModel = HomeContentViewModel(
+            movieRepository: movieRepository,
             movieGenre: movieGenre,
             homeViewModel: homeViewModel
         )
@@ -29,7 +31,7 @@ struct HomeContentView: View {
         switch viewModel.state {
         case .loading:
             LoadingView()
-        case let .success(itemCount):
+        case .success:
             ScrollView {
                 LazyVGrid(
                     columns: [
@@ -40,11 +42,18 @@ struct HomeContentView: View {
                     ],
                     spacing: JMSpacing.spacing12
                 ) {
-                    ForEach(0 ..< itemCount, id: \.self) { index in
-                        if let movie = viewModel.item(at: index) {
-                            MovieCardView(
-                                data: movie.asMovieCardData()
-                            )
+                    ForEach(viewModel.movies.indices, id: \.self) { index in
+                        let movie = viewModel.movies[index]
+                        MovieCardView(
+                            data: movie.asMovieCardData(),
+                            onCollectTap: { movie in
+                                Task {
+                                    await viewModel.toggleMovieCollectStatus(data: movie)
+                                }
+                            }
+                        )
+                        .onAppear {
+                            viewModel.prefetch(index: index)
                         }
                     }
                 }.padding(.horizontal, JMSpacing.spacing16)

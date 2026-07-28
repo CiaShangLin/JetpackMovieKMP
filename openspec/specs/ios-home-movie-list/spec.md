@@ -3,9 +3,7 @@
 ## Purpose
 
 定義 iOS 端首頁電影清單的分頁載入能力：沿用既有 `GetHomeMovieListUseCase`，透過 AndroidX Paging 3 的 `PagingDataPresenter` 擴充點提供 iOS 專用 Presenter，驅動捲動分頁載入與下拉刷新，並定義 `HomeContentView` 依 Genre 顯示電影清單的畫面行為。
-
 ## Requirements
-
 ### Requirement: iOS 電影清單 Presenter 沿用 Paging 3 驅動分頁
 
 iOS 端 SHALL 提供一個 Presenter（`shared/app` `iosMain`），依 Genre 建立實例，內部建立並持有一個 `CoroutineScope`，沿用既有 `GetHomeMovieListUseCase` 取得 `Flow<PagingData<MovieCardResult>>`，並透過內部包裝的 `PagingDataPresenter<MovieCardResult>` 子類別收集該 Flow，對外暴露 `get(index)`、`retry()`、`refresh()`、`loadStateFlow`、`onPagesUpdatedFlow`、`clear()`。
@@ -37,7 +35,7 @@ iOS 端 SHALL 提供一個 Presenter（`shared/app` `iosMain`），依 Genre 建
 
 ### Requirement: HomeContentView 依 Genre 顯示分頁電影清單
 
-iOS `HomeContentView`（SwiftUI）SHALL 依目前選定的 Genre 顯示對應 Presenter 已呈現的電影清單，並提供下拉刷新與捲動時的分頁載入互動。
+iOS `HomeContentView`（SwiftUI）SHALL 依目前選定的 Genre 顯示對應 Presenter 已呈現的電影清單，並提供下拉刷新與捲動時的分頁載入互動。每張電影卡片的收藏 callback SHALL 交由注入的收藏操作處理，且 shared 收藏資料變動後卡片的愛心狀態 SHALL 與最新 `isCollect` 一致。
 
 #### Scenario: 選定 Genre 顯示對應電影卡片清單
 
@@ -58,3 +56,8 @@ iOS `HomeContentView`（SwiftUI）SHALL 依目前選定的 Genre 顯示對應 Pr
 
 - **WHEN** Presenter 的 `loadStateFlow` 反映 refresh 失敗，且目前尚無任何已載入的電影資料
 - **THEN** 畫面顯示既有 `ErrorView` 與重試按鈕，點擊重試呼叫 `retry()`（若目前無任何資料則呼叫 `refresh()`）
+
+#### Scenario: 首頁卡片切換收藏
+
+- **WHEN** 使用者點擊首頁任一電影卡片的收藏按鈕
+- **THEN** `HomeContentView` SHALL 將該卡片資料交給收藏操作，且 shared 收藏資料更新後該卡片與收藏 tab SHALL 顯示一致結果

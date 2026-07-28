@@ -1,3 +1,4 @@
+import Shared
 import SwiftUI
 
 /// iOS 主畫面的底部導覽項目。
@@ -42,12 +43,12 @@ enum MainTab: CaseIterable, Hashable {
 
     /// 目前 tab 對應的內容頁面。
     @ViewBuilder
-    var content: some View {
+    func content(movieRepository: MovieRepository) -> some View {
         switch self {
         case .home:
-            HomeView()
+            HomeView(movieRepository: movieRepository)
         case .favorite:
-            FavoritesView()
+            FavoritesView(movieRepository: movieRepository)
         case .search:
             SearchView()
         case .history:
