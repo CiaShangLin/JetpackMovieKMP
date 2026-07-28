@@ -54,44 +54,30 @@ final class MovieImageURLResolverTests: XCTestCase {
         XCTAssertNil(url)
     }
 
-    func testStateMapper_withValidPendingURLReturnsLoading() {
+    func testContentStateMapper_withValidPendingURLReturnsImage() {
         XCTAssertEqual(
-            RemoteAsyncImageStateMapper.state(
+            RemoteAsyncImageContentStateMapper.state(
                 hasValidURL: true,
-                didLoadSuccessfully: false,
                 didFail: false
             ),
-            .loading
+            .image
         )
     }
 
-    func testStateMapper_withSuccessfulLoadReturnsSuccess() {
+    func testContentStateMapper_withInvalidURLReturnsError() {
         XCTAssertEqual(
-            RemoteAsyncImageStateMapper.state(
-                hasValidURL: true,
-                didLoadSuccessfully: true,
-                didFail: false
-            ),
-            .success
-        )
-    }
-
-    func testStateMapper_withInvalidURLReturnsError() {
-        XCTAssertEqual(
-            RemoteAsyncImageStateMapper.state(
+            RemoteAsyncImageContentStateMapper.state(
                 hasValidURL: false,
-                didLoadSuccessfully: false,
                 didFail: false
             ),
             .error
         )
     }
 
-    func testStateMapper_withFailureReturnsError() {
+    func testContentStateMapper_withFailureReturnsError() {
         XCTAssertEqual(
-            RemoteAsyncImageStateMapper.state(
+            RemoteAsyncImageContentStateMapper.state(
                 hasValidURL: true,
-                didLoadSuccessfully: false,
                 didFail: true
             ),
             .error

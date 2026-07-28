@@ -23,12 +23,30 @@ class DatastoreBaseHostUrlProviderTest {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun getBaseHostUrl_reflects_persisted_configuration_base_url() = runTest {
+    fun getBaseHostUrl_prefers_persisted_configuration_secure_base_url() = runTest {
         val dataSource = UserPreferenceDataSource(InMemoryPreferencesDataStore())
         val provider = DatastoreBaseHostUrlProvider(dataSource, CoroutineScope(UnconfinedTestDispatcher(testScheduler)))
 
         dataSource.setConfiguration(
-            ConfigurationBean(images = ConfigurationBean.Images(baseUrl = "https://image.tmdb.org/t/p/")),
+            ConfigurationBean(
+                images = ConfigurationBean.Images(
+                    baseUrl = "http://image.tmdb.org/t/p/",
+                    secureBaseUrl = "https://image.tmdb.org/t/p/",
+                ),
+            ),
+        )
+
+        assertEquals("https://image.tmdb.org/t/p/", provider.getBaseHostUrl())
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun getBaseHostUrl_upgrades_http_base_url_when_secure_base_url_is_empty() = runTest {
+        val dataSource = UserPreferenceDataSource(InMemoryPreferencesDataStore())
+        val provider = DatastoreBaseHostUrlProvider(dataSource, CoroutineScope(UnconfinedTestDispatcher(testScheduler)))
+
+        dataSource.setConfiguration(
+            ConfigurationBean(images = ConfigurationBean.Images(baseUrl = "http://image.tmdb.org/t/p/")),
         )
 
         assertEquals("https://image.tmdb.org/t/p/", provider.getBaseHostUrl())

@@ -15,7 +15,8 @@ private const val DEFAULT_BASE_HOST_URL = ""
  * 由持久化使用者偏好設定支援的 [BaseHostUrlProvider]。
  *
  * `getBaseHostUrl()` 可能被圖片載入邏輯同步呼叫，因此這裡改在 [scope] 中收集
- * `UserPreferenceDataSource.userData` 的 `configuration.images.baseUrl`，把最新值快取起來，
+ * `UserPreferenceDataSource.userData` 的 `configuration.images.secureBaseUrl`，在其空白時回退
+ * 到 `configuration.images.baseUrl` 並升級為 HTTPS，把最新值快取起來，
  * 而不是每次呼叫都同步讀取 DataStore。在收集到第一筆資料前，會先回傳空字串。
  *
  * @param userPreferenceDataSource configuration 偏好設定的資料來源。
@@ -32,7 +33,10 @@ class DatastoreBaseHostUrlProvider(
 
     init {
         userPreferenceDataSource.userData
-            .map { it.configuration.images.baseUrl }
+            .map { userData ->
+                userData.configuration.images.secureBaseUrl
+                    .ifEmpty { userData.configuration.images.baseUrl }
+            }
             .distinctUntilChanged()
             .onEach { baseUrl -> cachedBaseHostUrl = baseUrl.normalizeBaseHostUrl() }
             .launchIn(scope)
@@ -42,4 +46,7 @@ class DatastoreBaseHostUrlProvider(
 }
 
 private fun String.normalizeBaseHostUrl(): String =
-    if (isNotEmpty() && !endsWith("/")) "$this/" else this
+    replaceFirst("http://", "https://")
+        .let { baseHostUrl ->
+            if (baseHostUrl.isNotEmpty() && !baseHostUrl.endsWith("/")) "$baseHostUrl/" else baseHostUrl
+        }
