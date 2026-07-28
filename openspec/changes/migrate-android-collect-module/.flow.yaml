@@ -1,1 +1,4 @@
 type: feature
+workspace: branch
+branch: feature/migrate-android-collect-module
+base_branch: master
