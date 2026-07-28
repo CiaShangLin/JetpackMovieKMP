@@ -12,6 +12,7 @@ struct MovieCardView: View {
             titleSection
             releaseDateSection
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color(.systemBackground))
         .clipShape(RoundedRectangle(cornerRadius: JMRadius.radius12))
         .overlay(
@@ -25,15 +26,21 @@ struct MovieCardView: View {
     }
 
     private var posterSection: some View {
-        ZStack(alignment: .bottomLeading) {
-            RemoteAsyncImage(path: data.movieCardPosterPath)
-                .aspectRatio(3.0 / 4.0, contentMode: .fill)
-                .clipped()
-            ratingBadge
-        }
-        .overlay(alignment: .topTrailing) {
-            collectButton
-        }
+        Color.clear
+            .aspectRatio(JMRatio.moviePoster, contentMode: .fit)
+            .frame(maxWidth: .infinity)
+            .overlay {
+                RemoteAsyncImage(path: data.movieCardPosterPath)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .clipped()
+            }
+            .overlay(alignment: .bottomLeading) {
+                ratingBadge
+            }
+            .overlay(alignment: .topTrailing) {
+                collectButton
+            }
+            .clipped()
     }
 
     private var ratingBadge: some View {
@@ -67,6 +74,7 @@ struct MovieCardView: View {
             .lineLimit(2, reservesSpace: true)
             .padding(.horizontal, JMSpacing.spacing8)
             .padding(.top, JMSpacing.spacing8)
+            .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private var releaseDateSection: some View {
@@ -74,8 +82,11 @@ struct MovieCardView: View {
             Image(systemName: "calendar")
             Text(data.movieCardReleaseDate)
                 .font(.subheadline)
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
         }
         .padding(JMSpacing.spacing8)
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 

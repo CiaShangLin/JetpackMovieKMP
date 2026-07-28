@@ -1,27 +1,21 @@
 import Kingfisher
 import SwiftUI
 
-enum RemoteAsyncImageLoadState: Equatable {
-    case loading
-    case success
+enum RemoteAsyncImageContentState: Equatable {
+    case image
     case error
 }
 
-enum RemoteAsyncImageStateMapper {
+enum RemoteAsyncImageContentStateMapper {
     static func state(
         hasValidURL: Bool,
-        didLoadSuccessfully: Bool,
         didFail: Bool
-    ) -> RemoteAsyncImageLoadState {
+    ) -> RemoteAsyncImageContentState {
         if !hasValidURL || didFail {
             return .error
         }
 
-        if didLoadSuccessfully {
-            return .success
-        }
-
-        return .loading
+        return .image
     }
 }
 
@@ -33,10 +27,7 @@ struct RemoteAsyncImage<LoadingContent: View, SuccessContent: View, ErrorContent
     private let errorContent: () -> ErrorContent
 
     @State
-    private var didLoadSuccessfully = false
-
-    @State
-    private var didFail = false
+    private var failedPath: String?
 
     init(
         path: String,
@@ -54,13 +45,13 @@ struct RemoteAsyncImage<LoadingContent: View, SuccessContent: View, ErrorContent
 
     var body: some View {
         let resolvedURL = resolver.resolve(path: path)
-        let loadState = RemoteAsyncImageStateMapper.state(
+        let contentState = RemoteAsyncImageContentStateMapper.state(
             hasValidURL: resolvedURL != nil,
-            didLoadSuccessfully: didLoadSuccessfully,
-            didFail: didFail
+            didFail: failedPath == path
         )
 
-        ZStack {
+        switch contentState {
+        case .image:
             if let resolvedURL {
                 successContent(
                     KFImage.url(resolvedURL)
@@ -68,19 +59,15 @@ struct RemoteAsyncImage<LoadingContent: View, SuccessContent: View, ErrorContent
                             loadingContent()
                         }
                         .onSuccess { _ in
-                            didLoadSuccessfully = true
-                            didFail = false
+                            failedPath = nil
                         }
                         .onFailure { _ in
-                            didLoadSuccessfully = false
-                            didFail = true
+                            failedPath = path
                         }
                 )
             }
-
-            if loadState == .error {
-                errorContent()
-            }
+        case .error:
+            errorContent()
         }
     }
 }
@@ -90,7 +77,12 @@ extension RemoteAsyncImage where LoadingContent == AnyView, SuccessContent == An
         self.init(
             path: path,
             loadingContent: {
-                AnyView(Color.gray.opacity(0.2))
+                AnyView(
+                    ZStack {
+                        Color.gray.opacity(0.2)
+                        ProgressView()
+                    }
+                )
             },
             successContent: { image in
                 AnyView(image.resizable().aspectRatio(contentMode: .fill))

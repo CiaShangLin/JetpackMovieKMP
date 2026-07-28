@@ -2,3 +2,7 @@ type: bug-fix
 workspace: branch
 branch: bug-fix/fix-ios-home-card-layout
 base_branch: master
+verify_selected:
+  - code-review
+verified:
+  - code-review

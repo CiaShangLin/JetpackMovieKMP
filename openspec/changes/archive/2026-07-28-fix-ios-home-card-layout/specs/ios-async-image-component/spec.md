@@ -2,7 +2,7 @@
 
 ### Requirement: RemoteAsyncImage SHALL 提供 Loading、Success、Error 三種狀態呈現
 
-`RemoteAsyncImage` SHALL 將 Kingfisher 圖片載入結果收斂為 Loading、Success、Error 三種互斥狀態，並提供預設 UI 與呼叫端可覆寫的內容區塊。Loading MUST 使用 Kingfisher `placeholder` 呈現；URL 無效或載入失敗時，元件 MUST 以 Error 內容取代圖片內容，不得將 Error UI 疊在失敗圖片上。當呼叫端對元件提供有限的版面尺寸時，Loading、Success、Error 狀態 MUST 使用相同的父層邊界，且 fallback 內容不得以固有尺寸擴張父層。
+`RemoteAsyncImage` SHALL 將有效 URL 的 Loading 與 Success 委派給 Kingfisher，並提供預設 UI 與呼叫端可覆寫的內容區塊。Loading MUST 使用 Kingfisher `placeholder` 呈現；URL 無效或載入失敗時，元件 MUST 以 Error 內容取代圖片內容，不得將 Error UI 疊在失敗圖片上。當呼叫端對元件提供有限的版面尺寸時，Loading、Success、Error 呈現 MUST 使用相同的父層邊界，且 fallback 內容不得以固有尺寸擴張父層。
 
 #### Scenario: 圖片載入中顯示 Loading 狀態
 - **WHEN** Kingfisher 尚未取得成功或失敗結果，且呼叫端提供固定寬高或比例容器
