@@ -230,8 +230,8 @@ fun SuccessScreen(backStack: NavBackStack<NavKey>) {
             entryProvider = { navKey ->
                 when (navKey) {
                     HomeKey -> homeEntry(onMovieClick = {}).second
-                    CollectKey -> collectEntry().second
-                    HistoryKey -> historyEntry().second
+                    CollectKey -> collectEntry(onMovieClick = {}).second
+                    HistoryKey -> historyEntry(onMovieClick = {}).second
                     SearchKey -> searchEntry(onMovieClick = {}).second
                     else -> NavEntry(navKey) { PlaceholderScreen() }
                 }
