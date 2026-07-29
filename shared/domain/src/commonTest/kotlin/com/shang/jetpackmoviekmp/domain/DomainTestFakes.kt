@@ -31,6 +31,7 @@ internal class FakeMovieRepository : MovieRepository {
     var movieDetailResult: Result<MovieDetailBean> = Result.success(MovieDetailBean())
     var movieRecommendationsResult: Result<MovieRecommendBean> = Result.success(MovieRecommendBean())
     var movieListPager: Flow<PagingData<MovieCardResult>> = flowOf(PagingData.empty())
+    var movieSearchPager: Flow<PagingData<MovieCardResult>> = flowOf(PagingData.empty())
 
     val movieHistoryFlow = MutableStateFlow<List<MovieCardResult>>(emptyList())
     val collectedMovieIdsFlow = MutableStateFlow<List<Int>>(emptyList())
@@ -49,7 +50,7 @@ internal class FakeMovieRepository : MovieRepository {
 
     override fun getMovieListPager(withGenres: String): Flow<PagingData<MovieCardResult>> = movieListPager
 
-    override fun getMovieSearchPager(query: String): Flow<PagingData<MovieCardResult>> = flowOf(PagingData.empty())
+    override fun getMovieSearchPager(query: String): Flow<PagingData<MovieCardResult>> = movieSearchPager
 
     override fun getMovieDetail(id: Int): Flow<Result<MovieDetailBean>> = flowOf(movieDetailResult)
 
