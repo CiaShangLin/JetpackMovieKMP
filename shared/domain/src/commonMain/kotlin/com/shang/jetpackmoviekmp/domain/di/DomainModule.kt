@@ -6,11 +6,12 @@ import com.shang.jetpackmoviekmp.domain.usecase.GetHistoryMovieListUseCase
 import com.shang.jetpackmoviekmp.domain.usecase.GetHomeMovieListUseCase
 import com.shang.jetpackmoviekmp.domain.usecase.GetMovieDetailUseCase
 import com.shang.jetpackmoviekmp.domain.usecase.GetMovieRecommendUseCase
+import com.shang.jetpackmoviekmp.domain.usecase.GetSearchMovieListUseCase
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 /**
- * 提供電影 UseCase 層依賴：5 個整合 `MovieRepository`／`UserDataRepository` 的 UseCase。
+ * 提供電影 UseCase 層依賴：6 個整合 `MovieRepository`／`UserDataRepository` 的 UseCase。
  *
  * 依賴既有 `dataModule()` 提供的 `MovieRepository`／`UserDataRepository`，以及
  * `commonModule()` 提供的 [CommonDispatcher.IO] qualified `CoroutineDispatcher`，
@@ -47,6 +48,12 @@ fun domainModule() = module {
     }
     factory {
         GetMovieRecommendUseCase(
+            movieRepository = get(),
+            ioDispatcher = get(qualifier = named(CommonDispatcher.IO)),
+        )
+    }
+    factory {
+        GetSearchMovieListUseCase(
             movieRepository = get(),
             ioDispatcher = get(qualifier = named(CommonDispatcher.IO)),
         )

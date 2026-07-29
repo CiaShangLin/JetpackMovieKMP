@@ -3,7 +3,9 @@ package com.shang.jetpackmoviekmp.feature.search.ui
 import androidx.paging.PagingData
 import com.shang.jetpackmoviekmp.common.AppResult
 import com.shang.jetpackmoviekmp.data.repository.MovieRepository
+import com.shang.jetpackmoviekmp.domain.usecase.GetSearchMovieListUseCase
 import com.shang.jetpackmoviekmp.model.ConfigurationBean
+import com.shang.jetpackmoviekmp.model.MovieCardData
 import com.shang.jetpackmoviekmp.model.MovieCardResult
 import com.shang.jetpackmoviekmp.model.MovieCastAndCrewBean
 import com.shang.jetpackmoviekmp.model.MovieDetailBean
@@ -45,7 +47,7 @@ class SearchViewModelTest {
     fun `初始空白 query 不搜尋`() = runTest(dispatcher) {
         // Arrange
         val repository = FakeMovieRepository()
-        val viewModel = SearchViewModel(repository)
+        val viewModel = createViewModel(repository)
         val job = viewModel.movieSearchPager.launchIn(this)
 
         // Act
@@ -61,7 +63,7 @@ class SearchViewModelTest {
     fun `提交非空 query 後搜尋電影`() = runTest(dispatcher) {
         // Arrange
         val repository = FakeMovieRepository()
-        val viewModel = SearchViewModel(repository)
+        val viewModel = createViewModel(repository)
         val job = viewModel.movieSearchPager.launchIn(this)
 
         // Act
@@ -79,7 +81,7 @@ class SearchViewModelTest {
     fun `提交新 query 時改為搜尋新關鍵字`() = runTest(dispatcher) {
         // Arrange
         val repository = FakeMovieRepository()
-        val viewModel = SearchViewModel(repository)
+        val viewModel = createViewModel(repository)
         val job = viewModel.movieSearchPager.launchIn(this)
         viewModel.startSearch("Dune")
         advanceTimeBy(300)
@@ -99,7 +101,7 @@ class SearchViewModelTest {
     fun `retry 重新搜尋目前 query`() = runTest(dispatcher) {
         // Arrange
         val repository = FakeMovieRepository()
-        val viewModel = SearchViewModel(repository)
+        val viewModel = createViewModel(repository)
         val job = viewModel.movieSearchPager.launchIn(this)
         viewModel.startSearch("Dune")
         advanceTimeBy(300)
@@ -113,11 +115,67 @@ class SearchViewModelTest {
         assertEquals(listOf("Dune", "Dune"), repository.searchQueries)
         job.cancel()
     }
+
+    @Test
+    fun `收藏未收藏電影時新增收藏資料`() = runTest(dispatcher) {
+        // Arrange
+        val repository = FakeMovieRepository()
+        val viewModel = createViewModel(repository)
+        val movie = MovieCardData(
+            movieCardId = 1,
+            movieCardTitle = "Dune",
+            movieCardPosterPath = "",
+            movieCardReleaseDate = "2021-10-22",
+            movieCardVoteAverage = 8.0,
+            movieCardIsCollect = false,
+            movieCardTimestamp = 0L,
+        )
+
+        // Act
+        viewModel.toggleMovieCollectStatus(movie)
+        runCurrent()
+
+        // Assert
+        assertEquals(listOf(1), repository.insertedMovieCollectIds)
+        assertTrue(repository.deletedMovieCollectIds.isEmpty())
+    }
+
+    @Test
+    fun `取消收藏已收藏電影時刪除收藏資料`() = runTest(dispatcher) {
+        // Arrange
+        val repository = FakeMovieRepository()
+        val viewModel = createViewModel(repository)
+        val movie = MovieCardData(
+            movieCardId = 1,
+            movieCardTitle = "Dune",
+            movieCardPosterPath = "",
+            movieCardReleaseDate = "2021-10-22",
+            movieCardVoteAverage = 8.0,
+            movieCardIsCollect = true,
+            movieCardTimestamp = 0L,
+        )
+
+        // Act
+        viewModel.toggleMovieCollectStatus(movie)
+        runCurrent()
+
+        // Assert
+        assertTrue(repository.insertedMovieCollectIds.isEmpty())
+        assertEquals(listOf(1), repository.deletedMovieCollectIds)
+    }
+
+    private fun createViewModel(repository: MovieRepository): SearchViewModel =
+        SearchViewModel(
+            movieRepository = repository,
+            getSearchMovieListUseCase = GetSearchMovieListUseCase(repository, dispatcher),
+        )
 }
 
 private class FakeMovieRepository : MovieRepository {
 
     val searchQueries = mutableListOf<String>()
+    val insertedMovieCollectIds = mutableListOf<Int>()
+    val deletedMovieCollectIds = mutableListOf<Int>()
 
     override fun getConfiguration(): Flow<Result<ConfigurationBean>> = flowOf(Result.success(ConfigurationBean()))
 
@@ -138,9 +196,13 @@ private class FakeMovieRepository : MovieRepository {
     override fun getMovieActor(id: Int): Flow<Result<MovieCastAndCrewBean>> =
         flowOf(Result.success(MovieCastAndCrewBean()))
 
-    override suspend fun insertMovieCollect(movieResult: MovieCardResult) = Unit
+    override suspend fun insertMovieCollect(movieResult: MovieCardResult) {
+        insertedMovieCollectIds += movieResult.id
+    }
 
-    override suspend fun deleteMovieCollect(movieResult: MovieCardResult) = Unit
+    override suspend fun deleteMovieCollect(movieResult: MovieCardResult) {
+        deletedMovieCollectIds += movieResult.id
+    }
 
     override fun getCollectedMovieIds(): Flow<List<Int>> = flowOf(emptyList())
 

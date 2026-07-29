@@ -232,7 +232,7 @@ fun SuccessScreen(backStack: NavBackStack<NavKey>) {
                     HomeKey -> homeEntry(onMovieClick = {}).second
                     CollectKey -> collectEntry().second
                     HistoryKey -> historyEntry().second
-                    SearchKey -> searchEntry().second
+                    SearchKey -> searchEntry(onMovieClick = {}).second
                     else -> NavEntry(navKey) { PlaceholderScreen() }
                 }
             },
