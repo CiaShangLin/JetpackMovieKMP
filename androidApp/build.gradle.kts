@@ -20,6 +20,7 @@ dependencies {
     implementation(projects.shared.domain)
     implementation(projects.shared.data)
     implementation(projects.feature.collect)
+    implementation(projects.feature.history)
     implementation(projects.feature.home)
 
     implementation(libs.androidx.activity.compose)

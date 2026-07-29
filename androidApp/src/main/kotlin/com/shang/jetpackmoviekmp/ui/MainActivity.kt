@@ -42,6 +42,8 @@ import com.shang.jetpackmoviekmp.core.ui.ErrorScreen
 import com.shang.jetpackmoviekmp.core.ui.LoadingScreen
 import com.shang.jetpackmoviekmp.feature.collect.navigation.CollectKey
 import com.shang.jetpackmoviekmp.feature.collect.navigation.collectEntry
+import com.shang.jetpackmoviekmp.feature.history.navigation.HistoryKey
+import com.shang.jetpackmoviekmp.feature.history.navigation.historyEntry
 import com.shang.jetpackmoviekmp.feature.home.navigation.HomeKey
 import com.shang.jetpackmoviekmp.feature.home.navigation.homeEntry
 import com.shang.jetpackmoviekmp.model.LanguageMode
@@ -227,6 +229,7 @@ fun SuccessScreen(backStack: NavBackStack<NavKey>) {
                 when (navKey) {
                     HomeKey -> homeEntry(onMovieClick = {}).second
                     CollectKey -> collectEntry().second
+                    HistoryKey -> historyEntry().second
                     else -> NavEntry(navKey) { PlaceholderScreen() }
                 }
             },
