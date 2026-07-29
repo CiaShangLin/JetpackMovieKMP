@@ -37,7 +37,7 @@
 
 ### Requirement: `MainActivity` 主要導覽骨架 MUST 使用 Navigation3
 
-`MainActivity` 的主要導覽骨架 MUST 使用專案既定的 `androidx.navigation3:navigation3-runtime` 與 `androidx.navigation3:navigation3-ui`（`NavBackStack`／`NavDisplay`／entry provider），MUST NOT 依賴 classic `androidx.navigation:navigation-compose`（`NavHostController`／`NavHost`／`rememberNavController`）。已遷移的首頁與收藏頁 MUST 各自使用 typed `NavKey`，並由 `MainNavItem` 驅動底部導覽切換。
+`MainActivity` 的主要導覽骨架 MUST 使用專案既定的 `androidx.navigation3:navigation3-runtime` 與 `androidx.navigation3:navigation3-ui`（`NavBackStack`／`NavDisplay`／entry provider），MUST NOT 依賴 classic `androidx.navigation:navigation-compose`（`NavHostController`／`NavHost`／`rememberNavController`）。已遷移的首頁、收藏頁與歷史頁 MUST 各自使用 typed `NavKey`，並由 `MainNavItem` 驅動底部導覽切換。
 
 #### Scenario: 不存在 classic Navigation Compose 依賴
 
@@ -55,6 +55,12 @@
 - **WHEN** 使用者點擊底部導覽列的收藏項目
 - **THEN** `MainNavItem.COLLECT` 對應的 `CollectKey` MUST 成為目前 backstack 項目
 - **AND** `NavDisplay` 的 entryProvider MUST 回傳渲染 `CollectScreen` 的 collect `NavEntry`，不得回退為 `PlaceholderScreen`
+
+#### Scenario: 導覽列可進入歷史頁
+
+- **WHEN** 使用者點擊底部導覽列的歷史項目
+- **THEN** `MainNavItem.HISTORY` 對應的 `HistoryKey` MUST 成為目前 backstack 項目
+- **AND** `NavDisplay` 的 entryProvider MUST 回傳渲染 `HistoryScreen` 的 history `NavEntry`，不得回退為 `PlaceholderScreen`
 
 ### Requirement: `MainViewModel` MUST 透過 Koin 注入
 
