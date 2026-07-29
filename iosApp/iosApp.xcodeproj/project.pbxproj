@@ -45,32 +45,32 @@
 			path = iosApp;
 			sourceTree = "<group>";
 		};
-		D1A60BCE2ADC7C9D76508EC1 /* Configuration */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = Configuration;
-			sourceTree = "<group>";
-		};
 		6B2B4FA52D1C477995D4B31E /* iosAppTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = iosAppTests;
 			sourceTree = "<group>";
 		};
+		D1A60BCE2ADC7C9D76508EC1 /* Configuration */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Configuration;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		6B2B4FA62D1C477995D4B31E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F0A67A727273464E66EACD88 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				6B2B4FA12D1C477995D4B31E /* Kingfisher in Frameworks */,
 				D30E89D930147C32008C592B /* Lottie in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		6B2B4FA62D1C477995D4B31E /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -99,6 +99,29 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		6B2B4FA72D1C477995D4B31E /* iosAppTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6B2B4FAE2D1C477995D4B31E /* Build configuration list for PBXNativeTarget "iosAppTests" */;
+			buildPhases = (
+				6B2B4FA82D1C477995D4B31E /* Sources */,
+				6B2B4FA62D1C477995D4B31E /* Frameworks */,
+				6B2B4FA92D1C477995D4B31E /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				6B2B4FAB2D1C477995D4B31E /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				6B2B4FA52D1C477995D4B31E /* iosAppTests */,
+			);
+			name = iosAppTests;
+			packageProductDependencies = (
+			);
+			productName = iosAppTests;
+			productReference = 6B2B4FA42D1C477995D4B31E /* iosAppTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		C8566F677837A247121906AD /* iosApp */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = F20310FFEEC2012CCA9DAFE6 /* Build configuration list for PBXNativeTarget "iosApp" */;
@@ -124,29 +147,6 @@
 			productReference = A86082D0E36B4D6072B294DF /* JetpackMovieKMP.app */;
 			productType = "com.apple.product-type.application";
 		};
-		6B2B4FA72D1C477995D4B31E /* iosAppTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 6B2B4FAE2D1C477995D4B31E /* Build configuration list for PBXNativeTarget "iosAppTests" */;
-			buildPhases = (
-				6B2B4FA82D1C477995D4B31E /* Sources */,
-				6B2B4FA62D1C477995D4B31E /* Frameworks */,
-				6B2B4FA92D1C477995D4B31E /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				6B2B4FAB2D1C477995D4B31E /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				6B2B4FA52D1C477995D4B31E /* iosAppTests */,
-			);
-			name = iosAppTests;
-			packageProductDependencies = (
-			);
-			productName = iosAppTests;
-			productReference = 6B2B4FA42D1C477995D4B31E /* iosAppTests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -157,12 +157,12 @@
 				LastSwiftUpdateCheck = 1620;
 				LastUpgradeCheck = 1620;
 				TargetAttributes = {
-					C8566F677837A247121906AD = {
-						CreatedOnToolsVersion = 16.2;
-					};
 					6B2B4FA72D1C477995D4B31E = {
 						CreatedOnToolsVersion = 16.2;
 						TestTargetID = C8566F677837A247121906AD;
+					};
+					C8566F677837A247121906AD = {
+						CreatedOnToolsVersion = 16.2;
 					};
 				};
 			};
@@ -231,14 +231,14 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		E590519320FEA404889AD235 /* Sources */ = {
+		6B2B4FA82D1C477995D4B31E /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		6B2B4FA82D1C477995D4B31E /* Sources */ = {
+		E590519320FEA404889AD235 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -312,6 +312,54 @@
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		6B2B4FAC2D1C477995D4B31E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = "${TEAM_ID}";
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.shang.jetpackmoviekmp.iosAppTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/JetpackMovieKMP.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/JetpackMovieKMP";
+			};
+			name = Debug;
+		};
+		6B2B4FAD2D1C477995D4B31E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = "${TEAM_ID}";
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.shang.jetpackmoviekmp.iosAppTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/JetpackMovieKMP.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/JetpackMovieKMP";
 			};
 			name = Release;
 		};
@@ -437,54 +485,6 @@
 			};
 			name = Debug;
 		};
-		6B2B4FAC2D1C477995D4B31E /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = arm64;
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = "${TEAM_ID}";
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.shang.jetpackmoviekmp.iosAppTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/JetpackMovieKMP.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/JetpackMovieKMP";
-			};
-			name = Debug;
-		};
-		6B2B4FAD2D1C477995D4B31E /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = arm64;
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = "${TEAM_ID}";
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.shang.jetpackmoviekmp.iosAppTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/JetpackMovieKMP.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/JetpackMovieKMP";
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -497,20 +497,20 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		F20310FFEEC2012CCA9DAFE6 /* Build configuration list for PBXNativeTarget "iosApp" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				C43F41B83B9902E0014DED98 /* Debug */,
-				929282FDA7DA0C123275C76A /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		6B2B4FAE2D1C477995D4B31E /* Build configuration list for PBXNativeTarget "iosAppTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				6B2B4FAC2D1C477995D4B31E /* Debug */,
 				6B2B4FAD2D1C477995D4B31E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F20310FFEEC2012CCA9DAFE6 /* Build configuration list for PBXNativeTarget "iosApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C43F41B83B9902E0014DED98 /* Debug */,
+				929282FDA7DA0C123275C76A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
