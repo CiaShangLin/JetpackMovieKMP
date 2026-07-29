@@ -5,6 +5,7 @@ import com.shang.jetpackmoviekmp.common.di.CommonDispatcher
 import com.shang.jetpackmoviekmp.data.repository.MovieRepository
 import com.shang.jetpackmoviekmp.data.repository.UserDataRepository
 import com.shang.jetpackmoviekmp.domain.usecase.GetConfigurationUseCase
+import com.shang.jetpackmoviekmp.domain.usecase.GetHistoryMovieListUseCase
 import com.shang.jetpackmoviekmp.domain.usecase.GetHomeMovieListUseCase
 import com.shang.jetpackmoviekmp.domain.usecase.GetMovieDetailUseCase
 import com.shang.jetpackmoviekmp.presenter.HomeMovieListPresenter
@@ -19,8 +20,8 @@ import org.koin.core.qualifier.named
  * context 時會無法解析依賴。日後新增 Swift 端需要的依賴時，請在此物件新增具名
  * accessor，例如 `userDataRepository()`，避免將 reified generic API 直接暴露給 Swift。
  *
- * Swift 消費端應由組裝根取得這些依賴，並以建構子參數往下傳遞給 ViewModel 或其他
- * 物件；需要依賴的物件不得在內部直接呼叫 `KoinHelper`。
+ * Swift feature View 可直接透過此物件取得需要的 shared 依賴並建立 ViewModel，避免由
+ * `MainView`／`MainTab` 逐層轉送依賴。
  */
 object KoinHelper : KoinComponent {
 
@@ -62,4 +63,6 @@ object KoinHelper : KoinComponent {
             withGenres = withGenres,
             ioDispatcher = getKoin().get(qualifier = named(CommonDispatcher.IO)),
         )
+
+    fun getHistoryMovieListUseCase(): GetHistoryMovieListUseCase = getKoin().get()
 }

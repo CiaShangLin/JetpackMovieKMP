@@ -98,7 +98,7 @@ final class HomeContentViewModel {
                 state = .loading
             case .idle:
                 break
-            case .error(let error):
+            case let .error(error):
                 state = .failure(message: error.message)
             }
         }

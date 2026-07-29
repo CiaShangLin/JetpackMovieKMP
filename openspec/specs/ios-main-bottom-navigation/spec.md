@@ -25,9 +25,11 @@ iOS 主畫面底部導覽 SHALL 包含五個固定 tab，依序為首頁、收�
 - **WHEN** `MainView` 首次顯示
 - **THEN** 預設選取的 tab SHALL 為首頁
 
-### Requirement: 每個 tab 顯示 placeholder text
+### Requirement: 每個 tab 顯示對應內容
 
-除收藏 tab 外，尚未實作的搜尋、歷史與設定 tab SHALL 顯示可辨識的 placeholder text。首頁 tab SHALL 呈現既有首頁電影內容；收藏 tab SHALL 呈現 `ios-movie-collection` 定義的可用收藏畫面，而非 placeholder。
+首頁 tab SHALL 呈現既有首頁電影內容；收藏 tab SHALL 呈現 `ios-movie-collection` 定義的
+可用收藏畫面；歷史 tab SHALL 呈現 `ios-movie-history` 定義的可用觀看歷史畫面。搜尋與
+設定 tab 在尚未實作前 SHALL 顯示可辨識的 placeholder text。
 
 #### Scenario: 切換到首頁 tab
 
@@ -47,7 +49,7 @@ iOS 主畫面底部導覽 SHALL 包含五個固定 tab，依序為首頁、收�
 #### Scenario: 切換到歷史 tab
 
 - **WHEN** 使用者選取歷史 tab
-- **THEN** 畫面 SHALL 顯示歷史 placeholder text
+- **THEN** 畫面 SHALL 顯示 `HistoryView` 的觀看紀錄格線或歷史空狀態，而非 placeholder text
 
 #### Scenario: 切換到設定 tab
 

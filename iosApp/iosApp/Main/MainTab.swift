@@ -43,12 +43,12 @@ enum MainTab: CaseIterable, Hashable {
 
     /// 目前 tab 對應的內容頁面。
     @ViewBuilder
-    func content(movieRepository: MovieRepository) -> some View {
+    func content() -> some View {
         switch self {
         case .home:
-            HomeView(movieRepository: movieRepository)
+            HomeView()
         case .favorite:
-            FavoritesView(movieRepository: movieRepository)
+            FavoritesView()
         case .search:
             SearchView()
         case .history:

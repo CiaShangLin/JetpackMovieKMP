@@ -2,6 +2,18 @@ schema: spec-driven
 
 flow:
   worktree_base: ../JetpackMovieKMP-worktrees
+  verify_notes:
+    unit_test:
+      ios: >
+        本 change 未新增 Swift XCTest（依已確認範圍不測試 iOS UI）；
+        iOS 端以 shared:app:iosSimulatorArm64Test 與 iOS Simulator build 驗證。
+  verify_tools:
+    code_review:
+      ios: code-review
+  verify_commands:
+    lint:
+      android: ./gradlew ktlintCheck
+      ios: ./gradlew iosFormatCheck iosLint
 
 # Project context (optional)
 # This is shown to AI when creating artifacts.

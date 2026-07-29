@@ -9,8 +9,8 @@ iOS 的歷史 tab 目前僅顯示 placeholder，雖然 shared 層已經持久化
 - 將 iOS `HistoryView` 由 placeholder 改為訂閱 shared `GetHistoryMovieListUseCase` 的可用歷史頁。
 - 以既有 `MovieCardView` 的 SwiftUI 格線顯示觀看紀錄，並提供在地化空狀態。
 - 提供切換電影收藏狀態與清空全部觀看紀錄的操作；資料異動後由 shared Flow 更新畫面。
-- 由 `KoinHelper` 暴露歷史 UseCase，並由 iOS composition root 建立單一 SwiftUI `AppDependencies` environment，避免 Main 對各 tab 逐一轉送依賴。
-- 以 XCTest 驗證歷史 UI state 與操作決策，並更新底部導覽規格，使歷史 tab 不再是 placeholder。
+- 由 `KoinHelper` 暴露歷史 UseCase，並讓需要 shared 依賴的 SwiftUI View 直接建立其 ViewModel，避免 Main 對各 tab 逐一轉送依賴。
+- 更新底部導覽規格，使歷史 tab 不再是 placeholder；iOS UI 單元測試不納入本次範圍。
 
 ## Capabilities
 

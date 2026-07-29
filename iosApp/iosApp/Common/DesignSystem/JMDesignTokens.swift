@@ -21,6 +21,7 @@ enum JMRadius {
 enum JMSize {
     static let size1: CGFloat = 1
     static let size4: CGFloat = 4
+    static let size24: CGFloat = 24
     static let size44: CGFloat = 44
     static let size72: CGFloat = 72
     static let movieGridMinWidth: CGFloat = 160

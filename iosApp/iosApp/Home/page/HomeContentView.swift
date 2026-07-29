@@ -9,12 +9,11 @@ struct HomeContentView: View {
 
     init(
         movieGenre: MovieGenreBean.MovieGenre,
-        homeViewModel: HomeViewModel,
-        movieRepository: MovieRepository
+        homeViewModel: HomeViewModel
     ) {
         self.movieGenre = movieGenre
         viewModel = HomeContentViewModel(
-            movieRepository: movieRepository,
+            movieRepository: KoinHelper.shared.getMovieRepository(),
             movieGenre: movieGenre,
             homeViewModel: homeViewModel
         )
