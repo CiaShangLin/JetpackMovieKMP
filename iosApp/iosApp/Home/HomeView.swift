@@ -4,16 +4,11 @@ import SwiftUI
 
 /// 首頁分頁的暫時內容頁。
 struct HomeView: View {
-    private let movieRepository: MovieRepository
-
     @State
     private var viewModel: HomeViewModel
 
-    init(
-        movieRepository: MovieRepository
-    ) {
-        self.movieRepository = movieRepository
-        _viewModel = State(initialValue: HomeViewModel(movieRepository: movieRepository))
+    init() {
+        _viewModel = State(initialValue: HomeViewModel(movieRepository: KoinHelper.shared.getMovieRepository()))
     }
 
     var body: some View {
@@ -33,8 +28,7 @@ struct HomeView: View {
         case let .success(genres):
             HomeSuccessView(
                 genres: genres,
-                viewModel: viewModel,
-                movieRepository: movieRepository
+                viewModel: viewModel
             )
 
         case .failure:
@@ -49,7 +43,6 @@ struct HomeView: View {
     struct HomeSuccessView: View {
         let genres: [MovieGenreBean.MovieGenre]
         let viewModel: HomeViewModel
-        let movieRepository: MovieRepository
 
         @State
         private var selectedTabIndex = 0
@@ -61,8 +54,7 @@ struct HomeView: View {
                     ForEach(genres.indices, id: \.self) { index in
                         HomeContentView(
                             movieGenre: genres[index],
-                            homeViewModel: viewModel,
-                            movieRepository: movieRepository
+                            homeViewModel: viewModel
                         ).tag(index)
                     }
                 }

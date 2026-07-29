@@ -5,8 +5,8 @@ struct FavoritesView: View {
     @State
     private var viewModel: FavoritesViewModel
 
-    init(movieRepository: MovieRepository) {
-        _viewModel = State(initialValue: FavoritesViewModel(movieRepository: movieRepository))
+    init() {
+        _viewModel = State(initialValue: FavoritesViewModel(movieRepository: KoinHelper.shared.getMovieRepository()))
     }
 
     var body: some View {
@@ -18,10 +18,10 @@ struct FavoritesView: View {
                 }
             }
         )
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .task {
-                await viewModel.loadFavorites()
-            }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .task {
+            await viewModel.loadFavorites()
+        }
     }
 }
 

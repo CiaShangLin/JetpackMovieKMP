@@ -65,13 +65,12 @@ SHALL 呼叫 `MovieRepository.deleteAllMovieHistory()`；同一個清空尚未�
 - **WHEN** `deleteAllMovieHistory()` 尚未完成且使用者再次觸發清空
 - **THEN** ViewModel SHALL 不發出第二次清空呼叫
 
-### Requirement: iOS 歷史頁的依賴與狀態決策 SHALL 可自動化測試
+### Requirement: iOS 歷史頁 SHALL 直接透過 KoinHelper 取得 shared 依賴
 
-`KoinHelper` SHALL 提供具名方法解析 `GetHistoryMovieListUseCase`；iOS composition root
-SHALL 將它與其他 shared 依賴建立為單一 SwiftUI `AppDependencies` environment，使
-`MainView`／`MainTab` 不必向每一個 tab 逐一轉送依賴。History ViewModel SHALL 以明確
-建構子接收 UseCase 與 Repository，View 與 ViewModel SHALL NOT 直接呼叫 `KoinHelper`。
-iOS XCTest SHALL 以 AAA 結構驗證空／成功 UI state、收藏操作決策與清空重複防護。
+`KoinHelper` SHALL 提供具名方法解析 `GetHistoryMovieListUseCase`。`HistoryView` SHALL
+直接透過 `KoinHelper` 取得 UseCase 與 Repository，並以它們建立 History ViewModel；
+`MainView`／`MainTab` SHALL NOT 向每一個 tab 逐一轉送這些依賴。History ViewModel SHALL
+繼續負責 Flow 狀態映射與 Repository 寫入；iOS UI XCTest 不屬於本次 requirement。
 
 #### Scenario: KoinHelper 解析歷史 UseCase
 
@@ -81,9 +80,4 @@ iOS XCTest SHALL 以 AAA 結構驗證空／成功 UI state、收藏操作決策�
 #### Scenario: 新增 feature 依賴不擴增 Main tab 轉送參數
 
 - **WHEN** history 或後續 feature 需要新的 shared 依賴
-- **THEN** `IosApp` SHALL 將依賴加入 `AppDependencies` environment，且 `MainView`／`MainTab` SHALL NOT 為每個 feature 增加對應的依賴轉送參數
-
-#### Scenario: ViewModel 狀態與操作測試通過
-
-- **WHEN** 執行 iOS history 的 XCTest
-- **THEN** 測試 SHALL 驗證空與成功狀態映射、已收藏與未收藏電影的 repository 呼叫，以及清空進行中的第二次呼叫被忽略
+- **THEN** 對應 feature View SHALL 直接透過 `KoinHelper` 取得依賴，且 `MainView`／`MainTab` SHALL NOT 為每個 feature 增加對應的依賴轉送參數
