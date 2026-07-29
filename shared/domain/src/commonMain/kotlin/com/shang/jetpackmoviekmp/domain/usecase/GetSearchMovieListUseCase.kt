@@ -1,10 +1,12 @@
 package com.shang.jetpackmoviekmp.domain.usecase
 
 import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import androidx.paging.map
 import com.shang.jetpackmoviekmp.data.repository.MovieRepository
 import com.shang.jetpackmoviekmp.model.MovieCardResult
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
@@ -24,11 +26,16 @@ class GetSearchMovieListUseCase(
      * 建立指定關鍵字的搜尋分頁資料流。
      *
      * @param query 要查詢的電影名稱。
+     * @param scope 提供 [cachedIn] 快取的 [CoroutineScope]；由呼叫端決定實際生命週期。
      * @return 會隨收藏資料異動更新 `isCollect` 的分頁資料流。
      */
-    operator fun invoke(query: String): Flow<PagingData<MovieCardResult>> {
+    operator fun invoke(
+        query: String,
+        scope: CoroutineScope,
+    ): Flow<PagingData<MovieCardResult>> {
         val pageFlow = movieRepository.getMovieSearchPager(query)
             .flowOn(ioDispatcher)
+            .cachedIn(scope)
 
         // 取得已收藏電影 id 清單，轉為 Set 以提升 contains 查詢效能
         val collectIdsFlow = movieRepository.getCollectedMovieIds()

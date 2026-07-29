@@ -92,7 +92,7 @@
 
 ### Requirement: 搜尋電影清單 UseCase 標記收藏狀態
 
-`shared/domain` 的 `commonMain` SHALL 提供 `GetSearchMovieListUseCase`，合併 `MovieRepository.getMovieSearchPager(query)` 的分頁資料與 `getCollectedMovieIds()`，並將每筆搜尋結果的 `isCollect` 更新為目前實際收藏狀態。呼叫端 MUST 對最終搜尋資料流執行一次生命週期綁定的 Pager 快取。
+`shared/domain` 的 `commonMain` SHALL 提供 `GetSearchMovieListUseCase`，合併 `MovieRepository.getMovieSearchPager(query)` 的分頁資料與 `getCollectedMovieIds()`，並將每筆搜尋結果的 `isCollect` 更新為目前實際收藏狀態。呼叫端 MUST 傳入生命週期綁定的 `CoroutineScope`，UseCase MUST 在與收藏資料流合併前對 Pager 執行一次 `cachedIn(scope)` 快取。
 
 #### Scenario: 搜尋結果中已收藏電影標記為 true
 
@@ -103,4 +103,3 @@
 
 - **WHEN** `GetSearchMovieListUseCase` 已回傳搜尋結果，且 `getCollectedMovieIds()` 後續 emission 新增或移除其中一部電影 id
 - **THEN** 後續搜尋 Paging emission 中對應電影的 `isCollect` SHALL 反映最新收藏狀態
-

@@ -32,7 +32,10 @@ class GetSearchMovieListUseCaseTest {
         )
 
         // Act
-        val pagingData = useCase(query = "Dune").first()
+        val pagingData = useCase(
+            query = "Dune",
+            scope = backgroundScope,
+        ).first()
 
         // Assert
         assertNotNull(pagingData)
@@ -53,7 +56,10 @@ class GetSearchMovieListUseCaseTest {
         // Act
         val pagingDataEmissions = mutableListOf<PagingData<MovieCardResult>>()
         val collectJob = launch {
-            useCase(query = "Dune")
+            useCase(
+                query = "Dune",
+                scope = backgroundScope,
+            )
                 .take(2)
                 .toList(pagingDataEmissions)
         }

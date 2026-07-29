@@ -3,7 +3,6 @@ package com.shang.jetpackmoviekmp.feature.search.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
-import androidx.paging.cachedIn
 import com.shang.jetpackmoviekmp.data.repository.MovieRepository
 import com.shang.jetpackmoviekmp.domain.usecase.GetSearchMovieListUseCase
 import com.shang.jetpackmoviekmp.model.MovieCardData
@@ -46,11 +45,13 @@ class SearchViewModel(
                 retryTrigger
                     .map { query }
                     .flatMapLatest { searchQuery ->
-                        getSearchMovieListUseCase(searchQuery)
+                        getSearchMovieListUseCase(
+                            query = searchQuery,
+                            scope = viewModelScope,
+                        )
                     }
             }
         }
-        .cachedIn(viewModelScope)
 
     /** 提交 [query] 並開始搜尋；空白字串會回到初始狀態。 */
     fun startSearch(query: String) {
