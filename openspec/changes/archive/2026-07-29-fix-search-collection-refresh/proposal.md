@@ -4,7 +4,7 @@
 
 ## What Changes
 
-- 為搜尋結果的 `MovieCard` 串接電影詳情導覽與收藏切換事件。
+- 為搜尋結果的 `MovieCard` 串接電影點擊 callback 與收藏切換事件。
 - 在搜尋 ViewModel 透過既有 Repository 寫入或刪除收藏資料。
 - 新增 `GetSearchMovieListUseCase`，合併搜尋 Paging 資料與收藏電影 id，讓搜尋卡片的收藏狀態會隨收藏資料異動更新。
 - 調整搜尋 feature 由 UseCase 取得 Pager，並補齊對應單元測試。

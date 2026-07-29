@@ -32,9 +32,10 @@ import org.koin.compose.viewmodel.koinViewModel
  * 顯示收藏頁，並依收藏資料狀態切換空狀態或電影清單。
  *
  * @param viewModel 提供收藏畫面狀態與操作的 ViewModel。
+ * @param onMovieClick 使用者點擊收藏電影卡片時的回呼。
  */
 @Composable
-fun CollectScreen(viewModel: CollectViewModel = koinViewModel()) {
+fun CollectScreen(viewModel: CollectViewModel = koinViewModel(), onMovieClick: (MovieCardData) -> Unit) {
     val state by viewModel.allMovieCollect.collectAsState()
 
     when (state) {
@@ -46,6 +47,7 @@ fun CollectScreen(viewModel: CollectViewModel = koinViewModel()) {
             } else {
                 CollectSuccessScreen(
                     movieCollectList = movies,
+                    onMovieClick = onMovieClick,
                     onCollectClick = viewModel::removeMovieCollect,
                 )
             }
@@ -80,11 +82,13 @@ fun CollectEmptyScreen() {
  * 顯示收藏電影的網格清單。
  *
  * @param movieCollectList 要顯示的收藏電影。
+ * @param onMovieClick 使用者點擊電影卡片時的回呼。
  * @param onCollectClick 使用者點擊收藏按鈕時的回呼。
  */
 @Composable
 fun CollectSuccessScreen(
     movieCollectList: List<MovieCardResult>,
+    onMovieClick: (MovieCardData) -> Unit,
     onCollectClick: (MovieCardData) -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
@@ -111,6 +115,7 @@ fun CollectSuccessScreen(
             items(movieCollectList) { movie ->
                 MovieCard(
                     data = movie.asMovieCardData(),
+                    onMovieClick = onMovieClick,
                     onCollectClick = onCollectClick,
                 )
             }

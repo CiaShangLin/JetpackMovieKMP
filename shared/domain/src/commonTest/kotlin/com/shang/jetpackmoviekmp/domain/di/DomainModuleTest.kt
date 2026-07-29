@@ -11,6 +11,7 @@ import com.shang.jetpackmoviekmp.domain.usecase.GetHistoryMovieListUseCase
 import com.shang.jetpackmoviekmp.domain.usecase.GetHomeMovieListUseCase
 import com.shang.jetpackmoviekmp.domain.usecase.GetMovieDetailUseCase
 import com.shang.jetpackmoviekmp.domain.usecase.GetMovieRecommendUseCase
+import com.shang.jetpackmoviekmp.domain.usecase.GetSearchMovieListUseCase
 import com.shang.jetpackmoviekmp.network.di.networkModule
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
@@ -34,6 +35,7 @@ class DomainModuleTest : KoinTest {
     private val getHomeMovieListUseCase: GetHomeMovieListUseCase by inject()
     private val getMovieDetailUseCase: GetMovieDetailUseCase by inject()
     private val getMovieRecommendUseCase: GetMovieRecommendUseCase by inject()
+    private val getSearchMovieListUseCase: GetSearchMovieListUseCase by inject()
 
     @BeforeTest
     fun setUp() {
@@ -77,6 +79,11 @@ class DomainModuleTest : KoinTest {
     @Test
     fun domainModule_resolves_getMovieRecommendUseCase() {
         assertNotNull(getMovieRecommendUseCase)
+    }
+
+    @Test
+    fun domainModule_resolves_getSearchMovieListUseCase() {
+        assertNotNull(getSearchMovieListUseCase)
     }
 
     @Test

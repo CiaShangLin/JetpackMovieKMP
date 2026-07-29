@@ -30,6 +30,7 @@ dependencies {
     implementation(projects.core.ui)
     implementation(projects.shared.common)
     implementation(projects.shared.data)
+    implementation(projects.shared.domain)
     implementation(projects.shared.model)
 
     implementation(libs.androidx.appcompat)

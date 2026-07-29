@@ -188,6 +188,11 @@ fun MainErrorScreen(exception: Exception?, onRetry: () -> Unit) {
     }
 }
 
+/**
+ * 顯示主要底部導覽與目前 Navigation3 back stack 對應的 feature 畫面。
+ *
+ * @param backStack 目前的 Navigation3 導覽堆疊。
+ */
 @Composable
 fun SuccessScreen(backStack: NavBackStack<NavKey>) {
     val currentKey = backStack.lastOrNull()
@@ -230,9 +235,9 @@ fun SuccessScreen(backStack: NavBackStack<NavKey>) {
             entryProvider = { navKey ->
                 when (navKey) {
                     HomeKey -> homeEntry(onMovieClick = {}).second
-                    CollectKey -> collectEntry().second
-                    HistoryKey -> historyEntry().second
-                    SearchKey -> searchEntry().second
+                    CollectKey -> collectEntry(onMovieClick = {}).second
+                    HistoryKey -> historyEntry(onMovieClick = {}).second
+                    SearchKey -> searchEntry(onMovieClick = {}).second
                     else -> NavEntry(navKey) { PlaceholderScreen() }
                 }
             },

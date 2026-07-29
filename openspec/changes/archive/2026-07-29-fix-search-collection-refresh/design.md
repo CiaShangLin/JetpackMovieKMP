@@ -6,21 +6,21 @@
 
 **Goals:**
 
-- 搜尋結果的電影卡可開啟既有電影詳情導覽，並可切換收藏狀態。
+- 搜尋結果的電影卡可觸發上層提供的電影點擊 callback，並可切換收藏狀態。
 - 搜尋 Pager 與 `getCollectedMovieIds()` 合併，讓已載入結果隨收藏資料流更新 `isCollect`。
 - 遵循既有 MVVM、Repository、UseCase 與 Koin module 分層，並以單元測試保護搜尋與收藏狀態行為。
 
 **Non-Goals:**
 
 - 不調整 TMDB 搜尋 API、資料庫 schema 或 Room migration。
-- 不改變收藏頁、首頁、歷史頁或 iOS 端的收藏操作。
+- 不改變收藏頁、首頁、歷史頁或 iOS 端的收藏資料操作；本次僅統一 Android 電影卡片既有的 `onMovieClick` callback 傳遞。
 - 不新增外部依賴，也不變更搜尋關鍵字 debounce、Paging 載入或錯誤處理策略。
 
 ## Decisions
 
 ### 以 `GetSearchMovieListUseCase` 封裝收藏狀態合併
 
-在 `shared/domain` 新增 UseCase，取得 Repository 搜尋 Pager 後，以 `combine` 合併收藏 id 資料流，並對每筆 `PagingData` 更新 `isCollect`。這與 `GetHomeMovieListUseCase` 的既有模式一致，使 feature 不必了解收藏 id 的資料來源。
+在 `shared/domain` 新增 UseCase，取得 Repository 搜尋 Pager 後，以 `combine` 合併收藏 id 資料流，並對每筆 `PagingData` 更新 `isCollect`。Pager 快取只由 SearchViewModel 對最終資料流執行一次 `cachedIn(viewModelScope)`，避免每次 query 或 retry 都建立無法隨 `flatMapLatest` 取消的長生命週期快取。這使 feature 不必了解收藏 id 的資料來源。
 
 替代方案是在 `SearchViewModel` 直接合併兩個 Repository flow；不採用，因為會讓 Android feature 跨越 domain 分層，且與首頁既有架構不一致。
 
@@ -32,7 +32,7 @@
 
 ### 導覽事件由上層注入
 
-`SearchScreen` 與 `searchEntry` 接收 `onMovieClick`，由 Android App 依既有 Navigation3 的詳情導覽模式提供。收藏事件只在 feature 內處理，避免讓導覽層承擔資料寫入職責。
+`SearchScreen` 與 `searchEntry` 接收 `onMovieClick`，由 Android App 的 Navigation3 entry 提供並向下傳遞。現有 Android 導覽骨架尚未有電影詳情目的地，因此本 change 僅建立 callback 傳遞契約，不新增詳情頁或導覽目的地；收藏事件只在 feature 內處理，避免讓導覽層承擔資料寫入職責。
 
 ## Risks / Trade-offs
 

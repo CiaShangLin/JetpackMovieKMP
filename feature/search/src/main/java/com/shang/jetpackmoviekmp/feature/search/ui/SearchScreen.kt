@@ -40,13 +40,22 @@ import com.shang.jetpackmoviekmp.core.ui.ErrorScreen
 import com.shang.jetpackmoviekmp.core.ui.LoadingScreen
 import com.shang.jetpackmoviekmp.core.ui.MovieCard
 import com.shang.jetpackmoviekmp.feature.search.R
+import com.shang.jetpackmoviekmp.model.MovieCardData
 import com.shang.jetpackmoviekmp.model.MovieCardResult
 import com.shang.jetpackmoviekmp.model.asMovieCardData
 import org.koin.compose.viewmodel.koinViewModel
 
-/** 顯示電影搜尋輸入、搜尋結果及其 Paging 載入狀態。 */
+/**
+ * 顯示電影搜尋輸入、搜尋結果及其 Paging 載入狀態。
+ *
+ * @param viewModel 提供搜尋狀態與收藏操作的 ViewModel。
+ * @param onMovieClick 使用者點擊搜尋結果電影卡片時的回呼。
+ */
 @Composable
-fun SearchScreen(viewModel: SearchViewModel = koinViewModel()) {
+fun SearchScreen(
+    viewModel: SearchViewModel = koinViewModel(),
+    onMovieClick: (MovieCardData) -> Unit,
+) {
     var inputText by rememberSaveable { mutableStateOf("") }
     val searchQuery by viewModel.searchQuery.collectAsState()
     val movieSearchPager = viewModel.movieSearchPager.collectAsLazyPagingItems()
@@ -95,7 +104,14 @@ fun SearchScreen(viewModel: SearchViewModel = koinViewModel()) {
             movieSearchPager.loadState.refresh is LoadState.Error -> {
                 SearchErrorScreen(onRetry = viewModel::retrySearch)
             }
-            else -> SearchResultScreen(movieSearchPager)
+
+            else -> SearchResultScreen(
+                movieSearchPager,
+                onMovieClick = onMovieClick,
+                onCollectClick = {
+                    viewModel.toggleMovieCollectStatus(it)
+                },
+            )
         }
     }
 }
@@ -145,7 +161,11 @@ private fun SearchErrorScreen(onRetry: () -> Unit) {
 
 /** 顯示搜尋結果及清單尾端的 Paging 狀態。 */
 @Composable
-private fun SearchResultScreen(movieSearchPager: LazyPagingItems<MovieCardResult>) {
+private fun SearchResultScreen(
+    movieSearchPager: LazyPagingItems<MovieCardResult>,
+    onMovieClick: (MovieCardData) -> Unit,
+    onCollectClick: (MovieCardData) -> Unit,
+) {
     JMLazyVerticalGrid(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(8.dp),
@@ -154,7 +174,11 @@ private fun SearchResultScreen(movieSearchPager: LazyPagingItems<MovieCardResult
     ) {
         items(movieSearchPager.itemCount) { index ->
             val movie = movieSearchPager[index] ?: return@items
-            MovieCard(data = movie.asMovieCardData())
+            MovieCard(
+                data = movie.asMovieCardData(),
+                onMovieClick = onMovieClick,
+                onCollectClick = onCollectClick,
+            )
         }
         item {
             when (movieSearchPager.loadState.append) {
@@ -166,9 +190,11 @@ private fun SearchResultScreen(movieSearchPager: LazyPagingItems<MovieCardResult
                         LoadingScreen()
                     }
                 }
+
                 is LoadState.Error -> {
                     ErrorScreen(onRetry = movieSearchPager::retry)
                 }
+
                 is LoadState.NotLoading -> {
                     if (movieSearchPager.loadState.append.endOfPaginationReached) {
                         Text(

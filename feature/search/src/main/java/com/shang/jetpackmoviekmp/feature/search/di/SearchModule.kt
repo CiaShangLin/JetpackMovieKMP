@@ -9,6 +9,7 @@ fun searchModule() = module {
     viewModel {
         SearchViewModel(
             movieRepository = get(),
+            getSearchMovieListUseCase = get(),
         )
     }
 }

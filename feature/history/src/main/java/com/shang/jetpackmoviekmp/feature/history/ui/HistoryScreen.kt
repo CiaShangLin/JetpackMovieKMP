@@ -34,15 +34,17 @@ import org.koin.compose.viewmodel.koinViewModel
  * 顯示觀看歷史，並依狀態切換空狀態或電影清單。
  *
  * @param viewModel 提供歷史畫面狀態與操作的 ViewModel。
+ * @param onMovieClick 使用者點擊歷史電影卡片時的回呼。
  */
 @Composable
-fun HistoryScreen(viewModel: HistoryViewModel = koinViewModel()) {
+fun HistoryScreen(viewModel: HistoryViewModel = koinViewModel(), onMovieClick: (MovieCardData) -> Unit) {
     val state by viewModel.historyMovies.collectAsState()
 
     when (state) {
         HistoryUiState.Empty -> HistoryEmptyScreen()
         is HistoryUiState.Success -> HistorySuccessScreen(
             historyList = (state as HistoryUiState.Success).historyList,
+            onMovieClick = onMovieClick,
             onCollectClick = viewModel::toggleMovieCollect,
             onClearClick = viewModel::clearHistory,
         )
@@ -58,7 +60,7 @@ fun HistoryEmptyScreen() {
         verticalArrangement = Arrangement.Center,
     ) {
         Image(
-            painter = painterResource(R.drawable.icon_empty),
+            painter = painterResource(R.drawable.icon_history_empty),
             contentDescription = null,
             modifier = Modifier
                 .size(50.dp)
@@ -76,12 +78,14 @@ fun HistoryEmptyScreen() {
  * 顯示觀看歷史的網格清單與清空操作。
  *
  * @param historyList 要顯示的觀看紀錄清單。
+ * @param onMovieClick 使用者點擊電影卡片時的回呼。
  * @param onCollectClick 使用者點擊收藏按鈕時的回呼。
  * @param onClearClick 使用者點擊清空按鈕時的回呼。
  */
 @Composable
 fun HistorySuccessScreen(
     historyList: List<MovieCardResult>,
+    onMovieClick: (MovieCardData) -> Unit,
     onCollectClick: (MovieCardData) -> Unit,
     onClearClick: () -> Unit,
 ) {
@@ -117,6 +121,7 @@ fun HistorySuccessScreen(
             items(historyList) { movie ->
                 MovieCard(
                     data = movie.asMovieCardData(),
+                    onMovieClick = onMovieClick,
                     onCollectClick = onCollectClick,
                 )
             }
