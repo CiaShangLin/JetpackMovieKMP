@@ -2,3 +2,9 @@ type: feature
 workspace: branch
 branch: feature/migrate-android-search-feature
 base_branch: master
+verify_selected:
+  - junit
+  - code-review
+verified:
+  - junit
+  - code-review
