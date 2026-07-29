@@ -46,6 +46,8 @@ import com.shang.jetpackmoviekmp.feature.history.navigation.HistoryKey
 import com.shang.jetpackmoviekmp.feature.history.navigation.historyEntry
 import com.shang.jetpackmoviekmp.feature.home.navigation.HomeKey
 import com.shang.jetpackmoviekmp.feature.home.navigation.homeEntry
+import com.shang.jetpackmoviekmp.feature.search.navigation.SearchKey
+import com.shang.jetpackmoviekmp.feature.search.navigation.searchEntry
 import com.shang.jetpackmoviekmp.model.LanguageMode
 import com.shang.jetpackmoviekmp.model.ThemeMode
 import com.shang.jetpackmoviekmp.navigation.MainNavItem
@@ -230,6 +232,7 @@ fun SuccessScreen(backStack: NavBackStack<NavKey>) {
                     HomeKey -> homeEntry(onMovieClick = {}).second
                     CollectKey -> collectEntry().second
                     HistoryKey -> historyEntry().second
+                    SearchKey -> searchEntry().second
                     else -> NavEntry(navKey) { PlaceholderScreen() }
                 }
             },

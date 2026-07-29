@@ -6,7 +6,8 @@
 
 - 新增 Android-only `feature/search` 模組，提供電影關鍵字輸入、送出搜尋、分頁結果、初始提示、首次載入與錯誤重試 UI。
 - 將來源專案的 Hilt 與舊 Navigation Compose 實作，適配為本專案既有的 Koin、Navigation3、Compose Material 3、`core/ui` 與 `core/designsystem` 模式。
-- 在 `androidApp` 建立 Search Navigation3 entry，並啟用底部導覽的搜尋項目。
+- 在 `androidApp` 建立 Search Navigation3 entry，並啟用位於第三項的底部導覽搜尋項目。
+- 將 Android 歷史頁的空狀態圖示替換為來源專案的 `icon_empty.webp`，維持既有的同名 resource 引用。
 - 沿用 `shared:data` 的 `MovieRepository.getMovieSearchPager`，不修改共用資料層、TMDB API、資料庫或 iOS App。
 
 ## Capabilities

@@ -10,6 +10,7 @@
 - 讓使用者可由底部導覽進入搜尋頁，提交非空關鍵字後取得分頁電影結果。
 - 顯示未搜尋、refresh 載入、refresh 錯誤與 append 載入／錯誤／資料結尾等狀態，並提供合理的重試行為。
 - 延續現有的本地化資源、`MovieCard`、`JMLazyVerticalGrid` 與 Koin DI 模式。
+- 維持 Android 底部導覽的「首頁、收藏、搜尋、歷史」順序，並更新歷史空狀態的視覺資產。
 
 **Non-Goals:**
 
@@ -33,9 +34,15 @@
 
 ### 以 Navigation3 與 `MainNavItem` 接入底部導覽
 
-定義可序列化的 `SearchKey : NavKey` 與 `searchEntry()`，由 `MainActivity` 的 `NavDisplay` 提供 entry，並在 `MainNavItem` 啟用 Search icon 與本地化標籤。底部導覽切換仍沿用目前移除最後一個 entry 後加入目的地的行為。
+定義可序列化的 `SearchKey : NavKey` 與 `searchEntry()`，由 `MainActivity` 的 `NavDisplay` 提供 entry，並在 `MainNavItem` 啟用 Search icon 與本地化標籤。`MainNavItem` 固定依「首頁、收藏、搜尋、歷史」宣告，讓搜尋成為第三個底部導覽項目；底部導覽切換仍沿用目前移除最後一個 entry 後加入目的地的行為。
 
 替代方案是恢復舊字串路由／NavController；目標專案已使用 Navigation3，故不採用。
+
+### 延續來源專案的歷史空狀態 WebP 資產
+
+`feature/history` 既有的 `HistoryEmptyScreen` 保持 `R.drawable.icon_empty` 引用，僅將同名 drawable 由 vector XML 替換為來源專案提供的 `icon_empty.webp`。這能更新視覺效果而不變更 Compose 畫面或 resource API。
+
+替代方案是新增另一個 resource 名稱並修改畫面引用；這會增加不必要的遷移差異，故不採用。
 
 ### 使用既有 Compose UI 元件並明確處理 Paging 狀態
 

@@ -1,4 +1,10 @@
-## ADDED Requirements
+# android-search-module Specification
+
+## Purpose
+
+定義 Android 電影搜尋 feature module、底部導覽整合、搜尋 Paging 狀態與相關驗收標準。
+
+## Requirements
 
 ### Requirement: Android 搜尋 feature 模組
 系統 SHALL 提供獨立的 Android `feature/search` 模組，並遵循既有 feature 模組的 Gradle、Koin、Compose 與 Navigation3 慣例；此模組 MUST 僅依賴既有 shared/core 模組與 version catalog 已管理的依賴。
@@ -8,11 +14,15 @@
 - **THEN** `feature/search` SHALL 以獨立 Android library 被納入 settings 與 androidApp 依賴，且不新增 iOS target 或 shared API 變更
 
 ### Requirement: 底部導覽搜尋入口
-系統 SHALL 在 Android 底部導覽提供搜尋項目，並以 Navigation3 的 `SearchKey` 與 entry 顯示搜尋頁。
+系統 SHALL 在 Android 底部導覽提供搜尋項目，並以 Navigation3 的 `SearchKey` 與 entry 顯示搜尋頁；搜尋項目 MUST 位於首頁與收藏之後、歷史之前的第三個位置。
 
 #### Scenario: 使用者切換至搜尋頁
 - **WHEN** 使用者點擊底部導覽的搜尋項目
 - **THEN** App SHALL 顯示搜尋頁，並將搜尋目的地作為目前 Navigation3 back stack 的目的地
+
+#### Scenario: 顯示底部導覽排序
+- **WHEN** App 顯示 Android 底部導覽
+- **THEN** 項目 SHALL 依首頁、收藏、搜尋、歷史的順序排列
 
 ### Requirement: 提交電影關鍵字搜尋
 系統 SHALL 允許使用者在搜尋頁輸入電影名稱，並在使用者以 IME Search 提交非空關鍵字後，透過既有 `MovieRepository.getMovieSearchPager` 載入結果；空白 query MUST 不觸發網路搜尋。
@@ -50,3 +60,10 @@
 #### Scenario: 執行 feature/search 單元測試
 - **WHEN** 開發者執行 `feature/search` 的 JVM 測試
 - **THEN** 測試 SHALL 驗證 SearchViewModel 以 fake repository 正確建立或清空搜尋資料流，並驗證重試會重新取得目前 query 的 pager
+
+### Requirement: 歷史頁空狀態資產
+系統 SHALL 在 Android 歷史頁沒有觀看紀錄時，使用來源專案提供的 `icon_empty.webp` 作為 `R.drawable.icon_empty` 的空狀態圖示。
+
+#### Scenario: 顯示空白觀看歷史
+- **WHEN** 歷史頁沒有任何觀看紀錄
+- **THEN** 系統 SHALL 顯示 `icon_empty.webp` 與既有的空狀態提示文字
