@@ -8,7 +8,9 @@ import com.shang.jetpackmoviekmp.domain.usecase.GetConfigurationUseCase
 import com.shang.jetpackmoviekmp.domain.usecase.GetHistoryMovieListUseCase
 import com.shang.jetpackmoviekmp.domain.usecase.GetHomeMovieListUseCase
 import com.shang.jetpackmoviekmp.domain.usecase.GetMovieDetailUseCase
+import com.shang.jetpackmoviekmp.domain.usecase.GetSearchMovieListUseCase
 import com.shang.jetpackmoviekmp.presenter.HomeMovieListPresenter
+import com.shang.jetpackmoviekmp.presenter.SearchMovieListPresenter
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
 import org.koin.core.qualifier.named
@@ -61,6 +63,21 @@ object KoinHelper : KoinComponent {
         HomeMovieListPresenter(
             getHomeMovieListUseCase = getKoin().get<GetHomeMovieListUseCase>(),
             withGenres = withGenres,
+            ioDispatcher = getKoin().get(qualifier = named(CommonDispatcher.IO)),
+        )
+
+    /**
+     * 建立 iOS 專用的搜尋電影清單分頁 Presenter。
+     *
+     * 每次提交搜尋關鍵字都應建立獨立實例；呼叫端在替換或釋放畫面時必須呼叫
+     * 回傳物件的 `clear()`。
+     *
+     * @param query 使用者提交的搜尋關鍵字。
+     */
+    fun createSearchMovieListPresenter(query: String): SearchMovieListPresenter =
+        SearchMovieListPresenter(
+            getSearchMovieListUseCase = getKoin().get<GetSearchMovieListUseCase>(),
+            query = query,
             ioDispatcher = getKoin().get(qualifier = named(CommonDispatcher.IO)),
         )
 

@@ -7,6 +7,7 @@ import com.shang.jetpackmoviekmp.datastore.InMemoryPreferencesDataStore
 import com.shang.jetpackmoviekmp.domain.usecase.GetHistoryMovieListUseCase
 import com.shang.jetpackmoviekmp.domain.usecase.GetMovieDetailUseCase
 import com.shang.jetpackmoviekmp.presenter.HomeMovieListPresenter
+import com.shang.jetpackmoviekmp.presenter.SearchMovieListPresenter
 import org.koin.core.context.stopKoin
 import kotlin.test.AfterTest
 import kotlin.test.Test
@@ -97,6 +98,23 @@ class KoinHelperTest {
 
         // Assert
         assertIs<HomeMovieListPresenter>(presenter)
+        presenter.clear()
+    }
+
+    @Test
+    fun createSearchMovieListPresenter_afterInitKoin_resolvesPresenterAndClears() {
+        // Arrange
+        initKoin(
+            dataStore = InMemoryPreferencesDataStore(),
+            databaseBuilder = { getTestDatabaseBuilder() },
+            isDebug = true,
+        )
+
+        // Act
+        val presenter = KoinHelper.createSearchMovieListPresenter(query = "Dune")
+
+        // Assert
+        assertIs<SearchMovieListPresenter>(presenter)
         presenter.clear()
     }
 }

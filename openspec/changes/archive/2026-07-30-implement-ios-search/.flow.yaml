@@ -2,3 +2,5 @@ type: feature
 workspace: branch
 branch: feature/implement-ios-search
 base_branch: master
+verify_selected:
+  - code-review
