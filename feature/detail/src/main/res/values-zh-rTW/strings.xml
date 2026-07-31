@@ -1,0 +1,5 @@
+<resources>
+    <string name="movie_detail_overview">劇情簡介</string>
+    <string name="movie_detail_main_cast">主要演員</string>
+    <string name="movie_detail_recommendations">推薦電影</string>
+</resources>

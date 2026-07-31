@@ -1,0 +1,5 @@
+<resources>
+    <string name="movie_detail_overview">Overview</string>
+    <string name="movie_detail_main_cast">Main cast</string>
+    <string name="movie_detail_recommendations">Recommendations</string>
+</resources>

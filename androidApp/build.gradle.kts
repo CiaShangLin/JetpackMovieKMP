@@ -24,6 +24,7 @@ dependencies {
     implementation(projects.feature.home)
     implementation(projects.feature.search)
     implementation(projects.feature.setting)
+    implementation(projects.feature.detail)
 
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.core.ktx)

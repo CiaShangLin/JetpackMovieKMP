@@ -48,8 +48,6 @@ import com.shang.jetpackmoviekmp.feature.home.navigation.HomeKey
 import com.shang.jetpackmoviekmp.feature.home.navigation.homeEntry
 import com.shang.jetpackmoviekmp.feature.search.navigation.SearchKey
 import com.shang.jetpackmoviekmp.feature.search.navigation.searchEntry
-import com.shang.jetpackmoviekmp.feature.setting.navigation.SettingKey
-import com.shang.jetpackmoviekmp.feature.setting.navigation.settingEntry
 import com.shang.jetpackmoviekmp.model.LanguageMode
 import com.shang.jetpackmoviekmp.model.ThemeMode
 import com.shang.jetpackmoviekmp.navigation.MainNavItem
@@ -224,22 +222,52 @@ fun SuccessScreen(backStack: NavBackStack<NavKey>) {
             }
         },
     ) {
-        // 未來新增的目的地在對應 feature module 導入前，一律回退到 PlaceholderScreen。
+        // 待各分頁 feature module 導入後再依 MainNavItem 補上對應的 NavEntry，
+        // 尚未導入的分頁一律回退到 PlaceholderScreen。
         NavDisplay(
             backStack = backStack,
             onBack = { backStack.removeLastOrNull() },
-            entryProvider = { navKey ->
-                when (navKey) {
-                    HomeKey -> homeEntry(onMovieClick = {}).second
-                    CollectKey -> collectEntry(onMovieClick = {}).second
-                    HistoryKey -> historyEntry(onMovieClick = {}).second
-                    SearchKey -> searchEntry(onMovieClick = {}).second
-                    SettingKey -> settingEntry().second
-                    else -> NavEntry(navKey) { PlaceholderScreen() }
-                }
-            },
+            entryProvider = { navKey -> mainEntry(navKey, backStack) },
         )
     }
+}
+
+@Composable
+private fun DetailNavDisplay(backStack: NavBackStack<NavKey>) {
+    NavDisplay(
+        backStack = backStack,
+        onBack = { backStack.removeLastOrNull() },
+        entryProvider = { navKey ->
+            when (navKey) {
+                is MovieDetailKey -> movieDetailEntry(
+                    key = navKey,
+                    onBackClick = { backStack.removeLastOrNull() },
+                    onMovieClick = { movie -> backStack.add(MovieDetailKey(movie.movieCardId)) },
+                ).second
+                else -> mainEntry(navKey, backStack)
+            }
+        },
+    )
+}
+
+private fun mainEntry(
+    navKey: NavKey,
+    backStack: NavBackStack<NavKey>,
+): NavEntry<NavKey> = when (navKey) {
+    HomeKey -> homeEntry(onMovieClick = { movieId ->
+        backStack.add(MovieDetailKey(movieId))
+    }).second
+    CollectKey -> collectEntry(onMovieClick = { movie ->
+        backStack.add(MovieDetailKey(movie.movieCardId))
+    }).second
+    HistoryKey -> historyEntry(onMovieClick = { movie ->
+        backStack.add(MovieDetailKey(movie.movieCardId))
+    }).second
+    SearchKey -> searchEntry(onMovieClick = { movie ->
+        backStack.add(MovieDetailKey(movie.movieCardId))
+    }).second
+    SettingKey -> settingEntry().second
+    else -> NavEntry(navKey) { PlaceholderScreen() }
 }
 
 @Composable
