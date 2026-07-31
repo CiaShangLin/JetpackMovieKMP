@@ -13,6 +13,7 @@ class MainNavItemTest {
                 MainNavItem.COLLECT,
                 MainNavItem.SEARCH,
                 MainNavItem.HISTORY,
+                MainNavItem.SETTING,
             ),
             MainNavItem.entries.toList(),
         )
