@@ -4,4 +4,5 @@
     <string name="nav_favor">收藏</string>
     <string name="nav_history">歷史</string>
     <string name="nav_search">搜尋</string>
+    <string name="nav_setting">設定</string>
 </resources>

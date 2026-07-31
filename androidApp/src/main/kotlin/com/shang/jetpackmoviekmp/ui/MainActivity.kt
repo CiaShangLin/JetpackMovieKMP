@@ -42,8 +42,6 @@ import com.shang.jetpackmoviekmp.core.ui.ErrorScreen
 import com.shang.jetpackmoviekmp.core.ui.LoadingScreen
 import com.shang.jetpackmoviekmp.feature.collect.navigation.CollectKey
 import com.shang.jetpackmoviekmp.feature.collect.navigation.collectEntry
-import com.shang.jetpackmoviekmp.feature.detail.navigation.MovieDetailKey
-import com.shang.jetpackmoviekmp.feature.detail.navigation.movieDetailEntry
 import com.shang.jetpackmoviekmp.feature.history.navigation.HistoryKey
 import com.shang.jetpackmoviekmp.feature.history.navigation.historyEntry
 import com.shang.jetpackmoviekmp.feature.home.navigation.HomeKey
@@ -194,11 +192,6 @@ fun MainErrorScreen(exception: Exception?, onRetry: () -> Unit) {
 fun SuccessScreen(backStack: NavBackStack<NavKey>) {
     val currentKey = backStack.lastOrNull()
 
-    if (currentKey is MovieDetailKey) {
-        DetailNavDisplay(backStack)
-        return
-    }
-
     JMNavigationSuiteScaffold(
         navigationSuiteItems = {
             MainNavItem.entries.forEach { item ->
@@ -273,6 +266,7 @@ private fun mainEntry(
     SearchKey -> searchEntry(onMovieClick = { movie ->
         backStack.add(MovieDetailKey(movie.movieCardId))
     }).second
+    SettingKey -> settingEntry().second
     else -> NavEntry(navKey) { PlaceholderScreen() }
 }
 
