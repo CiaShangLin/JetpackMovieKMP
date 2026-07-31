@@ -11,6 +11,7 @@ import com.shang.jetpackmoviekmp.feature.collect.di.collectModule
 import com.shang.jetpackmoviekmp.feature.history.di.historyModule
 import com.shang.jetpackmoviekmp.feature.home.di.homeModule
 import com.shang.jetpackmoviekmp.feature.search.di.searchModule
+import com.shang.jetpackmoviekmp.feature.setting.di.settingModule
 import org.koin.android.ext.android.inject
 import org.koin.core.context.loadKoinModules
 
@@ -30,6 +31,7 @@ class JetpackMovieApplication : Application(), SingletonImageLoader.Factory {
                 collectModule(),
                 historyModule(),
                 searchModule(),
+                settingModule(),
             ),
         )
     }

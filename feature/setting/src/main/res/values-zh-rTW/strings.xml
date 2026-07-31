@@ -1,0 +1,25 @@
+<resources>
+    <string name="setting">設定</string>
+    <string name="theme_setting_title">主題設定</string>
+    <string name="language_setting_title">語言設定</string>
+    <string name="developers_setting_title">開發者資訊</string>
+    <string name="developers_setting_content">關於此應用程式</string>
+    <string name="developer_info_title">開發者資訊</string>
+    <string name="developer_name_label">開發者</string>
+    <string name="developer_tech_stack_label">技術棧</string>
+    <string name="developer_github_label">Github</string>
+
+    <!-- 主題選擇相關 -->
+    <string name="theme_selection_title">選擇主題</string>
+    <string name="theme_light_mode">亮色模式</string>
+    <string name="theme_dark_mode">黑暗模式</string>
+    <string name="theme_system_default">系統預設</string>
+    <string name="theme_setting_current_format">切換主題：%1$s</string>
+
+    <!-- 語言選擇相關 -->
+    <string name="language_selection_title">選擇語言</string>
+    <string name="language_traditional_chinese">繁體中文</string>
+    <string name="language_english">英文</string>
+    <string name="language_system_default">系統預設</string>
+    <string name="language_setting_current_format">目前語言：%1$s</string>
+</resources>

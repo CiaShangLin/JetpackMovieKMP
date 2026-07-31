@@ -48,6 +48,8 @@ import com.shang.jetpackmoviekmp.feature.home.navigation.HomeKey
 import com.shang.jetpackmoviekmp.feature.home.navigation.homeEntry
 import com.shang.jetpackmoviekmp.feature.search.navigation.SearchKey
 import com.shang.jetpackmoviekmp.feature.search.navigation.searchEntry
+import com.shang.jetpackmoviekmp.feature.setting.navigation.SettingKey
+import com.shang.jetpackmoviekmp.feature.setting.navigation.settingEntry
 import com.shang.jetpackmoviekmp.model.LanguageMode
 import com.shang.jetpackmoviekmp.model.ThemeMode
 import com.shang.jetpackmoviekmp.navigation.MainNavItem
@@ -222,8 +224,7 @@ fun SuccessScreen(backStack: NavBackStack<NavKey>) {
             }
         },
     ) {
-        // 待各分頁 feature module 導入後再依 MainNavItem 補上對應的 NavEntry，
-        // 尚未導入的分頁一律回退到 PlaceholderScreen。
+        // 未來新增的目的地在對應 feature module 導入前，一律回退到 PlaceholderScreen。
         NavDisplay(
             backStack = backStack,
             onBack = { backStack.removeLastOrNull() },
@@ -233,6 +234,7 @@ fun SuccessScreen(backStack: NavBackStack<NavKey>) {
                     CollectKey -> collectEntry(onMovieClick = {}).second
                     HistoryKey -> historyEntry(onMovieClick = {}).second
                     SearchKey -> searchEntry(onMovieClick = {}).second
+                    SettingKey -> settingEntry().second
                     else -> NavEntry(navKey) { PlaceholderScreen() }
                 }
             },
