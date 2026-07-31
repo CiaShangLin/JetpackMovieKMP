@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 kotlin {
@@ -12,7 +13,7 @@ kotlin {
 }
 
 android {
-    namespace = "com.shang.jetpackmoviekmp.core.ui"
+    namespace = "com.shang.jetpackmoviekmp.feature.detail"
     compileSdk = libs.versions.android.compile.sdk.get().toInt()
 
     defaultConfig {
@@ -26,7 +27,9 @@ android {
 
 dependencies {
     implementation(projects.core.designsystem)
-    implementation(projects.shared.common)
+    implementation(projects.core.ui)
+    implementation(projects.shared.data)
+    implementation(projects.shared.domain)
     implementation(projects.shared.model)
 
     implementation(platform(libs.androidx.compose.bom))
@@ -36,14 +39,16 @@ dependencies {
     implementation(libs.androidx.compose.runtime)
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.tooling.preview)
-    implementation(libs.androidx.paging.compose)
-    implementation(libs.coil.compose)
-    implementation(libs.coil.network.ktor3)
-    implementation(libs.koin.android)
-    implementation(libs.lottie.compose)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.navigation3.runtime)
+    implementation(libs.koin.compose)
+    implementation(libs.koin.compose.viewmodel)
+    implementation(libs.kotlinx.serialization.core)
 
     debugImplementation(libs.androidx.compose.ui.tooling)
 
+    testImplementation(libs.junit)
     testImplementation(libs.kotlin.test)
     testImplementation(libs.kotlin.test.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
 }

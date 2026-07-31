@@ -8,6 +8,7 @@ import coil3.SingletonImageLoader
 import com.shang.jetpackmoviekmp.core.ui.di.uiModule
 import com.shang.jetpackmoviekmp.di.mainModule
 import com.shang.jetpackmoviekmp.feature.collect.di.collectModule
+import com.shang.jetpackmoviekmp.feature.detail.di.detailModule
 import com.shang.jetpackmoviekmp.feature.history.di.historyModule
 import com.shang.jetpackmoviekmp.feature.home.di.homeModule
 import com.shang.jetpackmoviekmp.feature.search.di.searchModule
@@ -30,6 +31,7 @@ class JetpackMovieApplication : Application(), SingletonImageLoader.Factory {
                 collectModule(),
                 historyModule(),
                 searchModule(),
+                detailModule(),
             ),
         )
     }

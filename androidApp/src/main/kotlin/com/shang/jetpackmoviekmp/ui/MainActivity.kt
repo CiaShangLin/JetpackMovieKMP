@@ -42,6 +42,8 @@ import com.shang.jetpackmoviekmp.core.ui.ErrorScreen
 import com.shang.jetpackmoviekmp.core.ui.LoadingScreen
 import com.shang.jetpackmoviekmp.feature.collect.navigation.CollectKey
 import com.shang.jetpackmoviekmp.feature.collect.navigation.collectEntry
+import com.shang.jetpackmoviekmp.feature.detail.navigation.MovieDetailKey
+import com.shang.jetpackmoviekmp.feature.detail.navigation.movieDetailEntry
 import com.shang.jetpackmoviekmp.feature.history.navigation.HistoryKey
 import com.shang.jetpackmoviekmp.feature.history.navigation.historyEntry
 import com.shang.jetpackmoviekmp.feature.home.navigation.HomeKey
@@ -192,6 +194,11 @@ fun MainErrorScreen(exception: Exception?, onRetry: () -> Unit) {
 fun SuccessScreen(backStack: NavBackStack<NavKey>) {
     val currentKey = backStack.lastOrNull()
 
+    if (currentKey is MovieDetailKey) {
+        DetailNavDisplay(backStack)
+        return
+    }
+
     JMNavigationSuiteScaffold(
         navigationSuiteItems = {
             MainNavItem.entries.forEach { item ->
@@ -227,17 +234,46 @@ fun SuccessScreen(backStack: NavBackStack<NavKey>) {
         NavDisplay(
             backStack = backStack,
             onBack = { backStack.removeLastOrNull() },
-            entryProvider = { navKey ->
-                when (navKey) {
-                    HomeKey -> homeEntry(onMovieClick = {}).second
-                    CollectKey -> collectEntry(onMovieClick = {}).second
-                    HistoryKey -> historyEntry(onMovieClick = {}).second
-                    SearchKey -> searchEntry(onMovieClick = {}).second
-                    else -> NavEntry(navKey) { PlaceholderScreen() }
-                }
-            },
+            entryProvider = { navKey -> mainEntry(navKey, backStack) },
         )
     }
+}
+
+@Composable
+private fun DetailNavDisplay(backStack: NavBackStack<NavKey>) {
+    NavDisplay(
+        backStack = backStack,
+        onBack = { backStack.removeLastOrNull() },
+        entryProvider = { navKey ->
+            when (navKey) {
+                is MovieDetailKey -> movieDetailEntry(
+                    key = navKey,
+                    onBackClick = { backStack.removeLastOrNull() },
+                    onMovieClick = { movie -> backStack.add(MovieDetailKey(movie.movieCardId)) },
+                ).second
+                else -> mainEntry(navKey, backStack)
+            }
+        },
+    )
+}
+
+private fun mainEntry(
+    navKey: NavKey,
+    backStack: NavBackStack<NavKey>,
+): NavEntry<NavKey> = when (navKey) {
+    HomeKey -> homeEntry(onMovieClick = { movieId ->
+        backStack.add(MovieDetailKey(movieId))
+    }).second
+    CollectKey -> collectEntry(onMovieClick = { movie ->
+        backStack.add(MovieDetailKey(movie.movieCardId))
+    }).second
+    HistoryKey -> historyEntry(onMovieClick = { movie ->
+        backStack.add(MovieDetailKey(movie.movieCardId))
+    }).second
+    SearchKey -> searchEntry(onMovieClick = { movie ->
+        backStack.add(MovieDetailKey(movie.movieCardId))
+    }).second
+    else -> NavEntry(navKey) { PlaceholderScreen() }
 }
 
 @Composable
