@@ -72,7 +72,7 @@ fun MovieDetailScreen(
     val movieRecommendations by viewModel.movieRecommendations.collectAsState()
     val movieActors by viewModel.movieActors.collectAsState()
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         when (val state = movieDetail) {
             MovieDetailUiState.Loading -> LoadingScreen()
             is MovieDetailUiState.Error -> ErrorScreen(
