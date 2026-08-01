@@ -19,6 +19,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -196,6 +197,24 @@ fun MainErrorScreen(exception: Exception?, onRetry: () -> Unit) {
 fun SuccessScreen(backStack: NavBackStack<NavKey>) {
     val currentKey = backStack.lastOrNull()
 
+    // 用 movableContentOf 讓同一個 NavDisplay 組合狀態能在「有無包裝 JMNavigationSuiteScaffold」
+    // 兩種父層結構間搬移，而不會因為切換到不同的呼叫點被 Compose 視為結構變化而整棵樹重建、
+    // 遺失子畫面（例如搜尋輸入框、分頁選擇）的 remember 狀態。
+    val navDisplay = remember(backStack) {
+        movableContentOf {
+            NavDisplay(
+                backStack = backStack,
+                onBack = { backStack.removeLastOrNull() },
+                entryProvider = { navKey -> mainEntry(navKey, backStack) },
+            )
+        }
+    }
+
+    if (currentKey is MovieDetailKey) {
+        navDisplay()
+        return
+    }
+
     JMNavigationSuiteScaffold(
         navigationSuiteItems = {
             MainNavItem.entries.forEach { item ->
@@ -228,30 +247,8 @@ fun SuccessScreen(backStack: NavBackStack<NavKey>) {
     ) {
         // 待各分頁 feature module 導入後再依 MainNavItem 補上對應的 NavEntry，
         // 尚未導入的分頁一律回退到 PlaceholderScreen。
-        NavDisplay(
-            backStack = backStack,
-            onBack = { backStack.removeLastOrNull() },
-            entryProvider = { navKey -> mainEntry(navKey, backStack) },
-        )
+        navDisplay()
     }
-}
-
-@Composable
-private fun DetailNavDisplay(backStack: NavBackStack<NavKey>) {
-    NavDisplay(
-        backStack = backStack,
-        onBack = { backStack.removeLastOrNull() },
-        entryProvider = { navKey ->
-            when (navKey) {
-                is MovieDetailKey -> movieDetailEntry(
-                    key = navKey,
-                    onBackClick = { backStack.removeLastOrNull() },
-                    onMovieClick = { movie -> backStack.add(MovieDetailKey(movie.movieCardId)) },
-                ).second
-                else -> mainEntry(navKey, backStack)
-            }
-        },
-    )
 }
 
 private fun mainEntry(
@@ -271,6 +268,11 @@ private fun mainEntry(
         backStack.add(MovieDetailKey(movie.movieCardId))
     }).second
     SettingKey -> settingEntry().second
+    is MovieDetailKey -> movieDetailEntry(
+        key = navKey,
+        onBackClick = { backStack.removeLastOrNull() },
+        onMovieClick = { movie -> backStack.add(MovieDetailKey(movie.movieCardId)) },
+    ).second
     else -> NavEntry(navKey) { PlaceholderScreen() }
 }
 

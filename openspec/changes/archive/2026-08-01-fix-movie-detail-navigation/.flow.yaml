@@ -2,3 +2,7 @@ type: bug-fix
 workspace: branch
 branch: bug-fix/fix-movie-detail-navigation
 base_branch: master
+verify_selected:
+  - code-review
+verified:
+  - code-review
