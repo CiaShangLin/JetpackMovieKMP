@@ -1,1 +1,4 @@
 type: feature
+workspace: branch
+branch: feature/add-ios-setting-module
+base_branch: master
