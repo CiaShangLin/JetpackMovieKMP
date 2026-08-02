@@ -15,6 +15,9 @@ struct SearchView: View {
             .onSubmit(of: .search) {
                 viewModel.submit(query: searchText)
             }
+            .task {
+                await viewModel.observeLanguageMode()
+            }
     }
 
     @ViewBuilder

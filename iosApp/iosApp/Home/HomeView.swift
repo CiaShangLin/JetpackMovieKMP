@@ -17,6 +17,9 @@ struct HomeView: View {
             .task {
                 await viewModel.loadHome()
             }
+            .task {
+                await viewModel.observeLanguageMode()
+            }
     }
 
     @ViewBuilder

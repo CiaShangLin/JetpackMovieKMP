@@ -100,6 +100,9 @@ final class SearchViewModel {
     /// 沒有保證，跨 Task 判斷會有極少數情況下順序顛倒、永遠判斷不出無結果的 race。
     private var hasSeenRefreshLoading = false
 
+    /// 記錄上一次觀察到的語言模式，用來判斷 `observeLanguageMode()` 收到的是不是一次真正的變化。
+    private var lastLanguageMode: LanguageMode?
+
     init(
         movieRepository: MovieCollectionToggling = MovieRepositoryCollectionAdapter(
             repository: KoinHelper.shared.getMovieRepository()
@@ -165,6 +168,18 @@ final class SearchViewModel {
         guard let submittedQuery, !submittedQuery.isEmpty else { return }
         // 不直接呼叫 Paging refresh：重建 presenter 可保證搜尋從第 1 頁開始。
         submit(query: submittedQuery)
+    }
+
+    /// 監聽語言模式變化，變化時重新提交目前的搜尋（`refresh()` 在沒有已提交的
+    /// query 時本身就是 no-op，因此可以放心在使用者還沒搜尋過時就開始觀察）。
+    func observeLanguageMode() async {
+        for await userData in KoinHelper.shared.userDataRepository().userData {
+            let mode = userData.languageMode
+            if let last = lastLanguageMode, last != mode {
+                refresh()
+            }
+            lastLanguageMode = mode
+        }
     }
 
     func toggleMovieCollectStatus(data: MovieCardData) async {
