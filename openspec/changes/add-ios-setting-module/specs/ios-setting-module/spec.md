@@ -43,6 +43,13 @@
 - **WHEN** 使用者選擇 `SYSTEM_DEFAULT`，且裝置系統語言之後被使用者變更
 - **THEN** TMDB 內容語言 SHALL 於下次請求時反映新的系統語言（透過既有 `currentSystemLanguageCode()` 行為），不需要本次新增任何偵測程式碼
 
+#### Scenario: 已載入的 Home／Search 清單在語言切換後立即重新請求
+
+- **WHEN** 使用者已經在 Home 或 Search 分頁瀏覽電影清單，且該清單已完成至少一次載入
+- **AND** 使用者接著在設定頁切換到不同的 `LanguageMode`
+- **THEN** Home／Search 對應的已載入清單 SHALL 以新的語言重新發送請求並更新畫面內容，不需要使用者重新啟動 App
+- **AND** Favorites／History 分頁顯示的本地已收藏／已看過資料快照 SHALL NOT 因此重新翻譯
+
 ### Requirement: 設定頁 SHALL 提供開發者資訊
 
 設定頁 SHALL 提供開發者資訊項目，點擊後顯示內容，內容 SHALL 包含 App 名稱「JetpackMovieKMP」、開發者資訊與可點擊的 GitHub 連結。

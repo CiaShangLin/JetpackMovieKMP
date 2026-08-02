@@ -42,3 +42,11 @@
 
 - [ ] 6.1（選用）在 `iosApp/iosAppTests/Setting/` 新增 `SettingViewModelTests.swift`，比照 `Search/SearchViewModelTests.swift` 的 Fake Repository 模式，驗證 `setThemeMode`／`setLanguageMode` 有轉發呼叫給 `UserDataRepository`
 - [ ] 6.2（選用）驗證 `observeUserData()` 正確反映 Fake Repository 發出的 `userData` Flow
+
+## 7. 語言切換即時刷新（Home／Search）
+
+- [x] 7.1 `HomeViewModel.swift` 新增 `lastLanguageMode: LanguageMode?` 與 `observeLanguageMode() async`：監聽 `userDataRepository().userData` 的 `languageMode`，變化時對所有已快取的 `presenters.values` 呼叫 `.refresh()`
+- [x] 7.2 `HomeView.swift` 加上並行的 `.task { await viewModel.observeLanguageMode() }`
+- [x] 7.3 `SearchViewModel.swift` 同樣新增 `lastLanguageMode` 與 `observeLanguageMode() async`，變化時呼叫既有的 `refresh()`
+- [x] 7.4 `SearchView.swift` 加上對應的 `.task`
+- [x] 7.5 確認 Favorites／History 不需要相同處理（本地已收藏/已看過資料快照，語言切換不回溯翻譯，跟 Android 版行為一致）
