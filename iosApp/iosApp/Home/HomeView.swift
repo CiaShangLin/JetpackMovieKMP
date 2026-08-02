@@ -8,7 +8,12 @@ struct HomeView: View {
     private var viewModel: HomeViewModel
 
     init() {
-        _viewModel = State(initialValue: HomeViewModel(movieRepository: KoinHelper.shared.getMovieRepository()))
+        _viewModel = State(
+            initialValue: HomeViewModel(
+                movieRepository: KoinHelper.shared.getMovieRepository(),
+                userDataRepository: KoinHelper.shared.userDataRepository()
+            )
+        )
     }
 
     var body: some View {
@@ -16,6 +21,9 @@ struct HomeView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .task {
                 await viewModel.loadHome()
+            }
+            .task {
+                await viewModel.observeLanguageMode()
             }
     }
 

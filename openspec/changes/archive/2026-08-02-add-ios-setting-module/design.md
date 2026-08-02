@@ -51,6 +51,14 @@
 
 新增 key 沿用 Android `strings.xml` 的語意但採 iOS 慣例命名（例如 `setting_theme_title`、`setting_theme_light`、`setting_theme_dark`、`setting_theme_system`、`setting_language_title`、`setting_language_traditional_chinese`、`setting_language_english`、`setting_language_system_default`、`setting_developer_title`、`setting_developer_name_label`、`setting_developer_tech_stack_label`、`setting_developer_github_label`），需要 `en` 與 `zh-Hant` 兩組翻譯。
 
+### 6. 語言切換後主動刷新已載入清單（Home／Search），而非僅依賴「下次請求」
+
+手動驗證時發現：雖然 `DatastoreLanguageProvider` 即時反映最新語言、Ktor `defaultRequest` 每次請求都會重新讀取，但 `HomeViewModel`／`SearchViewModel` 的 Paging presenter 一旦建立就終身快取，且 `MainView` 用 `TabView` + `ForEach` 一次建立所有分頁 View（不是切到才建立），導致「下次請求」在實務上只有強制關閉 App 重開才會觸發，沒有其他自然時機。
+
+- 決定：`HomeViewModel`／`SearchViewModel` 各自新增 `observeLanguageMode() async`，監聽 `KoinHelper.shared.userDataRepository().userData` 的 `languageMode`，偵測到跟上一次觀察到的值不同時，主動觸發已快取 Paging presenter 的 refresh（Home 呼叫 `HomeMovieListPresenter.refresh()`；Search 呼叫既有的 `SearchViewModel.refresh()`，重新提交目前搜尋詞）。`HomeView`／`SearchView` 各自加一個並行的 `.task` 持續觀察。
+- 範圍排除 Favorites／History：這兩頁顯示的是本地 DB 已收藏/已看過資料的快照，語言切換不會、也不應該回溯翻譯已存紀錄，此行為與 Android 版一致，不需要處理。
+- 理由：對照主題套用（`IosApp` 監聽 `userData` 即時套用 `preferredColorScheme`），語言變更也應該有等效的「操作後立即看到效果」體驗，而不是讓使用者誤以為切換沒生效、得自己強制重啟 App 才能驗證。
+
 ## Risks / Trade-offs
 
 - **[風險]** 兩份既有 spec（`ios-koin-bridge` vs `ios-movie-history`）對「是否該由組裝根轉送依賴」給出不同答案，未來若有人依字面讀舊的 `ios-koin-bridge` spec 可能誤解慣例。
@@ -58,6 +66,7 @@
 - **[風險]** `.preferredColorScheme` 套在 `WindowGroup` 層級，若之後有其他 Scene 或多視窗需求，套用位置需要重新檢視。
   → **緩解**：目前 App 只有單一 `WindowGroup`，此風險現階段不存在；標記為 Open Question 供未來擴充時參考。
 - **[取捨]** 語言設定範圍縮小為「僅內容語言」，與 Android「同時覆蓋 UI 顯示語言」不完全一致，是刻意的產品行為差異（已與使用者確認），需要在使用者可見文案上避免造成「選了英文結果畫面文字沒變」的困惑——建議語言選項文案聚焦於「電影內容語言」而非泛稱「語言」，降低誤解風險（tasks.md 會列出文案措辭要點）。
+- **[取捨]** 語言切換時若使用者已瀏覽多個 Home genre 分類，每個已建立的 presenter 都會各自重新呼叫一次 TMDB API，請求次數隨已瀏覽分類數增加；目前規模可接受，未來 genre 數量大幅增加可再評估節流。
 
 ## Open Questions
 
