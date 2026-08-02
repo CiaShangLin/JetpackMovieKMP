@@ -5,6 +5,7 @@ import Shared
 @MainActor
 final class HomeViewModel {
     private let movieRepository: MovieRepository
+    private let userDataRepository: UserDataRepository
     private(set) var uiState: HomeUiState = .loading
     /// `deinit` 在 Swift 是 nonisolated context，無法直接存取 MainActor-isolated 的 var，
     /// 用 nonisolated(unsafe) 讓 deinit 能同步呼叫 clear()；deinit 執行時保證沒有其他程式碼
@@ -12,8 +13,9 @@ final class HomeViewModel {
     private nonisolated(unsafe) var presenters: [Int32: HomeMovieListPresenter] = [:]
     private var lastLanguageMode: LanguageMode?
 
-    init(movieRepository: MovieRepository) {
+    init(movieRepository: MovieRepository, userDataRepository: UserDataRepository) {
         self.movieRepository = movieRepository
+        self.userDataRepository = userDataRepository
     }
 
     deinit {
@@ -50,7 +52,7 @@ final class HomeViewModel {
     /// 監聽語言模式變化，變化時 refresh 已建立的 presenter，讓已載入的清單改用新語言重新請求。
     /// 只在「與上一次觀察到的值不同」時觸發，避免第一次收到 userData 就誤判成一次變化。
     func observeLanguageMode() async {
-        for await userData in KoinHelper.shared.userDataRepository().userData {
+        for await userData in userDataRepository.userData {
             let mode = userData.languageMode
             if let last = lastLanguageMode, last != mode {
                 presenters.values.forEach { $0.refresh() }
