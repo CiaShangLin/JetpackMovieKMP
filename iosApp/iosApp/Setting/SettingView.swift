@@ -1,7 +1,16 @@
+import Shared
 import SwiftUI
 
-/// 設定分頁的暫時內容頁。
 struct SettingView: View {
+    @State
+    private var viewModel: SettingViewModel
+
+    init() {
+        _viewModel = State(
+            initialValue: SettingViewModel(userDataRepository: KoinHelper.shared.userDataRepository())
+        )
+    }
+
     var body: some View {
         Text("main_setting_placeholder")
             .frame(maxWidth: .infinity, maxHeight: .infinity)
