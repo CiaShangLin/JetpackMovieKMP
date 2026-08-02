@@ -32,11 +32,11 @@
 
 ## 5. 手動驗證
 
-- [ ] 5.1 驗證主題：分別選擇 LIGHT／DARK／SYSTEM，確認外觀立即改變且重啟 App 後仍保留選擇（DataStore 持久化）
-- [ ] 5.2 驗證語言：選擇 TRADITIONAL_CHINESE／ENGLISH，前往 Home／Search 等頁面確認電影資料的內容語言改變，同時確認 App 選單文字（String Catalog）維持系統語言不變
-- [ ] 5.3 驗證 SYSTEM_DEFAULT：選擇 SYSTEM_DEFAULT 後，於裝置系統設定切換系統語言，重新整理內容確認 TMDB 內容語言跟著系統語言變化
-- [ ] 5.4 驗證開發者資訊：確認顯示「JetpackMovieKMP」且 GitHub 連結可正常開啟
-- [ ] 5.5 確認 `MainTab.swift` 不需要任何修改（`.setting` case 已存在），且沒有新增依賴轉送參數
+- [x] 5.1 驗證主題：分別選擇 LIGHT／DARK／SYSTEM，確認外觀立即改變且重啟 App 後仍保留選擇（DataStore 持久化）
+- [x] 5.2 驗證語言：選擇 TRADITIONAL_CHINESE／ENGLISH，前往 Home／Search 等頁面確認電影資料的內容語言改變，同時確認 App 選單文字（String Catalog）維持系統語言不變（第一次驗證時發現已載入清單沒有即時反映新語言，已透過 7.1~7.4 修正並重新驗證通過）
+- [x] 5.3 驗證 SYSTEM_DEFAULT：選擇 SYSTEM_DEFAULT 後，於裝置系統設定切換系統語言，重新整理內容確認 TMDB 內容語言跟著系統語言變化
+- [x] 5.4 驗證開發者資訊：確認顯示「JetpackMovieKMP」且 GitHub 連結可正常開啟
+- [x] 5.5 確認 `MainTab.swift` 不需要任何修改（`.setting` case 已存在），且沒有新增依賴轉送參數（已用 `git diff` 對照分支起點確認 `MainTab.swift` 全程沒有異動）
 
 ## 6. 選用：單元測試（視時間決定，非必要）
 
