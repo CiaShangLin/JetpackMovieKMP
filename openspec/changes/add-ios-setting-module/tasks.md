@@ -1,34 +1,34 @@
 ## 1. 文案準備（Localizable.xcstrings）
 
-- [ ] 1.1 打開 `iosApp/iosApp/Localizable.xcstrings`，新增以下 key 的 `en` 與 `zh-Hant` 兩組翻譯：`setting_theme_title`（主題設定）、`setting_theme_light`（淺色）、`setting_theme_dark`（深色）、`setting_theme_system`（系統預設）
-- [ ] 1.2 新增語言設定相關 key（文案措辭聚焦「電影內容語言」而非泛稱「語言」，避免使用者誤以為會改變 App 顯示語言）：`setting_language_title`、`setting_language_system_default`、`setting_language_traditional_chinese`、`setting_language_english`
-- [ ] 1.3 新增開發者資訊相關 key：`setting_developer_title`、`setting_developer_name_label`、`setting_developer_tech_stack_label`、`setting_developer_github_label`
-- [ ] 1.4 確認既有 `main_setting_placeholder` key 之後不再被任何 View 使用，若確定無其他引用可一併移除（非必要，可留待清理任務）
+- [x] 1.1 打開 `iosApp/iosApp/Localizable.xcstrings`，新增以下 key 的 `en` 與 `zh-Hant` 兩組翻譯：`setting_theme_title`（主題設定）、`setting_theme_light`（淺色）、`setting_theme_dark`（深色）、`setting_theme_system`（系統預設）
+- [x] 1.2 新增語言設定相關 key（文案措辭聚焦「電影內容語言」而非泛稱「語言」，避免使用者誤以為會改變 App 顯示語言）：`setting_language_title`、`setting_language_system_default`、`setting_language_traditional_chinese`、`setting_language_english`
+- [x] 1.3 新增開發者資訊相關 key：`setting_developer_title`、`setting_developer_name_label`、`setting_developer_tech_stack_label`、`setting_developer_github_label`
+- [x] 1.4 確認既有 `main_setting_placeholder` key 之後不再被任何 View 使用（已用 `grep` 確認 Swift 端無引用），實際移除留待之後的清理任務（非必要）
 
 ## 2. ThemeMode 套用（App 根層級）
 
-- [ ] 2.1 在 `iosApp/iosApp/Setting/`（或既有 Common 區域）新增一個 `ThemeMode` → SwiftUI `ColorScheme?` 的轉換 extension／helper（`LIGHT` → `.light`、`DARK` → `.dark`、`SYSTEM` → `nil`）
-- [ ] 2.2 修改 `iosApp/iosApp/iOSApp.swift`：新增 `@State private var themeMode: ThemeMode = .system`（或等效初始值）
-- [ ] 2.3 在 `IosApp` 加上 `.task` 修飾（掛在 `WindowGroup` 內容或以 `.onAppear` 皆可），以 `for await userData in KoinHelper.shared.userDataRepository().userData` 持續更新 `themeMode`
-- [ ] 2.4 對 `WindowGroup` 的內容套用 `.preferredColorScheme(themeMode.toColorScheme())`（依 2.1 的 helper 命名調整）
-- [ ] 2.5 手動驗證：App 啟動後於設定頁切換主題，確認 Splash（重新啟動 App 觀察）與所有分頁的外觀都同步套用新主題
+- [x] 2.1 在 `iosApp/iosApp/Setting/`（或既有 Common 區域）新增一個 `ThemeMode` → SwiftUI `ColorScheme?` 的轉換 extension／helper（`LIGHT` → `.light`、`DARK` → `.dark`、`SYSTEM` → `nil`）
+- [x] 2.2 修改 `iosApp/iosApp/iOSApp.swift`：新增 `@State private var themeMode: ThemeMode = .system`（或等效初始值）
+- [x] 2.3 在 `IosApp` 加上 `.task` 修飾（掛在 `WindowGroup` 內容或以 `.onAppear` 皆可），以 `for await userData in KoinHelper.shared.userDataRepository().userData` 持續更新 `themeMode`
+- [x] 2.4 對 `WindowGroup` 的內容套用 `.preferredColorScheme(themeMode.toColorScheme())`（依 2.1 的 helper 命名調整）
+- [x] 2.5 手動驗證：App 啟動後於設定頁切換主題，確認 Splash（重新啟動 App 觀察）與所有分頁的外觀都同步套用新主題
 
 ## 3. SettingViewModel
 
-- [ ] 3.1 新增 `iosApp/iosApp/Setting/SettingViewModel.swift`，比照 `HistoryViewModel.swift` 的結構：`@Observable @MainActor final class SettingViewModel`
-- [ ] 3.2 建構子注入 `userDataRepository: UserDataRepository`（由 `SettingView.init()` 透過 `KoinHelper.shared.userDataRepository()` 取得後傳入）
-- [ ] 3.3 新增 `private(set) var userData: UserData`（預設值可用 shared 的 `UserData.companion.getDefault()`，若 Swift 端可見；否則用等效初始狀態），並新增 `func observeUserData() async` 以 `for await userData in userDataRepository.userData` 更新此狀態
-- [ ] 3.4 新增 `func setThemeMode(_ mode: ThemeMode) async`：呼叫 `try await userDataRepository.setThemeMode(mode)`，錯誤處理比照 `HistoryViewModel`（`catch` 後 `print` 錯誤訊息，不向上拋出）
-- [ ] 3.5 新增 `func setLanguageMode(_ mode: LanguageMode) async`：呼叫 `try await userDataRepository.setLanguageMode(mode)`，錯誤處理同上
+- [x] 3.1 新增 `iosApp/iosApp/Setting/SettingViewModel.swift`，比照 `HistoryViewModel.swift` 的結構：`@Observable @MainActor final class SettingViewModel`
+- [x] 3.2 建構子注入 `userDataRepository: UserDataRepository`（由 `SettingView.init()` 透過 `KoinHelper.shared.userDataRepository()` 取得後傳入）
+- [x] 3.3 新增 `private(set) var userData: UserData`（預設值可用 shared 的 `UserData.companion.getDefault()`，若 Swift 端可見；否則用等效初始狀態），並新增 `func observeUserData() async` 以 `for await userData in userDataRepository.userData` 更新此狀態
+- [x] 3.4 新增 `func setThemeMode(_ mode: ThemeMode) async`：呼叫 `try await userDataRepository.setThemeMode(mode)`，錯誤處理比照 `HistoryViewModel`（`catch` 後 `print` 錯誤訊息，不向上拋出）
+- [x] 3.5 新增 `func setLanguageMode(_ mode: LanguageMode) async`：呼叫 `try await userDataRepository.setLanguageMode(mode)`，錯誤處理同上
 
 ## 4. SettingView UI
 
-- [ ] 4.1 將 `iosApp/iosApp/Setting/SettingView.swift` 由 placeholder 改為 `@State private var viewModel: SettingViewModel`，`init()` 中以 `KoinHelper.shared.userDataRepository()` 建立
-- [ ] 4.2 加上 `.task { await viewModel.observeUserData() }`
-- [ ] 4.3 實作清單畫面：三個列項（主題設定／語言設定／開發者資訊），列項右側顯示目前值的文案（比照 Android `theme_setting_current_format`／`language_setting_current_format` 的「目前為 xxx」呈現方式）
-- [ ] 4.4 主題列項綁定 `.confirmationDialog`，列出 LIGHT／DARK／SYSTEM 三個按鈕 + 一個 `role: .cancel` 的「取消」按鈕；點擊選項後呼叫 `viewModel.setThemeMode(_:)`。按鈕文字不額外標註目前選中項目（目前值只在列項本身顯示，見 4.3）
-- [ ] 4.5 語言列項綁定另一個 `.confirmationDialog`，列出 SYSTEM_DEFAULT／TRADITIONAL_CHINESE／ENGLISH 三個按鈕 + 一個 `role: .cancel` 的「取消」按鈕；點擊選項後呼叫 `viewModel.setLanguageMode(_:)`。同樣不在按鈕文字標註目前值
-- [ ] 4.6 開發者資訊列項改為觸發 `.sheet(isPresented:)`，Sheet 內容顯示 App 名稱「JetpackMovieKMP」、開發者資訊、技術棧文字，以及可點擊開啟 GitHub 網址的連結（`Link` 或 `onTapGesture` + `openURL`）
+- [x] 4.1 將 `iosApp/iosApp/Setting/SettingView.swift` 由 placeholder 改為 `@State private var viewModel: SettingViewModel`，`init()` 中以 `KoinHelper.shared.userDataRepository()` 建立
+- [x] 4.2 加上 `.task { await viewModel.observeUserData() }`
+- [x] 4.3 實作清單畫面：三個列項（主題設定／語言設定／開發者資訊），列項右側顯示目前值的文案（比照 Android `theme_setting_current_format`／`language_setting_current_format` 的「目前為 xxx」呈現方式）
+- [x] 4.4 主題列項綁定 `.confirmationDialog`，列出 LIGHT／DARK／SYSTEM 三個按鈕 + 一個 `role: .cancel` 的「取消」按鈕；點擊選項後呼叫 `viewModel.setThemeMode(_:)`。按鈕文字不額外標註目前選中項目（目前值只在列項本身顯示，見 4.3）
+- [x] 4.5 語言列項綁定另一個 `.confirmationDialog`，列出 SYSTEM_DEFAULT／TRADITIONAL_CHINESE／ENGLISH 三個按鈕 + 一個 `role: .cancel` 的「取消」按鈕；點擊選項後呼叫 `viewModel.setLanguageMode(_:)`。同樣不在按鈕文字標註目前值
+- [x] 4.6 開發者資訊列項改為觸發 `.sheet(isPresented:)`，Sheet 內容顯示 App 名稱「JetpackMovieKMP」、開發者資訊、技術棧文字，以及可點擊開啟 GitHub 網址的連結（`Link` 或 `onTapGesture` + `openURL`）
 
 ## 5. 手動驗證
 
