@@ -81,3 +81,13 @@ host 的完整 URL，並確認不影響 TMDB API 請求或其他非圖片相對�
 兩邊重複的訂閱與 diff 程式碼。使用者當下決定先維持現狀，不在這次 change 內變更。
 
 之後若有相關的 iOS change，可參考這個方向評估是否要重構成 Environment-based 寫法。
+
+## Android 端添加 Benchmark 冷啟動優化
+
+- 類型: feature
+- 記錄日期: 2026-08-03
+- 來源: master
+- 前置依賴: 無
+- 狀態: 待處理
+
+評估在 `androidApp` 導入 Macrobenchmark 模組，量測冷啟動時間並依量測結果進行優化（如 Baseline Profile、啟動路徑上的初始化邏輯調整）。
