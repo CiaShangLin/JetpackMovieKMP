@@ -1,46 +1,46 @@
 ## 1. shared/app：KoinHelper 擴充
 
-- [ ] 1.1 在 `shared/app/src/iosMain/kotlin/com/shang/jetpackmoviekmp/KoinHelper.kt` 新增 `getMovieRecommendUseCase(): GetMovieRecommendUseCase` accessor，比照既有 `getMovieDetailUseCase()` 寫法
-- [ ] 1.2 執行 `.\gradlew.bat :shared:app:compileKotlinIosSimulatorArm64`（或對應平台 target）確認新 accessor 可編譯，不影響既有 Android 建置
+- [x] 1.1 在 `shared/app/src/iosMain/kotlin/com/shang/jetpackmoviekmp/KoinHelper.kt` 新增 `getMovieRecommendUseCase(): GetMovieRecommendUseCase` accessor，比照既有 `getMovieDetailUseCase()` 寫法
+- [x] 1.2 執行 `.\gradlew.bat :shared:app:compileKotlinIosSimulatorArm64`（或對應平台 target）確認新 accessor 可編譯，不影響既有 Android 建置
 
 ## 2. iosApp：MovieDetail 模組 — UiState
 
-- [ ] 2.1 新增 `iosApp/iosApp/MovieDetail/MovieDetailUiState.swift`：定義 `MovieDetailUiState`（`.loading`／`.success(MovieDetailBean)`／`.failure(String)`）
-- [ ] 2.2 在同檔案定義泛型 `DetailSectionState<T>`（`.loading`／`.success(T)`／`.failure(String)`），供演員與推薦電影區塊各自使用
+- [x] 2.1 新增 `iosApp/iosApp/Detail/MovieDetailUiState.swift`：定義 `MovieDetailUiState`（`.loading`／`.success(MovieDetailBean)`／`.failure(String)`）（實際檔案放在 `Detail/` 資料夾，非原規劃的 `MovieDetail/`）
+- [ ] 2.2 ~~在同檔案定義泛型 `DetailSectionState<T>`~~：討論後決定不做泛型共用型別（Kotlin generic 匯出到 iOS 需 `onEnum(of:)` 橋接，比原生 Swift enum 麻煩）。演員區塊改用專屬的 `MovieActorUiState`（`Detail/MovieActorUiState.swift`）；推薦電影區塊尚未實作，屆時視情況另建對應狀態型別
 
 ## 3. iosApp：MovieDetail 模組 — ViewModel（主內容 + 收藏）
 
-- [ ] 3.1 新增 `iosApp/iosApp/MovieDetail/MovieDetailViewModel.swift`：`@Observable @MainActor final class`，建構子注入 `movieId: Int32`、`movieRepository: MovieRepository`、`getMovieDetailUseCase: GetMovieDetailUseCase`、`getMovieRecommendUseCase: GetMovieRecommendUseCase`
-- [ ] 3.2 實作主內容載入：`loadDetail()` 以 `Task` 包住 `for await` 消費 `getMovieDetailUseCase.invoke(movieId:)`，更新 `detailState`；`start()` 呼叫一次
-- [ ] 3.3 實作 `retryDetail()`：取消先前的 detail `Task` 並重新呼叫 `loadDetail()`
-- [ ] 3.4 實作收藏狀態觀察：以獨立 `Task` 消費 `movieRepository.getMovieCollectEntityById(movieId:)`，更新 `isCollected`
-- [ ] 3.5 實作 `toggleCollect(_ data: MovieCardResult)`：依 `movieCardIsCollect` 呼叫 `insertMovieCollect()` 或 `deleteMovieCollect()`
+- [x] 3.1 新增 `iosApp/iosApp/Detail/MovieDetailViewModel.swift`：`@Observable @MainActor final class`，建構子注入 `movieId`（實際為 `Int`，非原規劃的 `Int32`）、`movieRepository`、`getMovieDetailUseCase`、`getMovieRecommendUseCase`
+- [x] 3.2 實作主內容載入：`fetchMovieDetail()`（命名與原規劃 `loadDetail()` 不同）以 `for await` 消費 `getMovieDetailUseCase.invoke(movieId:)`，更新 `uiState`
+- [x] 3.3 實作 retry：`fetchMovieDetail()` 本身是 single-shot（拿到第一筆即 `return`），`ErrorView` 的 `onRetry` 直接重新呼叫 `fetchMovieDetail()` 即可達成重試，不需要額外的 Task 取消邏輯
+- [x] 3.4 實作收藏狀態觀察：`observeCollectStatus()` 以獨立 `Task` 消費 `movieRepository.getMovieCollectEntityById(id:)`，更新 `isCollect`
+- [x] 3.5 實作 `toggleMovieCollectStatus(data: MovieCardResult)`（命名與原規劃 `toggleCollect(_:)` 不同）：依 ViewModel 自身觀察到的 `isCollect` 呼叫 `insertMovieCollect()` 或 `deleteMovieCollect()`
 
 ## 4. iosApp：MovieDetail 模組 — ViewModel（演員 + 推薦電影）
 
-- [ ] 4.1 實作演員載入：獨立 `Task` 消費 `movieRepository.getMovieActor(movieId:)`，更新 `castState`（`DetailSectionState<[MovieCastAndCrewBean.Cast]>`），失敗僅記錄 `.failure`、不影響其他狀態
-- [ ] 4.2 實作推薦電影載入：獨立 `Task` 消費 `getMovieRecommendUseCase.invoke(movieId:)`，更新 `recommendationState`（`DetailSectionState<[MovieCardResult]>`）
-- [ ] 4.3 確認 `start()` 會同時觸發主內容、收藏、演員、推薦電影四個獨立 `Task`，彼此不互相 `await`
+- [x] 4.1 實作演員載入：`fetchMovieActor()` 獨立 `Task` 消費 `movieRepository.getMovieActor(id:)`，更新 `actorUiState`，失敗僅記錄 `.failure`、不影響其他狀態
+- [ ] 4.2 實作推薦電影載入：獨立 `Task` 消費 `getMovieRecommendUseCase.invoke(movieId:)`，更新對應狀態（尚未實作）
+- [x] 4.3 `fetchMovieDetail()`／`observeCollectStatus()`／`fetchMovieActor()` 三個獨立 `Task` 各自掛在 `MovieDetailView.body` 的 `.task { }`，彼此不互相 `await`；推薦電影的第四個 Task 待 4.2 完成後補上
 
 ## 5. iosApp：MovieDetail 模組 — View（主內容 + 收藏 + Loading/Error）
 
-- [ ] 5.1 新增 `iosApp/iosApp/MovieDetail/MovieDetailView.swift`：`init(movieId:)` 透過 `KoinHelper.shared` 取得三個 shared 依賴並建立 `MovieDetailViewModel`
-- [ ] 5.2 實作主內容區塊：背景圖（重用既有 `RemoteAsyncImage`）、標題、評分、上映日期、片長、簡介
-- [ ] 5.3 依 `detailState` 切換 Loading（重用 `LoadingView`）／Error（重用 `ErrorView` + retry 按鈕呼叫 `retryDetail()`）／Success 三種畫面
-- [ ] 5.4 加上收藏愛心按鈕，依 `isCollected` 顯示狀態並呼叫 `toggleCollect()`；僅在主內容 Success 狀態顯示
+- [x] 5.1 新增 `iosApp/iosApp/Detail/MovieDetailView.swift`：`init(movieId:)` 透過 `KoinHelper.shared` 取得三個 shared 依賴並建立 `MovieDetailViewModel`
+- [x] 5.2 實作主內容區塊：背景圖（重用既有 `RemoteAsyncImage`）、標題、評分、上映日期、片長、簡介
+- [x] 5.3 依 `uiState` 切換 Loading（重用 `LoadingView`）／Failure（重用 `ErrorView` + retry 按鈕呼叫 `fetchMovieDetail()`）／Success 三種畫面
+- [x] 5.4 加上收藏愛心按鈕，依 `isCollect` 顯示狀態並呼叫 `toggleMovieCollectStatus()`；僅在主內容 Success 狀態顯示
 
 ## 6. iosApp：MovieDetail 模組 — View（演員 + 推薦電影區塊）
 
-- [ ] 6.1 實作演員橫向清單區塊，依 `castState` 顯示；`.failure` 時整段隱藏、不顯示錯誤 UI
-- [ ] 6.2 實作推薦電影橫向清單區塊，依 `recommendationState` 顯示，重用既有 `MovieCardView`（含收藏按鈕）；`.failure` 時整段隱藏
-- [ ] 6.3 推薦電影卡片的 `onMovieTap` 接上導覽（待第 7 章節的 `NavigationPath` 接線後串接，本步驟先預留 closure 參數）
+- [x] 6.1 實作演員橫向清單區塊，依 `actorUiState` 顯示；`.failure` 與空清單皆整段隱藏（含標題），不顯示錯誤 UI，比對 Android `feature/detail` 的 `DetailSectionState.Error -> Unit` 行為對齊
+- [ ] 6.2 實作推薦電影橫向清單區塊，依推薦電影狀態顯示，重用既有 `MovieCardView`（含收藏按鈕）；`.failure` 時整段隱藏（尚未實作）
+- [ ] 6.3 推薦電影卡片的 `onMovieTap` 接上導覽（待 6.2 完成）
 
 ## 7. iosApp：導覽 — 首頁 tab 接入電影詳情頁
 
-- [ ] 7.1 在 `HomeContentView`（或其容器）外層包上 `NavigationStack`／或確認既有 tab 容器已具備可用的 `NavigationPath`
-- [ ] 7.2 掛上 `.navigationDestination(for: Int32.self) { movieId in MovieDetailView(movieId: movieId) }`
-- [ ] 7.3 將 `MovieCardView(onMovieTap:)` 改為把 `movie.movieCardId` `append` 進該 tab 的 `NavigationPath`
-- [ ] 7.4 手動在模擬器點擊首頁電影卡，驗證確實進入詳情頁且底部 Tab Bar 維持可見
+- [x] 7.1 `HomeView` 已具備 `NavigationStack(path: $path)`
+- [x] 7.2 掛上 `.navigationDestination(for: Int.self) { movieId in MovieDetailView(movieId: movieId) }`（實際用 `Int`，非原規劃的 `Int32`；`HomeContentView` push 時需額外 `Int(movie.movieCardId)` 轉型，因為 Kotlin `Int` 匯出到 Swift 是 `Int32`，與 `Int` 是不同型別，曾因型別不符導致點擊卡片後顯示 SwiftUI 導覽警告畫面，已修正）
+- [x] 7.3 `MovieCardView(onMovieTap:)` 已改為把 `Int(movie.movieCardId)` `append` 進 `NavigationPath`
+- [ ] 7.4 手動在模擬器點擊首頁電影卡，驗證確實進入詳情頁且底部 Tab Bar 維持可見（尚待人工驗收）
 
 ## 8. iosApp：導覽 — 搜尋 tab 接入電影詳情頁
 
@@ -67,7 +67,7 @@
 
 ## 12. 收尾驗證
 
-- [ ] 12.1 四個 tab（首頁／搜尋／收藏／歷史）逐一手動驗證卡片點擊皆可進入詳情頁，且切換 tab 後各自的導覽堆疊狀態不互相干擾
-- [ ] 12.2 手動驗證主內容失敗時的 retry 行為、演員／推薦電影失敗時的區塊隱藏行為
-- [ ] 12.3 執行 `.\gradlew.bat ktlintCheck` 確認 Kotlin 變更（`KoinHelper.kt`）通過格式檢查
-- [ ] 12.4（若本機已安裝 SwiftFormat／SwiftLint）執行 `.\gradlew.bat iosFormatCheck` 與 `.\gradlew.bat iosCodeStyleCheck` 確認新增 Swift 檔案符合風格規範
+- [ ] 12.1 四個 tab（首頁／搜尋／收藏／歷史）逐一手動驗證卡片點擊皆可進入詳情頁，且切換 tab 後各自的導覽堆疊狀態不互相干擾（搜尋／收藏／歷史三個 tab 尚未接上導覽，見第 8～10 章節）
+- [ ] 12.2 手動驗證主內容失敗時的 retry 行為、演員區塊失敗時的隱藏行為（僅完成程式碼邏輯與 code review，尚未實機／模擬器手動操作驗證；推薦電影區塊尚未實作，待補）
+- [x] 12.3 執行 `ktlintCheck` 確認 Kotlin 變更（`KoinHelper.kt`）通過格式檢查
+- [x] 12.4 執行 `iosFormatCheck` 與 `iosCodeStyleCheck` 確認新增 Swift 檔案符合風格規範

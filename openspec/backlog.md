@@ -109,3 +109,29 @@ host 的完整 URL，並確認不影響 TMDB API 請求或其他非圖片相對�
 待 `MovieDetailViewModel` 的收藏功能實作完成、重複模式更明確之後，評估抽出共用的
 收藏操作邏輯（例如一個共用的 collect helper／service，封裝 toggle 與觀察單一電影收藏
 狀態的邏輯），減少各 ViewModel 之間的重複程式碼。
+
+## 討論簡化 iOS 與 Android 端 AppResult 消費方式，看能否減少重複樣板
+
+- 類型: refactor
+- 記錄日期: 2026-08-03
+- 來源: add-ios-movie-detail（實作中發現）
+- 前置依賴: 無
+- 狀態: 待處理
+
+目前 iOS 端每個消費 `AppResult<T>` 的地方（`HomeViewModel.loadHome()`、
+`MovieDetailViewModel.fetchMovieDetail()` 等）都要重複同一套樣板：
+`switch onEnum(of: result) { .success: success.data as? T cast; .failure: switch
+onEnum(of: failure.error) { .network / .unknown } }`。Android 端則是
+`when (result) { is AppResult.Success -> ...; is AppResult.Failure -> ... }`
+搭配各自的 `result.error` 處理，也有類似的重複判斷邏輯散落在多個 ViewModel。
+
+討論中也連帶提到 `DetailSectionState<T>`（Android `feature/detail` 既有的區塊級
+Loading/Success/Error 狀態）要不要放進 `shared/common` 讓 iOS 共用泛型型別；當下
+結論是先不共用（`shared/common` 定位為跨層共用型別而非畫面呈現狀態，且透過 Kotlin
+generic 匯出到 iOS 需要 `onEnum(of:)` 橋接，比原生 Swift generic enum 更麻煩），
+iOS 端另外寫原生 Swift enum 因應。
+
+之後有餘裕時，評估是否能在 iOS 端封裝一個共用 helper（例如把 `onEnum(of:)` 兩層
+switch 包成一個回傳 `Result<T, AppError>`或類似結構的 extension function），
+以及 Android 端是否也有等效的重複判斷可以抽共用 mapper，減少兩平台個別消費
+`AppResult` 時的重複樣板程式碼。

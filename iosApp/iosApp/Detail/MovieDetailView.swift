@@ -28,6 +28,9 @@ struct MovieDetailView: View {
             .task {
                 await viewModel.observeCollectStatus()
             }
+            .task {
+                await viewModel.fetchMovieActor()
+            }
     }
 
     @ViewBuilder
@@ -37,7 +40,8 @@ struct MovieDetailView: View {
             LoadingView()
         case let .success(data):
             SuccessView(
-                data: data,
+                detailData: data,
+                actorData: viewModel.actorUiState,
                 isCollect: viewModel.isCollect,
                 onCollectTap: {
                     Task {
@@ -60,15 +64,22 @@ struct MovieDetailView: View {
     }
 
     struct SuccessView: View {
-        let data: MovieDetailBean
+        let detailData: MovieDetailBean
+        let actorData: MovieActorUiState
         let isCollect: Bool
         let onCollectTap: () -> Void
 
         @Environment(\.dismiss)
         private var dismiss
 
-        init(data: MovieDetailBean, isCollect: Bool, onCollectTap: @escaping () -> Void) {
-            self.data = data
+        init(
+            detailData: MovieDetailBean,
+            actorData: MovieActorUiState,
+            isCollect: Bool,
+            onCollectTap: @escaping () -> Void
+        ) {
+            self.detailData = detailData
+            self.actorData = actorData
             self.isCollect = isCollect
             self.onCollectTap = onCollectTap
         }
@@ -90,7 +101,7 @@ struct MovieDetailView: View {
                 .aspectRatio(JMRatio.movieBackdrop, contentMode: .fit)
                 .frame(maxWidth: .infinity)
                 .overlay {
-                    RemoteAsyncImage(path: data.backdropPath)
+                    RemoteAsyncImage(path: detailData.backdropPath)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .clipped()
                 }
@@ -109,7 +120,7 @@ struct MovieDetailView: View {
 
         private var titleSection: some View {
             VStack {
-                Text(data.title)
+                Text(detailData.title)
                     .font(.title)
                     .lineLimit(2)
                     .padding(.horizontal, JMSpacing.spacing8)
@@ -119,12 +130,12 @@ struct MovieDetailView: View {
                     HStack(spacing: JMSpacing.spacing8) {
                         Image(systemName: "star.fill")
                             .foregroundStyle(.yellow)
-                        Text(String(format: "%.1f", data.voteAverage))
+                        Text(String(format: "%.1f", detailData.voteAverage))
                             .font(.footnote.bold())
                     }
                     HStack(spacing: JMSpacing.spacing8) {
                         Image(systemName: "calendar")
-                        Text(data.releaseDate)
+                        Text(detailData.releaseDate)
                             .font(.subheadline)
                             .lineLimit(1)
                             .minimumScaleFactor(0.75)
@@ -132,7 +143,7 @@ struct MovieDetailView: View {
 
                     HStack(spacing: JMSpacing.spacing8) {
                         Image(systemName: "clock")
-                        Text(String(format: String(localized: "detail_runtime_minutes"), data.runtime))
+                        Text(String(format: String(localized: "detail_runtime_minutes"), detailData.runtime))
                             .font(.subheadline)
                             .lineLimit(1)
                             .minimumScaleFactor(0.75)
@@ -150,7 +161,7 @@ struct MovieDetailView: View {
                     .padding(.top, JMSpacing.spacing8)
                     .padding(.leading, JMSpacing.spacing8)
 
-                Text(data.overview)
+                Text(detailData.overview)
                     .font(.body)
                     .lineLimit(nil)
                     .padding(JMSpacing.spacing8)
@@ -158,17 +169,34 @@ struct MovieDetailView: View {
             }
         }
 
+        @ViewBuilder
         private var actorSection: some View {
-            VStack(alignment: .leading) {
-                Text("detail_cast_title")
-                    .font(.headline)
-                    .padding(.top, JMSpacing.spacing8)
-                    .padding(.leading, JMSpacing.spacing8)
-
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: JMSpacing.spacing8) {}
+            switch actorData {
+            case .loading:
+                LoadingView()
+            case let .success(actors) where !actors.cast.isEmpty:
+                VStack(alignment: .leading) {
+                    Text("detail_cast_title")
+                        .font(.headline)
+                        .padding(.top, JMSpacing.spacing8)
+                        .padding(.leading, JMSpacing.spacing8)
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        LazyHStack(spacing: JMSpacing.spacing8) {
+                            ForEach(actors.cast, id: \.id) { cast in
+                                Color.clear
+                                    .overlay {
+                                        RemoteAsyncImage(path: cast.profilePath)
+                                    }
+                                    .aspectRatio(JMRatio.movieActor, contentMode: .fit)
+                                    .frame(width: JMSize.size96, height: JMSize.size96)
+                                    .clipShape(Circle())
+                            }
+                        }
                         .padding(JMSpacing.spacing8)
+                    }
                 }
+            case .success, .failure:
+                EmptyView()
             }
         }
     }

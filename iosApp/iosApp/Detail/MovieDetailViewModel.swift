@@ -10,6 +10,7 @@ final class MovieDetailViewModel {
     private let getMovieRecommendUseCase: GetMovieRecommendUseCase
 
     var uiState: MovieDetailUiState = .loading
+    var actorUiState: MovieActorUiState = .loading
 
     private var isUpdatingCollection = false
     var isCollect = false
@@ -47,6 +48,27 @@ final class MovieDetailViewModel {
                     uiState = .failure(network.exception.message ?? "網路錯誤，請稍後再試")
                 case .unknown:
                     uiState = .failure("發生未知錯誤")
+                }
+            }
+            return
+        }
+    }
+
+    func fetchMovieActor() async {
+        for await result in movieRepository.getMovieActor(id: Int32(movieId)) {
+            switch onEnum(of: result) {
+            case let .success(success):
+                guard let movieActor = success.data as? MovieCastAndCrewBean else {
+                    actorUiState = .failure("電影演員資料格式錯誤")
+                    return
+                }
+                actorUiState = .success(movieActor)
+            case let .failure(failure):
+                switch onEnum(of: failure.error) {
+                case let .network(network):
+                    actorUiState = .failure(network.exception.message ?? "網路錯誤，請稍後再試")
+                case .unknown:
+                    actorUiState = .failure("發生未知錯誤")
                 }
             }
             return
