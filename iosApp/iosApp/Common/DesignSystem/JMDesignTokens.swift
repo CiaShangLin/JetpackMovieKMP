@@ -34,4 +34,5 @@ enum JMOpacity {
 
 enum JMRatio {
     static let moviePoster: CGFloat = 3.0 / 4.0
+    static let movieBackdrop: CGFloat = 4.0 / 3.0
 }
