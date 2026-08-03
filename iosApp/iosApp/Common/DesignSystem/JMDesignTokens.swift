@@ -24,6 +24,7 @@ enum JMSize {
     static let size24: CGFloat = 24
     static let size44: CGFloat = 44
     static let size72: CGFloat = 72
+    static let size96: CGFloat = 96
     static let movieGridMinWidth: CGFloat = 160
 }
 
@@ -33,5 +34,7 @@ enum JMOpacity {
 }
 
 enum JMRatio {
+    static let movieActor: CGFloat = 1.0 / 1.0
     static let moviePoster: CGFloat = 3.0 / 4.0
+    static let movieBackdrop: CGFloat = 4.0 / 3.0
 }

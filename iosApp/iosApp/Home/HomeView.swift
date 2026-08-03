@@ -7,6 +7,9 @@ struct HomeView: View {
     @State
     private var viewModel: HomeViewModel
 
+    @State
+    private var path = NavigationPath()
+
     init() {
         _viewModel = State(
             initialValue: HomeViewModel(
@@ -17,14 +20,19 @@ struct HomeView: View {
     }
 
     var body: some View {
-        content
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .task {
-                await viewModel.loadHome()
-            }
-            .task {
-                await viewModel.observeLanguageMode()
-            }
+        NavigationStack(path: $path) {
+            content
+                .navigationDestination(for: Int.self) { movieId in
+                    MovieDetailView(movieId: movieId, path: $path)
+                }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .task {
+            await viewModel.loadHome()
+        }
+        .task {
+            await viewModel.observeLanguageMode()
+        }
     }
 
     @ViewBuilder
@@ -36,7 +44,8 @@ struct HomeView: View {
         case let .success(genres):
             HomeSuccessView(
                 genres: genres,
-                viewModel: viewModel
+                viewModel: viewModel,
+                path: $path
             )
 
         case .failure:
@@ -52,6 +61,9 @@ struct HomeView: View {
         let genres: [MovieGenreBean.MovieGenre]
         let viewModel: HomeViewModel
 
+        @Binding
+        var path: NavigationPath
+
         @State
         private var selectedTabIndex = 0
 
@@ -62,7 +74,8 @@ struct HomeView: View {
                     ForEach(genres.indices, id: \.self) { index in
                         HomeContentView(
                             movieGenre: genres[index],
-                            homeViewModel: viewModel
+                            homeViewModel: viewModel,
+                            path: $path
                         ).tag(index)
                     }
                 }
