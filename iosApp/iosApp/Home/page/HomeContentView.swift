@@ -7,22 +7,28 @@ struct HomeContentView: View {
     @State
     private var viewModel: HomeContentViewModel
 
+    @Binding
+    private var path: NavigationPath
+
     init(
         movieGenre: MovieGenreBean.MovieGenre,
-        homeViewModel: HomeViewModel
+        homeViewModel: HomeViewModel,
+        path: Binding<NavigationPath>
     ) {
         self.movieGenre = movieGenre
-        viewModel = HomeContentViewModel(
+        _viewModel = State(initialValue: HomeContentViewModel(
             movieRepository: KoinHelper.shared.getMovieRepository(),
             movieGenre: movieGenre,
             homeViewModel: homeViewModel
-        )
+        ))
+        _path = path
     }
 
     var body: some View {
-        content.task {
-            await viewModel.start()
-        }
+        content
+            .task {
+                await viewModel.start()
+            }
     }
 
     @ViewBuilder
@@ -45,6 +51,9 @@ struct HomeContentView: View {
                         let movie = viewModel.movies[index]
                         MovieCardView(
                             data: movie.asMovieCardData(),
+                            onMovieTap: { movie in
+                                path.append(movie.movieCardId)
+                            },
                             onCollectTap: { movie in
                                 Task {
                                     await viewModel.toggleMovieCollectStatus(data: movie)
