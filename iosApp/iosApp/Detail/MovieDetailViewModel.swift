@@ -9,7 +9,6 @@ final class MovieDetailViewModel {
     private let getMovieDetailUseCase: GetMovieDetailUseCase
     private let getMovieRecommendUseCase: GetMovieRecommendUseCase
 
-
     var uiState: MovieDetailUiState = .loading
 
     init(
@@ -24,8 +23,24 @@ final class MovieDetailViewModel {
         self.getMovieRecommendUseCase = getMovieRecommendUseCase
     }
 
-    func start() async {
-        // getMovieDetailUseCase.invoke(movieId: movieId)
-        // getMovieRecommendUseCase.invoke(movieId: movieId)
+    func fetchMovieDetail() async {
+        for await result in getMovieDetailUseCase.invoke(movieId: Int32(movieId)) {
+            switch onEnum(of: result) {
+            case let .success(success):
+                guard let movieDetail = success.data as? MovieDetailBean else {
+                    uiState = .failure("電影詳情資料格式錯誤")
+                    return
+                }
+                uiState = .success(movieDetail)
+            case let .failure(failure):
+                switch onEnum(of: failure.error) {
+                case let .network(network):
+                    uiState = .failure(network.exception.message ?? "網路錯誤，請稍後再試")
+                case .unknown:
+                    uiState = .failure("發生未知錯誤")
+                }
+            }
+            return
+        }
     }
 }

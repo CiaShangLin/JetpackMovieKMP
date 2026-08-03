@@ -3,7 +3,6 @@ import Shared
 import SwiftUI
 
 struct MovieDetailView: View {
-
     private let movieId: Int
 
     @State
@@ -11,16 +10,19 @@ struct MovieDetailView: View {
 
     init(movieId: Int) {
         self.movieId = movieId
-        self.viewModel = MovieDetailViewModel(
+        _viewModel = State(initialValue: MovieDetailViewModel(
             movieId: movieId,
             movieRepository: KoinHelper.shared.getMovieRepository(),
             getMovieDetailUseCase: KoinHelper.shared.getMovieDetailUseCase(),
             getMovieRecommendUseCase: KoinHelper.shared.getMovieRecommendUseCase()
-        )
+        ))
     }
 
     var body: some View {
         content
+            .task {
+                await viewModel.fetchMovieDetail()
+            }
     }
 
     @ViewBuilder
@@ -28,13 +30,11 @@ struct MovieDetailView: View {
         switch viewModel.uiState {
         case .loading:
             LoadingView()
-        case .success:
+        case let .success(data):
             EmptyView()
-        case .failure(let errorMessage):
+        case let .failure(errorMessage):
             ErrorView(
-                onRetry: {
-
-                }
+                onRetry: {}
             )
         }
     }

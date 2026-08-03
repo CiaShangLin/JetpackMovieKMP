@@ -1,11 +1,8 @@
-//
-// Created by 蔡尚霖 on 2026/8/3.
-//
-
 import Foundation
+import Shared
 
 enum MovieDetailUiState {
     case loading
-    case success
+    case success(MovieDetailBean)
     case failure(String)
 }

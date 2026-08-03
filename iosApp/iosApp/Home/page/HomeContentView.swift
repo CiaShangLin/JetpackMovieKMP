@@ -52,7 +52,7 @@ struct HomeContentView: View {
                         MovieCardView(
                             data: movie.asMovieCardData(),
                             onMovieTap: { movie in
-                                path.append(movie.movieCardId)
+                                path.append(Int(movie.movieCardId))
                             },
                             onCollectTap: { movie in
                                 Task {
