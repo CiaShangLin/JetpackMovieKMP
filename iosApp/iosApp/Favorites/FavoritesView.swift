@@ -4,20 +4,30 @@ import SwiftUI
 struct FavoritesView: View {
     @State
     private var viewModel: FavoritesViewModel
+    @State
+    private var path = NavigationPath()
 
     init() {
         _viewModel = State(initialValue: FavoritesViewModel(movieRepository: KoinHelper.shared.getMovieRepository()))
     }
 
     var body: some View {
-        FavoritesContentView(
-            uiState: viewModel.uiState,
-            onCollectTap: { movie in
-                Task {
-                    await viewModel.toggleMovieCollectStatus(data: movie)
+        NavigationStack(path: $path) {
+            FavoritesContentView(
+                uiState: viewModel.uiState,
+                onCollectTap: { movie in
+                    Task {
+                        await viewModel.toggleMovieCollectStatus(data: movie)
+                    }
+                },
+                onMovieTap: { movie in
+                    path.append(Int(movie.movieCardId))
                 }
+            )
+            .navigationDestination(for: Int.self) { movieId in
+                MovieDetailView(movieId: movieId, path: $path)
             }
-        )
+        }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .task {
             await viewModel.loadFavorites()
@@ -28,6 +38,7 @@ struct FavoritesView: View {
 private struct FavoritesContentView: View {
     let uiState: FavoritesUiState
     let onCollectTap: (MovieCardData) -> Void
+    let onMovieTap: (MovieCardData) -> Void
 
     var body: some View {
         content
@@ -57,6 +68,7 @@ private struct FavoritesContentView: View {
                 ForEach(movies, id: \.id) { movie in
                     MovieCardView(
                         data: movie.asMovieCardData(),
+                        onMovieTap: onMovieTap,
                         onCollectTap: onCollectTap
                     )
                 }
@@ -84,7 +96,8 @@ private struct FavoritesContentView: View {
 #Preview("Empty") {
     FavoritesContentView(
         uiState: .empty,
-        onCollectTap: { _ in }
+        onCollectTap: { _ in },
+        onMovieTap: { _ in }
     )
 }
 
@@ -110,6 +123,7 @@ private struct FavoritesContentView: View {
                 timestamp: 0
             )
         ]),
-        onCollectTap: { _ in }
+        onCollectTap: { _ in },
+        onMovieTap: { _ in }
     )
 }

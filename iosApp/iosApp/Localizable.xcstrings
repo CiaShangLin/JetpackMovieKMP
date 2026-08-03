@@ -52,6 +52,23 @@
         }
       }
     },
+    "detail_recommend_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You May Also Like"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "猜你喜歡"
+          }
+        }
+      }
+    },
     "detail_runtime_minutes" : {
       "comment" : "Format string for a movie's runtime in minutes; %d is replaced with the number of minutes.",
       "extractionState" : "manual",

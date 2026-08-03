@@ -7,10 +7,16 @@ struct SearchView: View {
     private var searchText = ""
     @State
     private var viewModel = SearchViewModel()
+    @State
+    private var path = NavigationPath()
 
     var body: some View {
-        NavigationStack {
-            content.navigationTitle("search_title")
+        NavigationStack(path: $path) {
+            content
+                .navigationTitle("search_title")
+                .navigationDestination(for: Int.self) { movieId in
+                    MovieDetailView(movieId: movieId, path: $path)
+                }
         }.searchable(text: $searchText, prompt: Text("search_field_prompt"))
             .onSubmit(of: .search) {
                 viewModel.submit(query: searchText)
@@ -44,6 +50,9 @@ struct SearchView: View {
                         ForEach(Array(viewModel.movies.enumerated()), id: \.element.id) { index, movie in
                             MovieCardView(
                                 data: movie.asMovieCardData(),
+                                onMovieTap: { movie in
+                                    path.append(Int(movie.movieCardId))
+                                },
                                 onCollectTap: { movie in
                                     Task {
                                         await viewModel.toggleMovieCollectStatus(data: movie)

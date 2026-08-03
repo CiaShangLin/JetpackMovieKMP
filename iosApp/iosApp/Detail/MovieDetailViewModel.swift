@@ -11,6 +11,7 @@ final class MovieDetailViewModel {
 
     var uiState: MovieDetailUiState = .loading
     var actorUiState: MovieActorUiState = .loading
+    var recommendUiState: MovieRecommendUiState = .loading
 
     private var isUpdatingCollection = false
     var isCollect = false
@@ -75,6 +76,22 @@ final class MovieDetailViewModel {
         }
     }
 
+    func fetchMovieRecommend() async {
+        for await result in getMovieRecommendUseCase.invoke(movieId: Int32(movieId)) {
+            switch onEnum(of: result) {
+            case let .success(success):
+                recommendUiState = .success(success.data as? [MovieCardResult] ?? [])
+            case let .failure(failure):
+                switch onEnum(of: failure.error) {
+                case let .network(network):
+                    recommendUiState = .failure(network.exception.message ?? "網路錯誤，請稍後再試")
+                case .unknown:
+                    recommendUiState = .failure("發生未知錯誤")
+                }
+            }
+        }
+    }
+
     func toggleMovieCollectStatus(data: MovieCardResult) async {
         guard !isUpdatingCollection else { return }
 
@@ -86,6 +103,24 @@ final class MovieDetailViewModel {
                 try await movieRepository.deleteMovieCollect(movieResult: data)
             } else {
                 try await movieRepository.insertMovieCollect(movieResult: data)
+            }
+        } catch {
+            print("切換收藏失敗：\(error.localizedDescription)")
+        }
+    }
+
+    func toggleRecommendCollectStatus(data: MovieCardData) async {
+        guard !isUpdatingCollection else { return }
+
+        isUpdatingCollection = true
+        defer { isUpdatingCollection = false }
+
+        do {
+            switch MovieCollectAction(data: data) {
+            case let .delete(movie):
+                try await movieRepository.deleteMovieCollect(movieResult: movie)
+            case let .insert(movie):
+                try await movieRepository.insertMovieCollect(movieResult: movie)
             }
         } catch {
             print("切換收藏失敗：\(error.localizedDescription)")

@@ -8,8 +8,12 @@ struct MovieDetailView: View {
     @State
     private var viewModel: MovieDetailViewModel
 
-    init(movieId: Int) {
+    @Binding
+    private var path: NavigationPath
+
+    init(movieId: Int, path: Binding<NavigationPath>) {
         self.movieId = movieId
+        _path = path
         _viewModel = State(
             initialValue: MovieDetailViewModel(
                 movieId: movieId,
@@ -31,6 +35,9 @@ struct MovieDetailView: View {
             .task {
                 await viewModel.fetchMovieActor()
             }
+            .task {
+                await viewModel.fetchMovieRecommend()
+            }
     }
 
     @ViewBuilder
@@ -42,6 +49,7 @@ struct MovieDetailView: View {
             SuccessView(
                 detailData: data,
                 actorData: viewModel.actorUiState,
+                recommendData: viewModel.recommendUiState,
                 isCollect: viewModel.isCollect,
                 onCollectTap: {
                     Task {
@@ -49,6 +57,14 @@ struct MovieDetailView: View {
                             data: data.asMovieCardResult()
                         )
                     }
+                },
+                onRecommendCollectTap: { movie in
+                    Task {
+                        await viewModel.toggleRecommendCollectStatus(data: movie)
+                    }
+                },
+                onRecommendMovieTap: { movie in
+                    path.append(Int(movie.movieCardId))
                 }
             )
         case let .failure(errorMessage):
@@ -66,8 +82,11 @@ struct MovieDetailView: View {
     struct SuccessView: View {
         let detailData: MovieDetailBean
         let actorData: MovieActorUiState
+        let recommendData: MovieRecommendUiState
         let isCollect: Bool
         let onCollectTap: () -> Void
+        let onRecommendCollectTap: (MovieCardData) -> Void
+        let onRecommendMovieTap: (MovieCardData) -> Void
 
         @Environment(\.dismiss)
         private var dismiss
@@ -75,13 +94,19 @@ struct MovieDetailView: View {
         init(
             detailData: MovieDetailBean,
             actorData: MovieActorUiState,
+            recommendData: MovieRecommendUiState,
             isCollect: Bool,
-            onCollectTap: @escaping () -> Void
+            onCollectTap: @escaping () -> Void,
+            onRecommendCollectTap: @escaping (MovieCardData) -> Void,
+            onRecommendMovieTap: @escaping (MovieCardData) -> Void
         ) {
             self.detailData = detailData
             self.actorData = actorData
+            self.recommendData = recommendData
             self.isCollect = isCollect
             self.onCollectTap = onCollectTap
+            self.onRecommendCollectTap = onRecommendCollectTap
+            self.onRecommendMovieTap = onRecommendMovieTap
         }
 
         var body: some View {
@@ -91,6 +116,7 @@ struct MovieDetailView: View {
                     titleSection
                     overviewSection
                     actorSection
+                    recommendSection
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
@@ -190,6 +216,43 @@ struct MovieDetailView: View {
                                     .aspectRatio(JMRatio.movieActor, contentMode: .fit)
                                     .frame(width: JMSize.size96, height: JMSize.size96)
                                     .clipShape(Circle())
+                                    .overlay(
+                                        Circle()
+                                            .stroke(Color.primary.opacity(JMOpacity.opacity10), lineWidth: JMSize.size1)
+                                    )
+                            }
+                        }
+                        .padding(JMSpacing.spacing8)
+                    }
+                }
+            case .success, .failure:
+                EmptyView()
+            }
+        }
+
+        @ViewBuilder
+        private var recommendSection: some View {
+            switch recommendData {
+            case .loading:
+                LoadingView()
+            case let .success(recommendData) where !recommendData.isEmpty:
+                VStack(alignment: .leading) {
+                    Text("detail_recommend_title")
+                        .font(.headline)
+                        .padding(.top, JMSpacing.spacing8)
+                        .padding(.leading, JMSpacing.spacing8)
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        LazyHStack(spacing: JMSpacing.spacing8) {
+                            ForEach(recommendData, id: \.id) { movie in
+                                MovieCardView(
+                                    data: movie.asMovieCardData(),
+                                    onMovieTap: { movie in
+                                        onRecommendMovieTap(movie)
+                                    },
+                                    onCollectTap: { movie in
+                                        onRecommendCollectTap(movie)
+                                    }
+                                ).frame(width: JMSize.movieGridMinWidth)
                             }
                         }
                         .padding(JMSpacing.spacing8)

@@ -135,3 +135,54 @@ iOS 端另外寫原生 Swift enum 因應。
 switch 包成一個回傳 `Result<T, AppError>`或類似結構的 extension function），
 以及 Android 端是否也有等效的重複判斷可以抽共用 mapper，減少兩平台個別消費
 `AppResult` 時的重複樣板程式碼。
+
+## 修正語言切換後 API 語言代碼送出 zh 而非 zh-TW
+
+- 類型: bug-fix
+- 記錄日期: 2026-08-03
+- 來源: add-ios-movie-detail（實作中發現）
+- 前置依賴: 無
+- 狀態: 待處理
+
+目前語言切換為繁體中文後，實際打給 TMDB API 的 `language` 參數是 `zh`，而非預期的
+`zh-TW`。需要排查 `LanguageProvider`／`LanguageInterceptor` 或 platform 端
+`SystemLanguage`（Android／iOS）取得語言代碼的邏輯，確認繁體中文對應到的語言／地區
+代碼組成方式是否正確送出 `zh-TW`，避免 TMDB 回傳簡體或非預期地區的內容。
+
+## 修正 iOS 進入電影詳情頁後未寫入瀏覽歷史
+
+- 類型: bug-fix
+- 記錄日期: 2026-08-03
+- 來源: add-ios-movie-detail（實作中發現）
+- 前置依賴: 無
+- 狀態: 待處理
+
+已實測確認：iOS 進入電影詳情頁後，並未寫入瀏覽歷史紀錄。`shared/domain` 的
+`GetMovieDetailUseCase` 依 spec 應該在取得詳情成功時自動呼叫
+`MovieRepository.insertMovieHistory(...)`（`kmp-movie-domain-usecases` spec 的
+「電影詳情 UseCase 自動寫入瀏覽紀錄」需求），iOS 的 `MovieDetailViewModel
+.fetchMovieDetail()` 也是呼叫同一個 `getMovieDetailUseCase.invoke(movieId:)`。
+需要排查是共用邏輯本身沒生效、還是 iOS 端呼叫方式（例如 SKIE 橋接、Flow 收集方式）
+導致這個 side effect 沒有真正執行，確認後補上瀏覽歷史寫入行為。
+
+## 重構 iOS 導覽層級以隱藏詳細頁底部 Tab Bar
+
+- 類型: refactor
+- 記錄日期: 2026-08-03
+- 來源: add-ios-movie-detail（實作中發現）
+- 前置依賴: 無
+- 狀態: 待處理
+
+目前 `NavigationStack` 位於各 tab 的內容層，從電影卡片 push 到 `MovieDetailView` 時仍會顯示
+底部 Tab Bar。後續評估將 Navigation 抽到更上層的 app 容器，讓詳細頁跳轉脫離 tab 內容層級，
+進入電影詳細頁時不顯示 Bottom Bar；同時確認首頁、搜尋、收藏與歷史 tab 的導覽堆疊行為是否仍符合預期。
+
+## 補齊 iOS 收藏頁標題與最新收藏排序
+
+- 類型: feature
+- 記錄日期: 2026-08-03
+- 來源: add-ios-movie-detail（實作中發現）
+- 前置依賴: 無
+- 狀態: 待處理
+
+iOS「我的收藏」頁面需補上明確的 title UI。列表顯示時，應以收藏時間排序，越晚加入收藏的電影排在越前面（依 timestamp 由新到舊）。

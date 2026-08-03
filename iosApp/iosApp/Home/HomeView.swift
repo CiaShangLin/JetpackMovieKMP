@@ -23,7 +23,7 @@ struct HomeView: View {
         NavigationStack(path: $path) {
             content
                 .navigationDestination(for: Int.self) { movieId in
-                    MovieDetailView(movieId: movieId)
+                    MovieDetailView(movieId: movieId, path: $path)
                 }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)

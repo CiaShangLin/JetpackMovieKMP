@@ -5,6 +5,8 @@ import SwiftUI
 struct HistoryView: View {
     @State
     private var viewModel: HistoryViewModel
+    @State
+    private var path = NavigationPath()
 
     init() {
         _viewModel = State(
@@ -16,12 +18,17 @@ struct HistoryView: View {
     }
 
     var body: some View {
-        VStack(spacing: JMSpacing.spacing0) {
-            header
-            Divider()
-                .overlay(Color.secondary)
-                .padding(.horizontal, JMSpacing.spacing16)
-            content
+        NavigationStack(path: $path) {
+            VStack(spacing: JMSpacing.spacing0) {
+                header
+                Divider()
+                    .overlay(Color.secondary)
+                    .padding(.horizontal, JMSpacing.spacing16)
+                content
+            }
+            .navigationDestination(for: Int.self) { movieId in
+                MovieDetailView(movieId: movieId, path: $path)
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .task {
@@ -84,6 +91,9 @@ struct HistoryView: View {
                 ForEach(movies, id: \.id) { movie in
                     MovieCardView(
                         data: movie.asMovieCardData(),
+                        onMovieTap: { movie in
+                            path.append(Int(movie.movieCardId))
+                        },
                         onCollectTap: { movie in
                             Task {
                                 await viewModel.toggleMovieCollect(data: movie)
