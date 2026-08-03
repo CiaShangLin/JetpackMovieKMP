@@ -3,6 +3,7 @@ package com.shang.jetpackmoviekmp.data.repository
 import com.shang.jetpackmoviekmp.common.AppResult
 import com.shang.jetpackmoviekmp.model.ConfigurationBean
 import com.shang.jetpackmoviekmp.model.MovieCardResult
+import com.shang.jetpackmoviekmp.model.MovieCastAndCrewBean
 import com.shang.jetpackmoviekmp.model.MovieDetailBean
 import com.shang.jetpackmoviekmp.model.MovieGenreBean
 import com.shang.jetpackmoviekmp.network.model.NetworkResponse
@@ -103,6 +104,29 @@ class MovieRepositoryImplTest {
         val result = repository(dataSource).getMovieDetail(7).first()
 
         assertEquals(detail, result.getOrNull())
+    }
+
+    @Test
+    fun getMovieActor_emits_app_result_success_when_response_succeeds() = runTest {
+        val castAndCrew = MovieCastAndCrewBean()
+        val dataSource = FakeMovieDataSource().apply {
+            movieActorResponse = NetworkResponse(code = 200, data = castAndCrew)
+        }
+
+        val result = repository(dataSource).getMovieActor(7).first()
+
+        assertEquals(AppResult.Success(castAndCrew), result)
+    }
+
+    @Test
+    fun getMovieActor_emits_app_result_failure_when_response_fails() = runTest {
+        val dataSource = FakeMovieDataSource().apply {
+            movieActorResponse = NetworkResponse(code = 500, error = failureResponse())
+        }
+
+        val result = repository(dataSource).getMovieActor(7).first()
+
+        assertIs<AppResult.Failure>(result)
     }
 
     @Test

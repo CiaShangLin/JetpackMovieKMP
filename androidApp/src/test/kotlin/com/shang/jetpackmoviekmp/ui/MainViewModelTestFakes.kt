@@ -39,8 +39,8 @@ internal class FakeMovieRepository : MovieRepository {
     override fun getMovieRecommendations(id: Int): Flow<Result<MovieRecommendBean>> =
         flowOf(Result.success(MovieRecommendBean()))
 
-    override fun getMovieActor(id: Int): Flow<Result<MovieCastAndCrewBean>> =
-        flowOf(Result.success(MovieCastAndCrewBean()))
+    override fun getMovieActor(id: Int): Flow<AppResult<MovieCastAndCrewBean>> =
+        flowOf(AppResult.Success(MovieCastAndCrewBean()))
 
     override suspend fun insertMovieCollect(movieResult: MovieCardResult) = Unit
 

@@ -2,6 +2,7 @@ package com.shang.jetpackmoviekmp.feature.detail.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.shang.jetpackmoviekmp.common.AppResult
 import com.shang.jetpackmoviekmp.data.repository.MovieRepository
 import com.shang.jetpackmoviekmp.domain.usecase.GetMovieDetailUseCase
 import com.shang.jetpackmoviekmp.domain.usecase.GetMovieRecommendUseCase
@@ -38,10 +39,10 @@ class MovieDetailViewModel(
     val movieDetail = retryTrigger
         .flatMapLatest { getMovieDetailUseCase(movieId) }
         .map { result ->
-            result.fold(
-                onSuccess = MovieDetailUiState::Success,
-                onFailure = MovieDetailUiState::Error,
-            )
+            when (result) {
+                is AppResult.Success -> MovieDetailUiState.Success(result.data)
+                is AppResult.Failure -> MovieDetailUiState.Error(result.error)
+            }
         }
         .stateIn(
             scope = viewModelScope,
@@ -62,10 +63,10 @@ class MovieDetailViewModel(
     val movieRecommendations: StateFlow<DetailSectionState<List<com.shang.jetpackmoviekmp.model.MovieCardResult>>> =
         getMovieRecommendUseCase(movieId)
             .map { result ->
-                result.fold(
-                    onSuccess = { DetailSectionState.Success(it) },
-                    onFailure = { DetailSectionState.Error(it) },
-                )
+                when (result) {
+                    is AppResult.Success -> DetailSectionState.Success(result.data)
+                    is AppResult.Failure -> DetailSectionState.Error(result.error)
+                }
             }
             .stateIn(
                 scope = viewModelScope,
@@ -77,10 +78,10 @@ class MovieDetailViewModel(
     val movieActors: StateFlow<DetailSectionState<List<com.shang.jetpackmoviekmp.model.MovieCastAndCrewBean.Cast>>> =
         movieRepository.getMovieActor(movieId)
             .map { result ->
-                result.fold(
-                    onSuccess = { DetailSectionState.Success(it.cast) },
-                    onFailure = { DetailSectionState.Error(it) },
-                )
+                when (result) {
+                    is AppResult.Success -> DetailSectionState.Success(result.data.cast)
+                    is AppResult.Failure -> DetailSectionState.Error(result.error)
+                }
             }
             .stateIn(
                 scope = viewModelScope,

@@ -1,10 +1,12 @@
-## MODIFIED Requirements
+## Purpose
 
+定義 `shared/data` 電影與使用者偏好資料 Repository 的對外契約，以及其 Koin 組裝行為。
+## Requirements
 ### Requirement: 電影資料 Repository
 
 `shared/data` 的 `commonMain` SHALL 對外提供 `MovieRepository` 作為電影資料存取介面，整合 `MovieDataSource`（`shared:network`）與本地資料庫（`shared:database` 的 `MovieCollectDao`／`MovieHistoryDao`），對外提供 configuration、電影類型、電影分頁列表／搜尋、電影詳情／推薦／演員陣容，以及收藏／瀏覽紀錄的讀寫。
 
-`MovieRepository` 的 public API SHALL 只暴露 model 型別、`Flow` / `Result` 與 paging public 型別，不得暴露 `shared:network`、`shared:database`、`shared:datastore` 的 datasource、DAO、entity 或 DataStore 實作型別。`MovieRepositoryImpl`、paging source 與 model/entity mapper SHALL 視為 `shared:data` 內部實作細節，不得作為跨 module public API 使用。
+`MovieRepository` 的 public API SHALL 只暴露 model 型別、`Flow` / `Result` / `AppResult` 與 paging public 型別，不得暴露 `shared:network`、`shared:database`、`shared:datastore` 的 datasource、DAO、entity 或 DataStore 實作型別。`MovieRepositoryImpl`、paging source 與 model/entity mapper SHALL 視為 `shared:data` 內部實作細節，不得作為跨 module public API 使用。
 
 #### Scenario: 取得 TMDB configuration
 
@@ -20,6 +22,16 @@
 
 - **WHEN** 呼叫 `MovieRepository.getMovieSearchPager(query)` 並收集分頁資料
 - **THEN** 回傳的 `Flow<PagingData<MovieCardResult>>` 依序載入 `MovieDataSource.getMovieSearch(query, page)` 的分頁結果
+
+#### Scenario: 取得電影演員陣容
+
+- **WHEN** 呼叫 `MovieRepository.getMovieActor(id)` 且 `MovieDataSource` 回傳成功結果
+- **THEN** 回傳的 `Flow` emit `AppResult.Success(MovieCastAndCrewBean)`
+
+#### Scenario: 取得電影演員陣容失敗
+
+- **WHEN** 呼叫 `MovieRepository.getMovieActor(id)` 且 `MovieDataSource` 回傳失敗
+- **THEN** 回傳的 `Flow` emit `AppResult.Failure(error.toAppError())`
 
 #### Scenario: 新增電影收藏會寫入本地資料庫
 
@@ -98,3 +110,4 @@
 
 - **WHEN** 呼叫 `shared:app` 提供的 `initKoin(...)`
 - **THEN** 啟動後的 Koin container 可直接 resolve `MovieRepository`／`UserDataRepository`，不需要呼叫端額外安裝其他 module
+

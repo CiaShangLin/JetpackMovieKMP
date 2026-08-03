@@ -6,6 +6,7 @@ import com.shang.jetpackmoviekmp.database.getTestDatabaseBuilder
 import com.shang.jetpackmoviekmp.datastore.InMemoryPreferencesDataStore
 import com.shang.jetpackmoviekmp.domain.usecase.GetHistoryMovieListUseCase
 import com.shang.jetpackmoviekmp.domain.usecase.GetMovieDetailUseCase
+import com.shang.jetpackmoviekmp.domain.usecase.GetMovieRecommendUseCase
 import com.shang.jetpackmoviekmp.presenter.HomeMovieListPresenter
 import com.shang.jetpackmoviekmp.presenter.SearchMovieListPresenter
 import org.koin.core.context.stopKoin
@@ -50,6 +51,22 @@ class KoinHelperTest {
 
         // Assert
         assertIs<GetMovieDetailUseCase>(useCase)
+    }
+
+    @Test
+    fun getMovieRecommendUseCase_afterInitKoin_resolvesUseCase() {
+        // Arrange
+        initKoin(
+            dataStore = InMemoryPreferencesDataStore(),
+            databaseBuilder = { getTestDatabaseBuilder() },
+            isDebug = true,
+        )
+
+        // Act
+        val useCase = KoinHelper.getMovieRecommendUseCase()
+
+        // Assert
+        assertIs<GetMovieRecommendUseCase>(useCase)
     }
 
     @Test
