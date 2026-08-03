@@ -1,5 +1,6 @@
 package com.shang.jetpackmoviekmp.domain.usecase
 
+import com.shang.jetpackmoviekmp.common.AppResult
 import com.shang.jetpackmoviekmp.domain.FakeMovieRepository
 import com.shang.jetpackmoviekmp.model.MovieCardResult
 import com.shang.jetpackmoviekmp.model.MovieRecommendBean
@@ -9,6 +10,7 @@ import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
+import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
 class GetMovieRecommendUseCaseTest {
@@ -32,8 +34,8 @@ class GetMovieRecommendUseCaseTest {
 
         val result = useCase(movieRepository).invoke(movieId = 7).first()
 
-        assertTrue(result.isSuccess)
-        assertTrue(result.getOrNull()?.first { it.id == 1 }?.isCollect == true)
+        val success = assertIs<AppResult.Success<List<MovieCardResult>>>(result)
+        assertTrue(success.data.first { it.id == 1 }.isCollect)
     }
 
     @Test
@@ -44,6 +46,6 @@ class GetMovieRecommendUseCaseTest {
 
         val result = useCase(movieRepository).invoke(movieId = 7).first()
 
-        assertTrue(result.isFailure)
+        assertIs<AppResult.Failure>(result)
     }
 }

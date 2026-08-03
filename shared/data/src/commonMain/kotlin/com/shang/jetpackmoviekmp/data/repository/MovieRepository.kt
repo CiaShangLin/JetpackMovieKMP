@@ -74,9 +74,9 @@ interface MovieRepository {
      * 取得指定電影的演員與工作人員名單。
      *
      * @param id TMDB 電影 id。
-     * @return 演職員資料的 [Flow]，成功為 [Result.success]，失敗（network 錯誤）為 [Result.failure]。
+     * @return 演職員資料的 [Flow]，成功為 [AppResult.Success]，失敗（network 錯誤）為 [AppResult.Failure]。
      */
-    fun getMovieActor(id: Int): Flow<Result<MovieCastAndCrewBean>>
+    fun getMovieActor(id: Int): Flow<AppResult<MovieCastAndCrewBean>>
 
     // MovieCollectDao
 

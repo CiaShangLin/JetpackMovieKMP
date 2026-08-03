@@ -1,5 +1,7 @@
 package com.shang.jetpackmoviekmp.domain.usecase
 
+import com.shang.jetpackmoviekmp.common.AppResult
+import com.shang.jetpackmoviekmp.common.toAppError
 import com.shang.jetpackmoviekmp.data.repository.MovieRepository
 import com.shang.jetpackmoviekmp.model.MovieDetailBean
 import com.shang.jetpackmoviekmp.model.asMovieCardResult
@@ -8,6 +10,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.transform
 
 /**
  * 取得電影詳情，成功時額外寫入瀏覽紀錄。
@@ -24,9 +27,9 @@ class GetMovieDetailUseCase(
      * 取得指定電影的詳情，成功時額外寫入一筆瀏覽紀錄。
      *
      * @param movieId TMDB 電影 id
-     * @return 電影詳情的 [Flow]，成功為 [Result.success]，失敗為 [Result.failure]
+     * @return 電影詳情的 [Flow]，成功為 [AppResult.Success]，失敗為 [AppResult.Failure]
      */
-    operator fun invoke(movieId: Int): Flow<Result<MovieDetailBean>> {
+    operator fun invoke(movieId: Int): Flow<AppResult<MovieDetailBean>> {
         return movieRepository.getMovieDetail(movieId)
             .onEach { result ->
                 if (result.isSuccess) {
@@ -43,6 +46,11 @@ class GetMovieDetailUseCase(
                         }
                     }
                 }
+            }.transform { result ->
+                result.fold(
+                    onSuccess = { emit(AppResult.Success(it)) },
+                    onFailure = { emit(AppResult.Failure(it.toAppError())) },
+                )
             }.flowOn(ioDispatcher)
     }
 }

@@ -1,5 +1,7 @@
 package com.shang.jetpackmoviekmp.domain.usecase
 
+import com.shang.jetpackmoviekmp.common.AppResult
+import com.shang.jetpackmoviekmp.common.toAppError
 import com.shang.jetpackmoviekmp.data.repository.MovieRepository
 import com.shang.jetpackmoviekmp.model.MovieCardResult
 import kotlinx.coroutines.CoroutineDispatcher
@@ -7,6 +9,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.transform
 
 /**
  * 取得電影推薦清單，並標記每部電影目前的收藏狀態。
@@ -23,10 +26,10 @@ class GetMovieRecommendUseCase(
      * 取得指定電影的推薦清單，並標記每部推薦電影目前是否已收藏。
      *
      * @param movieId TMDB 電影 id
-     * @return 推薦清單的 [Flow]，成功為 [Result.success]（每部電影的 `isCollect`
-     *   已反映目前實際收藏狀態），失敗為 [Result.failure]
+     * @return 推薦清單的 [Flow]，成功為 [AppResult.Success]（每部電影的 `isCollect`
+     *   已反映目前實際收藏狀態），失敗為 [AppResult.Failure]
      */
-    operator fun invoke(movieId: Int): Flow<Result<List<MovieCardResult>>> {
+    operator fun invoke(movieId: Int): Flow<AppResult<List<MovieCardResult>>> {
         val collectIdsFlow = movieRepository.getCollectedMovieIds()
             .map { it.toSet() }
         val movieRecommendationsFlow = movieRepository.getMovieRecommendations(movieId)
@@ -45,6 +48,11 @@ class GetMovieRecommendUseCase(
                     it.copy(isCollect = collectIds.contains(it.id))
                 }
             }
+        }.transform { result ->
+            result.fold(
+                onSuccess = { emit(AppResult.Success(it)) },
+                onFailure = { emit(AppResult.Failure(it.toAppError())) },
+            )
         }.flowOn(ioDispatcher)
     }
 }
