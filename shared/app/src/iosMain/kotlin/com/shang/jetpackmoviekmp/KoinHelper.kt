@@ -8,6 +8,7 @@ import com.shang.jetpackmoviekmp.domain.usecase.GetConfigurationUseCase
 import com.shang.jetpackmoviekmp.domain.usecase.GetHistoryMovieListUseCase
 import com.shang.jetpackmoviekmp.domain.usecase.GetHomeMovieListUseCase
 import com.shang.jetpackmoviekmp.domain.usecase.GetMovieDetailUseCase
+import com.shang.jetpackmoviekmp.domain.usecase.GetMovieRecommendUseCase
 import com.shang.jetpackmoviekmp.domain.usecase.GetSearchMovieListUseCase
 import com.shang.jetpackmoviekmp.presenter.HomeMovieListPresenter
 import com.shang.jetpackmoviekmp.presenter.SearchMovieListPresenter
@@ -38,6 +39,8 @@ object KoinHelper : KoinComponent {
      * 解析電影詳情 UseCase，供 iOS 端驗證與消費 `Flow<Result<MovieDetailBean>>`。
      */
     fun getMovieDetailUseCase(): GetMovieDetailUseCase = getKoin().get()
+
+    fun getMovieRecommendUseCase(): GetMovieRecommendUseCase = getKoin().get()
 
     /**
      * 解析 [MovieRepository]，供 iOS 端直接呼叫 `getMovieGenres()`
