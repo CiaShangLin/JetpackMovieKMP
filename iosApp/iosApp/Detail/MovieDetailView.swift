@@ -25,6 +25,9 @@ struct MovieDetailView: View {
             .task {
                 await viewModel.fetchMovieDetail()
             }
+            .task {
+                await viewModel.observeCollectStatus()
+            }
     }
 
     @ViewBuilder
@@ -33,7 +36,17 @@ struct MovieDetailView: View {
         case .loading:
             LoadingView()
         case let .success(data):
-            SuccessView(data: data)
+            SuccessView(
+                data: data,
+                isCollect: viewModel.isCollect,
+                onCollectTap: {
+                    Task {
+                        await viewModel.toggleMovieCollectStatus(
+                            data: data.asMovieCardResult()
+                        )
+                    }
+                }
+            )
         case let .failure(errorMessage):
             ErrorView(
                 message: LocalizedStringKey(errorMessage),
@@ -48,12 +61,16 @@ struct MovieDetailView: View {
 
     struct SuccessView: View {
         let data: MovieDetailBean
+        let isCollect: Bool
+        let onCollectTap: () -> Void
 
         @Environment(\.dismiss)
         private var dismiss
 
-        init(data: MovieDetailBean) {
+        init(data: MovieDetailBean, isCollect: Bool, onCollectTap: @escaping () -> Void) {
             self.data = data
+            self.isCollect = isCollect
+            self.onCollectTap = onCollectTap
         }
 
         var body: some View {
@@ -79,9 +96,9 @@ struct MovieDetailView: View {
                 }
                 .overlay(alignment: .topTrailing) {
                     Button {
-                        // onCollectTap(data)
+                        onCollectTap()
                     } label: {
-                        Image(systemName: "heart")
+                        Image(systemName: isCollect ? "heart.fill" : "heart")
                     }
                     .padding(JMSpacing.spacing8)
                     .background(Color(.tertiarySystemBackground), in: Circle())

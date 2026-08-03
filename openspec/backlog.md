@@ -91,3 +91,21 @@ host 的完整 URL，並確認不影響 TMDB API 請求或其他非圖片相對�
 - 狀態: 待處理
 
 評估在 `androidApp` 導入 Macrobenchmark 模組，量測冷啟動時間並依量測結果進行優化（如 Baseline Profile、啟動路徑上的初始化邏輯調整）。
+
+## 簡化 iOS ViewModel 收藏操作邏輯，減少重複程式碼
+
+- 類型: refactor
+- 記錄日期: 2026-08-03
+- 來源: add-ios-movie-detail（實作中發現）
+- 前置依賴: 無
+- 狀態: 待處理
+
+`MovieRepository` 的收藏相關操作（`insertMovieCollect`／`deleteMovieCollect`／
+`getCollectedMovieIds`／`getMovieCollectEntityById`）目前預期會在多個 iOS ViewModel
+各自重複實作類似邏輯：`HomeViewModel`／`HomeContentViewModel`、`FavoritesViewModel`、
+`SearchViewModel`、`HistoryViewModel`，以及規劃中的 `MovieDetailViewModel`（觀察單一
+電影收藏狀態、切換收藏／取消收藏，皆需透過 `onEnum(of:)` 處理 `AppResult`／橋接型別）。
+
+待 `MovieDetailViewModel` 的收藏功能實作完成、重複模式更明確之後，評估抽出共用的
+收藏操作邏輯（例如一個共用的 collect helper／service，封裝 toggle 與觀察單一電影收藏
+狀態的邏輯），減少各 ViewModel 之間的重複程式碼。

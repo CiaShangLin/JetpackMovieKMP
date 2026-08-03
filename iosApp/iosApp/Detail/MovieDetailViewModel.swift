@@ -11,6 +11,9 @@ final class MovieDetailViewModel {
 
     var uiState: MovieDetailUiState = .loading
 
+    private var isUpdatingCollection = false
+    var isCollect = false
+
     init(
         movieId: Int,
         movieRepository: MovieRepository,
@@ -21,6 +24,12 @@ final class MovieDetailViewModel {
         self.movieRepository = movieRepository
         self.getMovieDetailUseCase = getMovieDetailUseCase
         self.getMovieRecommendUseCase = getMovieRecommendUseCase
+    }
+
+    func observeCollectStatus() async {
+        for await result in movieRepository.getMovieCollectEntityById(id: Int32(movieId)) {
+            isCollect = result != nil
+        }
     }
 
     func fetchMovieDetail() async {
@@ -41,6 +50,23 @@ final class MovieDetailViewModel {
                 }
             }
             return
+        }
+    }
+
+    func toggleMovieCollectStatus(data: MovieCardResult) async {
+        guard !isUpdatingCollection else { return }
+
+        isUpdatingCollection = true
+        defer { isUpdatingCollection = false }
+
+        do {
+            if isCollect {
+                try await movieRepository.deleteMovieCollect(movieResult: data)
+            } else {
+                try await movieRepository.insertMovieCollect(movieResult: data)
+            }
+        } catch {
+            print("切換收藏失敗：\(error.localizedDescription)")
         }
     }
 }
