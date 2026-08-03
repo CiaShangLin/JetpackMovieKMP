@@ -36,10 +36,11 @@ object KoinHelper : KoinComponent {
     fun userDataRepository(): UserDataRepository = getKoin().get()
 
     /**
-     * 解析電影詳情 UseCase，供 iOS 端驗證與消費 `Flow<Result<MovieDetailBean>>`。
+     * 解析電影詳情 UseCase，供 iOS 端消費 `Flow<AppResult<MovieDetailBean>>`。
      */
     fun getMovieDetailUseCase(): GetMovieDetailUseCase = getKoin().get()
 
+    /** 解析電影推薦 UseCase，供 iOS 端消費 `Flow<AppResult<List<MovieCardResult>>>`。 */
     fun getMovieRecommendUseCase(): GetMovieRecommendUseCase = getKoin().get()
 
     /**

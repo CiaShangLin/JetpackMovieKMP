@@ -116,13 +116,13 @@ internal class MovieRepositoryImpl(
         }.flowOn(ioDispatcher)
     }
 
-    override fun getMovieActor(id: Int): Flow<Result<MovieCastAndCrewBean>> {
+    override fun getMovieActor(id: Int): Flow<AppResult<MovieCastAndCrewBean>> {
         return flow {
             val response = movieDataSource.getMovieActor(id)
             if (response.isSuccess) {
-                emit(Result.success(response.data!!))
+                emit(AppResult.Success(response.data!!))
             } else {
-                emit(Result.failure(response.error ?: unexpectedNetworkFailure()))
+                emit(AppResult.Failure((response.error ?: unexpectedNetworkFailure()).toAppError()))
             }
         }.flowOn(ioDispatcher)
     }

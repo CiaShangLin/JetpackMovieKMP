@@ -98,7 +98,7 @@ class MovieDetailViewModelTest {
     fun `failed actors and recommendations expose independent error states`() = runTest(dispatcher) {
         // Arrange
         val repository = FakeMovieRepository().apply {
-            actorResult = Result.failure(IllegalStateException("credits"))
+            actorResult = AppResult.Failure(com.shang.jetpackmoviekmp.common.AppError.Unknown)
             recommendationResult = Result.failure(IllegalStateException("recommendations"))
         }
         val viewModel = createViewModel(repository)
@@ -134,7 +134,7 @@ class MovieDetailViewModelTest {
 
     private class FakeMovieRepository : MovieRepository {
         var detailResult: Result<MovieDetailBean> = Result.success(MovieDetailBean(id = MOVIE_ID))
-        var actorResult: Result<MovieCastAndCrewBean> = Result.success(MovieCastAndCrewBean())
+        var actorResult: AppResult<MovieCastAndCrewBean> = AppResult.Success(MovieCastAndCrewBean())
         var recommendationResult: Result<MovieRecommendBean> = Result.success(MovieRecommendBean())
         var detailRequests = 0
         val insertedCollectIds = mutableListOf<Int>()
@@ -151,7 +151,7 @@ class MovieDetailViewModelTest {
             return flowOf(detailResult)
         }
         override fun getMovieRecommendations(id: Int): Flow<Result<MovieRecommendBean>> = flowOf(recommendationResult)
-        override fun getMovieActor(id: Int): Flow<Result<MovieCastAndCrewBean>> = flowOf(actorResult)
+        override fun getMovieActor(id: Int): Flow<AppResult<MovieCastAndCrewBean>> = flowOf(actorResult)
         override suspend fun insertMovieCollect(movieResult: MovieCardResult) { insertedCollectIds += movieResult.id }
         override suspend fun deleteMovieCollect(movieResult: MovieCardResult) { deletedCollectIds += movieResult.id }
         override fun getCollectedMovieIds(): Flow<List<Int>> = collectedIds

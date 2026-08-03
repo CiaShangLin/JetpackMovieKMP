@@ -1,5 +1,6 @@
 package com.shang.jetpackmoviekmp.domain.usecase
 
+import com.shang.jetpackmoviekmp.common.AppResult
 import com.shang.jetpackmoviekmp.domain.FakeMovieRepository
 import com.shang.jetpackmoviekmp.model.MovieDetailBean
 import kotlinx.coroutines.CancellationException
@@ -29,7 +30,7 @@ class GetMovieDetailUseCaseTest {
 
         val result = useCase(movieRepository).invoke(7).first()
 
-        assertEquals(detail, result.getOrNull())
+        assertEquals(AppResult.Success(detail), result)
         assertEquals(1, movieRepository.insertMovieHistoryCallCount)
         assertEquals(detail.id, movieRepository.lastInsertedMovieHistory?.id)
     }
@@ -42,7 +43,7 @@ class GetMovieDetailUseCaseTest {
 
         val result = useCase(movieRepository).invoke(7).first()
 
-        assertTrue(result.isFailure)
+        assertTrue(result is AppResult.Failure)
         assertEquals(0, movieRepository.insertMovieHistoryCallCount)
     }
 
@@ -56,7 +57,7 @@ class GetMovieDetailUseCaseTest {
 
         val result = useCase(movieRepository).invoke(7).first()
 
-        assertEquals(detail, result.getOrNull())
+        assertEquals(AppResult.Success(detail), result)
     }
 
     @Test

@@ -1,0 +1,12 @@
+type: bug-fix
+workspace: worktree
+branch: bug-fix/fix-movie-detail-appresult
+base_branch: master
+verify_selected:
+  - junit
+  - kdoc
+  - code-review
+verified:
+  - junit
+  - kdoc
+  - code-review

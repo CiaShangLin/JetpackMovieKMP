@@ -1,7 +1,5 @@
-## Purpose
+## MODIFIED Requirements
 
-定義 `shared/data` 電影與使用者偏好資料 Repository 的對外契約，以及其 Koin 組裝行為。
-## Requirements
 ### Requirement: 電影資料 Repository
 
 `shared/data` 的 `commonMain` SHALL 對外提供 `MovieRepository` 作為電影資料存取介面，整合 `MovieDataSource`（`shared:network`）與本地資料庫（`shared:database` 的 `MovieCollectDao`／`MovieHistoryDao`），對外提供 configuration、電影類型、電影分頁列表／搜尋、電影詳情／推薦／演員陣容，以及收藏／瀏覽紀錄的讀寫。
@@ -64,50 +62,3 @@
 - **WHEN** 安裝 `dataModule()` 並向 Koin container resolve `MovieRepository`
 - **THEN** Koin 在 `shared:data` module 內部建構 repository implementation
 - **AND** 呼叫端不需要也不能依賴 `MovieRepositoryImpl` 的具體 constructor
-
-### Requirement: 使用者偏好設定 Repository
-
-`shared/data` 的 `commonMain` SHALL 對外提供 `UserDataRepository` 作為使用者偏好設定存取介面，包裝 `shared:datastore` 的 `UserPreferenceDataSource`，對外以 `UserData`（configuration、theme、language 的聚合）暴露單一 `Flow`，並提供各別欄位的持久化方法。
-
-`UserDataRepository` 的 public API SHALL 只暴露 model 型別與 `Flow`，不得暴露 `UserPreferenceDataSource` 或 DataStore 實作型別。`UserDataRepositoryImpl` SHALL 視為 `shared:data` 內部實作細節，由 `dataModule()` 綁定為 `UserDataRepository`。
-
-#### Scenario: 觀察使用者偏好設定
-
-- **WHEN** 收集 `UserDataRepository.userData`
-- **THEN** emission 反映 `UserPreferenceDataSource` 目前持久化的 configuration／theme／language，尚未設定的欄位以 `UserData.getDefault()` 補齊
-
-#### Scenario: 持久化 TMDB configuration
-
-- **WHEN** 呼叫 `UserDataRepository.setConfiguration(configuration)`
-- **THEN** 後續 `UserDataRepository.userData` 的 emission 反映新的 configuration
-
-#### Scenario: 持久化主題模式
-
-- **WHEN** 呼叫 `UserDataRepository.setThemeMode(themeMode)`
-- **THEN** 後續 `UserDataRepository.userData` 的 emission 反映新的 `themeMode`
-
-#### Scenario: 持久化語言模式
-
-- **WHEN** 呼叫 `UserDataRepository.setLanguageMode(languageMode)`
-- **THEN** 後續 `UserDataRepository.userData` 的 emission 反映新的 `languageMode`
-
-#### Scenario: UserDataRepository public API 不暴露 datastore 型別
-
-- **WHEN** 檢查 `UserDataRepository` 的 public property 與 function signature
-- **THEN** signature 不包含 `UserPreferenceDataSource`、`DataStore` 或 `Preferences`
-- **AND** 消費端只需依賴 `UserDataRepository` 介面即可讀寫使用者偏好設定
-
-### Requirement: Data Koin module
-
-`shared/data` MUST 提供 Koin `dataModule()`，可解析 `MovieRepository`、`UserDataRepository`，且不需要任何平台專屬參數（只依賴既有 `shared:network` 的 `networkModule`／`shared:database` 的 `databaseModule`／`shared:datastore` 的 `datastoreModule` 已提供的元件）。
-
-#### Scenario: data module 可解析 MovieRepository 與 UserDataRepository
-
-- **WHEN** 安裝 `commonModule()`、`networkModule(...)`、`databaseModule(...)`、`datastoreModule(...)`、`dataModule()` 後向 Koin container 要求 `MovieRepository`／`UserDataRepository`
-- **THEN** 皆可成功 resolve，且不拋出 Koin `DefinitionResolutionException` 之類的錯誤
-
-#### Scenario: initKoin 安裝 dataModule
-
-- **WHEN** 呼叫 `shared:app` 提供的 `initKoin(...)`
-- **THEN** 啟動後的 Koin container 可直接 resolve `MovieRepository`／`UserDataRepository`，不需要呼叫端額外安裝其他 module
-
