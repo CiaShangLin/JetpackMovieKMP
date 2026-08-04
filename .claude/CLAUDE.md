@@ -108,6 +108,10 @@ androidApp        ── Android 入口（Application 初始化 Koin、MainActiv
 
 使用者要求 commit 時，預設使用 `caveman-commit` skill。只 stage 與本次要求相關的檔案，建立單一聚焦的 commit。Commit 前需通過 `ktlintCheck`。
 
+## Swift API 文件
+
+撰寫、審查或改善 iOS Swift API 時，包含 `///` 文件註解、Swift symbol markup、命名與參數標籤，使用 `swift-api-design-guidelines-skill`。適用於新增或調整 public/internal API、補齊 API 文件註解，以及審查 API 的可讀性與呼叫端流暢度。
+
 ## OpenSpec
 
 本專案使用 openspec（spec-driven）管理變更提案，設定在 `openspec/config.yaml`：proposal 的 Impact 段落須列出受影響模組；specs 的 Requirement/Scenario 以繁體中文撰寫；tasks 以模組為單位分組。

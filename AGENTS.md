@@ -147,6 +147,12 @@ Commit workflow：
 
 當目前代理環境可用時，使用 `caveman-commit` 進行 commit 準備與 commit message 產生。
 
+## Swift API 文件 Skill
+
+撰寫、審查或改善 iOS Swift API 時，包含 `///` 文件註解、Swift symbol markup、命名與參數標籤，使用 `swift-api-design-guidelines-skill`。
+
+適用範圍包括新增或調整 public/internal API、補齊 API 文件註解，以及審查 Swift API 的可讀性與呼叫端流暢度。
+
 ## OpenSpec
 
 本專案使用 openspec（spec-driven）管理變更提案，設定在 `openspec/config.yaml`：

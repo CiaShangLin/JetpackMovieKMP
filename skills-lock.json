@@ -13,6 +13,12 @@
       "skillPath": "plugins/ui-design/skills/mobile-ios-design/SKILL.md",
       "computedHash": "3902f919488d8ddc983e157bbcd5f16b739b84eeaab57002bf52b7f9601ed6ad"
     },
+    "swift-api-design-guidelines-skill": {
+      "source": "erikote04/swift-api-design-guidelines-agent-skill",
+      "sourceType": "github",
+      "skillPath": "swift-api-design-guidelines-skill/SKILL.md",
+      "computedHash": "cc200615d93f6f175b9d1fe525fa5aee2597d58a78055f93b70f6fac63d76cd5"
+    },
     "swift-architecture-skill": {
       "source": "efremidze/swift-architecture-skill",
       "sourceType": "github",

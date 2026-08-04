@@ -5,8 +5,8 @@ flow:
   verify_notes:
     doc_comment:
       ios: >
-        目前尚無對應的 iOS DocC 註解檢查工具，文件註解暫以人工確認為主；
-        待日後建立正式 skill 後再改走 verify_tools 委派。
+        iOS Swift API 的 DocC 文件註解、symbol markup、命名與參數標籤，
+        使用 swift-api-design-guidelines-skill 進行審查。
   verify_tools:
     unit_test:
       - name: ngs-android-unit-testing
@@ -21,6 +21,10 @@ flow:
       - name: ngs-kdoc
         kind: skill
         platforms: [android]
+        default: true
+      - name: swift-api-design-guidelines-skill
+        kind: skill
+        platforms: [ios]
         default: true
     code_review:
       - name: ngs-code-review
