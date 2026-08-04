@@ -44,6 +44,7 @@ flow:
 context: |
   ## 慣例
   - 註解與文件一律使用繁體中文(zh-tw)
+  - PR 標題與說明一律使用繁體中文(zh-tw)
   - Commit 前需通過 ktlintCheck；若有修改 iOS/Swift 程式碼，需另外執行 iosFormat + iosFormatCheck + iosLint
   - 測試採 AAA 模式（Arrange/Act/Assert），最低 80% 單元測試覆蓋率
   - API 金鑰放 key.properties（不進版控）
