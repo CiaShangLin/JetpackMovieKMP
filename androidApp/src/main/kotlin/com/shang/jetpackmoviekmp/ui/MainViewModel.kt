@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import com.shang.jetpackmoviekmp.common.AppResult
 import com.shang.jetpackmoviekmp.data.repository.UserDataRepository
 import com.shang.jetpackmoviekmp.domain.usecase.GetConfigurationUseCase
-import com.shang.jetpackmoviekmp.model.LanguageMode
 import com.shang.jetpackmoviekmp.model.UserData
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -23,7 +22,6 @@ class MainViewModel(
 ) : ViewModel() {
 
     private val _retryTrigger = MutableSharedFlow<Unit>()
-    private var lastAppliedLanguageMode: LanguageMode? = null
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val configuration: StateFlow<MainUiState> = _retryTrigger
@@ -57,17 +55,5 @@ class MainViewModel(
         viewModelScope.launch {
             _retryTrigger.emit(Unit)
         }
-    }
-
-    /**
-     * 決定目前 Locale 套用後是否需要重建 Activity。
-     *
-     * [MainViewModel] 會在 configuration change 時保留，因此能避免同一個語言在重建後再次觸發
-     * `recreate()`，導致 Splash 無法離開。
-     */
-    internal fun shouldRecreateForLanguage(languageMode: LanguageMode, localeChanged: Boolean): Boolean {
-        val shouldRecreate = lastAppliedLanguageMode?.let { it != languageMode } ?: localeChanged
-        lastAppliedLanguageMode = languageMode
-        return shouldRecreate
     }
 }

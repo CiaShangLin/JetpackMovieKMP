@@ -1,6 +1,5 @@
 package com.shang.jetpackmoviekmp.ui
 
-import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
@@ -19,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -72,16 +72,13 @@ class MainActivity : ComponentActivity() {
             splashScreen.setKeepOnScreenCondition {
                 configuration.value is MainUiState.Loading
             }
-            LaunchedEffect(userData.languageMode) {
-                val previousConfiguration = Configuration(this@MainActivity.resources.configuration)
+            // 同步呼叫（而非 LaunchedEffect），確保 resources.updateConfiguration() 在下方
+            // key(languageMode) 觸發的重組之前就完成，避免字串讀到套用前的舊語言。
+            remember(userData.languageMode) {
                 LanguageSettingUtils.updateActivityLocale(
                     activity = this@MainActivity,
                     languageMode = userData.languageMode,
                 )
-                val localeChanged = previousConfiguration.locales != this@MainActivity.resources.configuration.locales
-                if (viewModel.shouldRecreateForLanguage(userData.languageMode, localeChanged)) {
-                    this@MainActivity.recreate()
-                }
             }
 
             val backStack = rememberNavBackStack(HomeKey)
@@ -89,9 +86,13 @@ class MainActivity : ComponentActivity() {
                 themeMode = userData.themeMode,
                 activity = this@MainActivity,
             ) {
-                MainScreen(configuration.value, backStack, onRetry = {
-                    viewModel.retryConfiguration()
-                })
+                // 只包住畫面內容（不含上面的 backStack），語言切換時只重組字串顯示，
+                // 不會重置 backStack、也不需要 activity.recreate()。
+                key(userData.languageMode) {
+                    MainScreen(configuration.value, backStack, onRetry = {
+                        viewModel.retryConfiguration()
+                    })
+                }
             }
         }
     }

@@ -31,8 +31,6 @@ internal class FakeMovieRepository : MovieRepository {
 
     var movieGenresResult: AppResult<MovieGenreBean> = AppResult.Success(MovieGenreBean())
     var movieListPager: Flow<PagingData<MovieCardResult>> = flowOf(PagingData.empty())
-    var movieListRequests: Int = 0
-        private set
 
     var insertMovieCollectCallCount: Int = 0
         private set
@@ -46,10 +44,7 @@ internal class FakeMovieRepository : MovieRepository {
 
     override fun getMovieGenres(): Flow<AppResult<MovieGenreBean>> = flowOf(movieGenresResult)
 
-    override fun getMovieListPager(withGenres: String): Flow<PagingData<MovieCardResult>> {
-        movieListRequests++
-        return movieListPager
-    }
+    override fun getMovieListPager(withGenres: String): Flow<PagingData<MovieCardResult>> = movieListPager
 
     override fun getMovieSearchPager(query: String): Flow<PagingData<MovieCardResult>> = flowOf(PagingData.empty())
 

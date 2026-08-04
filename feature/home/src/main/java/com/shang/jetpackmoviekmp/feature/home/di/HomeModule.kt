@@ -25,7 +25,6 @@ fun homeModule() = module {
         HomeContentViewModel(
             movieRepository = get(),
             getMovieGenreUseCase = get(),
-            userDataRepository = get(),
             movieGenre = params.get(),
         )
     }

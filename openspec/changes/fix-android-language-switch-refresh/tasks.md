@@ -1,9 +1,11 @@
 ## 1. androidApp：語言切換刷新流程
 
-- [x] 1.1 修改 `MainActivity.kt` 的 `LaunchedEffect(userData.languageMode)`，在 `LanguageSettingUtils.updateActivityLocale()` 完成後呼叫 `activity.recreate()`
-- [x] 1.2 移除包住 `rememberNavBackStack(HomeKey)` 的 `key(languageMode)` 包裝，改為讓 backstack 依 Navigation3 既有序列化保存機制在 `recreate()` 後自動還原
-- [x] 1.3 手動驗證：在非首頁畫面（例如 Setting 頁、Detail 頁）切換語言，確認字串立即以新語言顯示，且停留在原本畫面
-- [x] 1.4 以 `MainViewModel` 保留已套用語言，確保同語言重建後不重複呼叫 `recreate()`，並新增單元測試防止 Splash 重建循環
+> 本章原方案為 `activity.recreate()`，因會導致 Splash 卡住無法消失，已改為下列「同步套用 Locale ＋ 縮小範圍 `key(languageMode)`」方案，不再呼叫 `recreate()`。
+
+- [x] 1.1（已取代）~~修改 `MainActivity.kt` 的 `LaunchedEffect(userData.languageMode)`，在 `LanguageSettingUtils.updateActivityLocale()` 完成後呼叫 `activity.recreate()`~~ → 改為 `remember(userData.languageMode) { LanguageSettingUtils.updateActivityLocale(...) }` 同步呼叫，確保套用新語言的時機早於下方畫面重組
+- [x] 1.2 用 `key(userData.languageMode)` 只包住 `MainScreen`（畫面內容），`rememberNavBackStack(HomeKey)` 留在 `key()` 外面只呼叫一次，語言切換時只重組畫面內容、不重置 backstack
+- [x] 1.3 移除 `MainViewModel` 的 `shouldRecreateForLanguage`／`lastAppliedLanguageMode`（原本用來防止 `recreate()` 循環），連同對應單元測試一併移除——不再需要 `recreate()`，此機制已無用武之地
+- [x] 1.4 手動驗證：在非首頁畫面（例如 Setting 頁、Detail 頁）切換語言，確認字串立即以新語言顯示、停留在原本畫面，且 Splash 不會卡住
 
 ## 2. androidApp：字串資源補齊
 
@@ -20,17 +22,19 @@
 - [x] 4.1 新增 `feature/history/src/main/res/values-en-rUS/strings.xml`，翻譯現有 `values/strings.xml` 的 key
 - [x] 4.2 手動驗證：切換語言模式為英文，確認歷史頁文字正確顯示英文
 
-## 5. feature/home：語言改變時重新查詢電影列表
+## 5. feature/home：語言改變時重新查詢電影列表（已還原，移出本次範圍）
 
-- [x] 5.1 修改 `HomeContentViewModel.kt`，將 `userDataRepository.userData.map { it.languageMode }.distinctUntilChanged()` 併入電影列表資料流，語言改變時以 `flatMapLatest` 重新呼叫 `getMovieGenreUseCase(...)` 並重建 `Pager`，外層維持 `cachedIn(viewModelScope)`
-- [x] 5.2 新增／更新單元測試：驗證 `languageMode` 改變時觸發新的 Pager 查詢、`languageMode` 未改變（例如僅 `themeMode` 改變）時不重複查詢；維持 `shared:data`／`feature:home` 既有覆蓋率門檻
+> 原本已實作「語言改變時 `flatMapLatest` 重建 `Pager` 重新查詢」，但使用者決定收斂本次 change 範圍到 Splash 卡住與字串刷新問題，資料過期問題延後處理。已還原 `HomeContentViewModel.kt`／`HomeModule.kt` 回到建構時一次性查詢，移除 `userDataRepository` 依賴與相關單元測試／fake 擴充。若後續要重新處理，需另開新 change。
 
-## 6. feature/detail：語言改變時重新查詢電影詳情
+- [x] 5.1（已還原）`HomeContentViewModel.kt` 回到建構時呼叫一次 `getMovieGenreUseCase(...)`，不再觀察 `languageMode`；`HomeModule.kt` 移除 `userDataRepository` 注入
+- [x] 5.2（已還原）移除語言相關單元測試與 `FakeMovieRepository` 的 `movieListRequests` 追蹤
 
-- [x] 6.1 修改 `MovieDetailViewModel.kt`，將語言改變事件與既有 `retryTrigger` 用 `merge()` 合成同一個 trigger flow
-- [x] 6.2 將 `movieDetail` 改為訂閱合成後的 trigger flow（取代原本只綁 `retryTrigger`）
-- [x] 6.3 將 `movieRecommendations`、`movieActors` 從建構時一次性 `stateIn` 改為訂閱合成後的 trigger flow 再 `flatMapLatest`／`stateIn`
-- [x] 6.4 新增／更新單元測試：驗證語言改變時 `movieDetail`／`movieRecommendations`／`movieActors` 皆重新查詢；驗證既有手動 `retryMovieDetail()` 行為不受影響
+## 6. feature/detail：語言改變時重新查詢電影詳情（已還原，移出本次範圍）
+
+> 原本已實作「語言改變事件與 `retryTrigger` 用 `merge()` 合成 trigger flow」，理由同第 5 章，已還原並移出本次範圍。
+
+- [x] 6.1（已還原）`MovieDetailViewModel.kt` 回到只綁 `retryTrigger`（不再合成語言改變事件），`DetailModule.kt` 移除 `userDataRepository` 注入
+- [x] 6.2（已還原）移除語言相關單元測試與對應 Fake 擴充
 
 ## 7. shared/network：移除預設 LanguageProvider 選項
 
@@ -46,3 +50,4 @@
 - [x] 8.2 執行 `./gradlew :shared:data:testAndroidHostTest :shared:domain:testAndroidHostTest`（若 domain 模組有對應測試任務名稱需對齊實際 task）
 - [x] 8.3 執行 `./gradlew :shared:data:koverVerify :shared:network:koverVerify`
 - [x] 8.4 執行 `./gradlew :androidApp:assembleDebug` 確認整體可編譯
+- [x] 8.5（新增）還原後重新執行 `./gradlew ktlintCheck :androidApp:testDebugUnitTest :feature:home:testDebugUnitTest :feature:detail:testDebugUnitTest :androidApp:assembleDebug` 確認皆通過

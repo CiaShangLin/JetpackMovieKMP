@@ -1,19 +1,20 @@
 ## ADDED Requirements
 
-### Requirement: 切換語言後 `MainActivity` MUST 重建畫面並保留原有導覽位置
+### Requirement: 切換語言後 `MainActivity` MUST 局部重組畫面並保留原有導覽位置
 
-當使用者透過設定頁變更語言（`userData.languageMode` 發出新值）時，`MainActivity` MUST 在套用新 Locale 後呼叫 `activity.recreate()` 重建整個 Activity，以確保系統字串（`stringResource`）與 Navigation3 畫面內容正確反映新語言。`MainActivity` MUST NOT 使用 `key(languageMode)` 包裝 `rememberNavBackStack()`，避免語言切換強制重置導覽 backstack；重建後 MUST 保留使用者原本所在的畫面與導覽層級。
+當使用者透過設定頁變更語言（`userData.languageMode` 發出新值）時，`MainActivity` MUST 同步套用新 Locale（不得延遲到下一次重組之後才套用），並 MUST 用 `key(languageMode)` 只包住畫面內容（不含 `rememberNavBackStack()`），使系統字串（`stringResource`）與 Navigation3 畫面內容正確反映新語言。`MainActivity` MUST NOT 呼叫 `activity.recreate()`，避免語言切換造成 Splash 畫面卡住無法消失；`key(languageMode)` MUST NOT 包住 `rememberNavBackStack()`，避免語言切換強制重置導覽 backstack。
 
-#### Scenario: 語言改變時整個畫面以新語言重建
+#### Scenario: 語言改變時畫面內容以新語言重組
 
 - **WHEN** `userData.languageMode` 發出與前一次不同的值
-- **THEN** `MainActivity` MUST 套用對應新 Locale 的 `Configuration`
-- **AND** MUST 呼叫 `activity.recreate()` 重建 Activity
+- **THEN** `MainActivity` MUST 在畫面內容重組之前，同步套用對應新 Locale 的 `Configuration`
+- **AND** MUST 用 `key(languageMode)` 觸發畫面內容（不含 backStack）重新組合，以新語言重新讀取字串資源
+- **AND** MUST NOT 呼叫 `activity.recreate()`
 
-#### Scenario: 重建後停留在原本的畫面
+#### Scenario: 語言切換後停留在原本的畫面
 
 - **WHEN** 使用者在非首頁的畫面（例如 Setting 頁或 Detail 頁）觸發語言切換
-- **THEN** `activity.recreate()` 完成後，Navigation3 的 backstack MUST 還原成語言切換前的內容
+- **THEN** Navigation3 的 backstack MUST 維持語言切換前的內容不被重建
 - **AND** 使用者 MUST 停留在切換前所在的畫面，不被導回首頁
 
 ### Requirement: 底部導覽列字串資源 MUST 具備繁體中文與英文版本

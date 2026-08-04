@@ -11,7 +11,6 @@ fun detailModule() = module {
             movieRepository = get(),
             getMovieDetailUseCase = get(),
             getMovieRecommendUseCase = get(),
-            userDataRepository = get(),
             movieId = params.get(),
         )
     }
