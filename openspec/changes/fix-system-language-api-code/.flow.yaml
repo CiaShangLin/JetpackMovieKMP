@@ -1,4 +1,0 @@
-type: bug-fix
-workspace: worktree
-branch: bug-fix/fix-system-language-api-code
-base_branch: master
