@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.shang.jetpackmoviekmp.common.AppResult
 import com.shang.jetpackmoviekmp.data.repository.MovieRepository
+import com.shang.jetpackmoviekmp.data.repository.UserDataRepository
 import com.shang.jetpackmoviekmp.domain.usecase.GetMovieDetailUseCase
 import com.shang.jetpackmoviekmp.domain.usecase.GetMovieRecommendUseCase
 import com.shang.jetpackmoviekmp.model.MovieCardData
@@ -12,8 +13,11 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -25,18 +29,26 @@ import kotlinx.coroutines.launch
  * @param getMovieRecommendUseCase 取得電影推薦清單的用例。
  * @param movieId 目前顯示的電影識別碼。
  */
+@OptIn(ExperimentalCoroutinesApi::class)
 class MovieDetailViewModel(
     private val movieRepository: MovieRepository,
     private val getMovieDetailUseCase: GetMovieDetailUseCase,
     private val getMovieRecommendUseCase: GetMovieRecommendUseCase,
+    private val userDataRepository: UserDataRepository,
     private val movieId: Int,
 ) : ViewModel() {
 
     private val retryTrigger = MutableStateFlow(0)
+    private val refreshTrigger = merge(
+        userDataRepository.userData
+            .map { it.languageMode }
+            .distinctUntilChanged()
+            .map { Unit },
+        retryTrigger.drop(1).map { Unit },
+    )
 
     /** 電影主詳情的載入狀態；失敗後可由 [retryMovieDetail] 重新載入。 */
-    @OptIn(ExperimentalCoroutinesApi::class)
-    val movieDetail = retryTrigger
+    val movieDetail = refreshTrigger
         .flatMapLatest { getMovieDetailUseCase(movieId) }
         .map { result ->
             when (result) {
@@ -61,7 +73,8 @@ class MovieDetailViewModel(
 
     /** 推薦電影區塊的載入狀態；失敗時由畫面隱藏該區塊。 */
     val movieRecommendations: StateFlow<DetailSectionState<List<com.shang.jetpackmoviekmp.model.MovieCardResult>>> =
-        getMovieRecommendUseCase(movieId)
+        refreshTrigger
+            .flatMapLatest { getMovieRecommendUseCase(movieId) }
             .map { result ->
                 when (result) {
                     is AppResult.Success -> DetailSectionState.Success(result.data)
@@ -76,7 +89,8 @@ class MovieDetailViewModel(
 
     /** 主要演員區塊的載入狀態；失敗時由畫面隱藏該區塊。 */
     val movieActors: StateFlow<DetailSectionState<List<com.shang.jetpackmoviekmp.model.MovieCastAndCrewBean.Cast>>> =
-        movieRepository.getMovieActor(movieId)
+        refreshTrigger
+            .flatMapLatest { movieRepository.getMovieActor(movieId) }
             .map { result ->
                 when (result) {
                     is AppResult.Success -> DetailSectionState.Success(result.data.cast)

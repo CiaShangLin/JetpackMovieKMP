@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Jetpack Movie KMP</string>
+    <string name="nav_home">Home</string>
+    <string name="nav_favor">Favorites</string>
+    <string name="nav_history">History</string>
+    <string name="nav_search">Search</string>
+    <string name="nav_setting">Settings</string>
+</resources>

@@ -1,5 +1,6 @@
 package com.shang.jetpackmoviekmp.ui
 
+import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
@@ -18,7 +19,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -53,7 +53,6 @@ import com.shang.jetpackmoviekmp.feature.search.navigation.SearchKey
 import com.shang.jetpackmoviekmp.feature.search.navigation.searchEntry
 import com.shang.jetpackmoviekmp.feature.setting.navigation.SettingKey
 import com.shang.jetpackmoviekmp.feature.setting.navigation.settingEntry
-import com.shang.jetpackmoviekmp.model.LanguageMode
 import com.shang.jetpackmoviekmp.model.ThemeMode
 import com.shang.jetpackmoviekmp.navigation.MainNavItem
 import com.shang.jetpackmoviekmp.utils.LanguageSettingUtils
@@ -74,34 +73,26 @@ class MainActivity : ComponentActivity() {
                 configuration.value is MainUiState.Loading
             }
             LaunchedEffect(userData.languageMode) {
+                val previousConfiguration = Configuration(this@MainActivity.resources.configuration)
                 LanguageSettingUtils.updateActivityLocale(
                     activity = this@MainActivity,
                     languageMode = userData.languageMode,
                 )
-            }
-
-            LanguageProvider(languageMode = userData.languageMode) {
-                val backStack = rememberNavBackStack(HomeKey)
-                ThemeProvider(
-                    themeMode = userData.themeMode,
-                    activity = this@MainActivity,
-                ) {
-                    MainScreen(configuration.value, backStack, onRetry = {
-                        viewModel.retryConfiguration()
-                    })
+                if (previousConfiguration.locales != this@MainActivity.resources.configuration.locales) {
+                    this@MainActivity.recreate()
                 }
             }
-        }
-    }
-}
 
-@Composable
-private fun LanguageProvider(
-    languageMode: LanguageMode,
-    content: @Composable () -> Unit,
-) {
-    key(languageMode) {
-        content()
+            val backStack = rememberNavBackStack(HomeKey)
+            ThemeProvider(
+                themeMode = userData.themeMode,
+                activity = this@MainActivity,
+            ) {
+                MainScreen(configuration.value, backStack, onRetry = {
+                    viewModel.retryConfiguration()
+                })
+            }
+        }
     }
 }
 

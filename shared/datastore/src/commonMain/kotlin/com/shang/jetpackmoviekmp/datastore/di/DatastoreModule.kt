@@ -13,8 +13,8 @@ import org.koin.dsl.module
  * 提供使用者偏好設定 DataStore 相關依賴，並將 [LanguageProvider]、[BaseHostUrlProvider]
  * 綁定到 datastore-backed 的實作（[DatastoreLanguageProvider]、[DatastoreBaseHostUrlProvider]）。
  *
- * 安裝此 module 時，production DI 應搭配 `networkModule(isDebug, provideDefaultLanguageProvider = false)`，
- * 避免與固定預設的 `DefaultLanguageProvider` 綁定衝突；[DatastoreLanguageProvider]、
+ * 安裝此 module 時，production DI 應搭配 `networkModule(isDebug)`，以提供 network 層需要的
+ * [LanguageProvider]；[DatastoreLanguageProvider]、
  * [DatastoreBaseHostUrlProvider] 都依賴 `commonModule()` 提供的 `CoroutineScope`，
  * 因此本 module 必須搭配 `commonModule()` 一起安裝才能完整解析。
  *

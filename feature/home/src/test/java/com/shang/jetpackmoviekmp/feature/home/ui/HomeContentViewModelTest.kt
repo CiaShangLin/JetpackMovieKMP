@@ -2,15 +2,19 @@ package com.shang.jetpackmoviekmp.feature.home.ui
 
 import androidx.paging.PagingData
 import com.shang.jetpackmoviekmp.domain.usecase.GetHomeMovieListUseCase
+import com.shang.jetpackmoviekmp.model.LanguageMode
 import com.shang.jetpackmoviekmp.model.MovieCardResult
 import com.shang.jetpackmoviekmp.model.MovieGenreBean
+import com.shang.jetpackmoviekmp.model.ThemeMode
 import com.shang.jetpackmoviekmp.model.asMovieCardData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import java.util.concurrent.TimeUnit
@@ -37,7 +41,10 @@ class HomeContentViewModelTest {
         Dispatchers.resetMain()
     }
 
-    private fun createViewModel(movieRepository: FakeMovieRepository): HomeContentViewModel {
+    private fun createViewModel(
+        movieRepository: FakeMovieRepository,
+        userDataRepository: FakeUserDataRepository = FakeUserDataRepository(),
+    ): HomeContentViewModel {
         val useCase = GetHomeMovieListUseCase(
             movieRepository = movieRepository,
             ioDispatcher = dispatcher,
@@ -45,8 +52,31 @@ class HomeContentViewModelTest {
         return HomeContentViewModel(
             movieRepository = movieRepository,
             getMovieGenreUseCase = useCase,
+            userDataRepository = userDataRepository,
             movieGenre = genre,
         )
+    }
+
+    @Test
+    fun `language changes recreate the movie list query but theme changes do not`() = runTest(dispatcher) {
+        // Arrange
+        val movieRepository = FakeMovieRepository()
+        val userDataRepository = FakeUserDataRepository()
+        val viewModel = createViewModel(movieRepository, userDataRepository)
+        val job = viewModel.movieList.launchIn(this)
+
+        // Act
+        runCurrent()
+        userDataRepository.setThemeMode(ThemeMode.DARK)
+        runCurrent()
+        val requestsAfterThemeChange = movieRepository.movieListRequests
+        userDataRepository.setLanguageMode(LanguageMode.ENGLISH)
+        runCurrent()
+
+        // Assert
+        assertEquals(1, requestsAfterThemeChange)
+        assertEquals(2, movieRepository.movieListRequests)
+        job.cancel()
     }
 
     // 分頁邏輯本身比照 GetHomeMovieListUseCaseTest 做 collectible smoke test，不斷言
