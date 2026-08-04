@@ -1,1 +1,4 @@
 type: bug-fix
+workspace: branch
+branch: bug-fix/fix-android-language-switch-refresh
+base_branch: master
