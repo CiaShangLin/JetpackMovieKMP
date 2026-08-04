@@ -47,4 +47,19 @@ final class FavoritesUiStateTests: XCTestCase {
         XCTAssertEqual(data.count, 1)
         XCTAssertEqual(data.first?.id, movie.id)
     }
+
+    func testMake_preservesMoviesInSharedRepositoryOrder() {
+        // Arrange
+        let newestMovie = MovieCardResult(id: 2, title: "Newest", isCollect: true)
+        let oldestMovie = MovieCardResult(id: 1, title: "Oldest", isCollect: true)
+
+        // Act
+        let state = FavoritesUiState.make(movies: [newestMovie, oldestMovie])
+
+        // Assert
+        guard case let .success(data) = state else {
+            return XCTFail("有收藏資料時應產生 success state")
+        }
+        XCTAssertEqual(data.map(\.id), [newestMovie.id, oldestMovie.id])
+    }
 }

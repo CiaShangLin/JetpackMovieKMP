@@ -2,3 +2,10 @@ type: bug-fix
 workspace: worktree
 branch: bug-fix/fix-ios-favorites-title-and-order
 base_branch: master
+verify_selected:
+  - unit-test
+  - doc-comment
+  - code-review
+verified:
+  - unit-test
+  - doc-comment

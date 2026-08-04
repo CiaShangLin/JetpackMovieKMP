@@ -34,12 +34,14 @@ import kotlinx.coroutines.flow.map
  * @param ioDispatcher 執行網路／資料庫操作用的 dispatcher；正式環境由
  *   `dataModule()` 透過 `commonModule()` 提供的 `CommonDispatcher.IO` qualifier 注入，
  *   測試可直接建構並傳入 test dispatcher，不需要透過 Koin。
+ * @param currentTimeMillis 提供收藏寫入時間；正式環境使用跨平台系統時鐘，測試可傳入固定值。
  */
 internal class MovieRepositoryImpl(
     private val movieDataSource: MovieDataSource,
     private val movieCollectDao: MovieCollectDao,
     private val movieHistoryDao: MovieHistoryDao,
     private val ioDispatcher: CoroutineDispatcher,
+    private val currentTimeMillis: () -> Long,
 ) : MovieRepository {
 
     override fun getConfiguration(): Flow<Result<ConfigurationBean>> {
@@ -150,7 +152,9 @@ internal class MovieRepositoryImpl(
     }
 
     override suspend fun insertMovieCollect(movieResult: MovieCardResult) {
-        movieCollectDao.insertMovieCollect(movieResult.asCollectEntity())
+        movieCollectDao.insertMovieCollect(
+            movieResult.copy(timestamp = currentTimeMillis()).asCollectEntity(),
+        )
     }
 
     override suspend fun deleteMovieCollect(movieResult: MovieCardResult) {

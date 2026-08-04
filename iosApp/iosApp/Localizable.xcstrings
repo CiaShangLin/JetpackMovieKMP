@@ -105,6 +105,24 @@
         }
       }
     },
+    "favorites_title" : {
+      "comment" : "Title displayed at the top of the favorites view.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Favorites"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "收藏"
+          }
+        }
+      }
+    },
     "history_clear" : {
       "comment" : "Accessibility label for the button that clears all watch history.",
       "extractionState" : "manual",

@@ -17,7 +17,7 @@ interface MovieCollectDao {
     /**
      * 取得所有已收藏電影，資料變動時會重新發出。
      */
-    @Query("SELECT * FROM MovieCollectEntity")
+    @Query("SELECT * FROM MovieCollectEntity ORDER BY timestamp DESC, id ASC")
     fun getAllMovies(): Flow<List<MovieCollectEntity>>
 
     /**

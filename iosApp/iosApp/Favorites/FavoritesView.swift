@@ -13,17 +13,23 @@ struct FavoritesView: View {
 
     var body: some View {
         NavigationStack(path: $path) {
-            FavoritesContentView(
-                uiState: viewModel.uiState,
-                onCollectTap: { movie in
-                    Task {
-                        await viewModel.toggleMovieCollectStatus(data: movie)
+            VStack(spacing: JMSpacing.spacing0) {
+                header
+                Divider()
+                    .overlay(Color.secondary)
+                    .padding(.horizontal, JMSpacing.spacing16)
+                FavoritesContentView(
+                    uiState: viewModel.uiState,
+                    onCollectTap: { movie in
+                        Task {
+                            await viewModel.toggleMovieCollectStatus(data: movie)
+                        }
+                    },
+                    onMovieTap: { movie in
+                        path.append(Int(movie.movieCardId))
                     }
-                },
-                onMovieTap: { movie in
-                    path.append(Int(movie.movieCardId))
-                }
-            )
+                )
+            }
             .navigationDestination(for: Int.self) { movieId in
                 MovieDetailView(movieId: movieId, path: $path)
             }
@@ -32,6 +38,15 @@ struct FavoritesView: View {
         .task {
             await viewModel.loadFavorites()
         }
+    }
+
+    private var header: some View {
+        HStack {
+            Text("favorites_title")
+                .font(.title)
+            Spacer()
+        }
+        .padding(JMSpacing.spacing16)
     }
 }
 

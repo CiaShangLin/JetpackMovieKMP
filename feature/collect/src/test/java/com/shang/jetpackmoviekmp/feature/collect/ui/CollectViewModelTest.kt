@@ -49,6 +49,23 @@ class CollectViewModelTest {
     }
 
     @Test
+    fun `allMovieCollect 保留 repository 提供的最新收藏順序`() = runTest(dispatcher) {
+        // Arrange
+        val newestMovie = MovieCardResult(id = 2, title = "最新收藏", isCollect = true)
+        val oldestMovie = MovieCardResult(id = 1, title = "較早收藏", isCollect = true)
+        val repository = FakeMovieRepository().apply {
+            collectedMovies.value = listOf(newestMovie, oldestMovie)
+        }
+        val viewModel = CollectViewModel(repository)
+
+        // Act
+        val state = viewModel.allMovieCollect.filterIsInstance<CollectUiState.Success>().first()
+
+        // Assert
+        assertEquals(listOf(newestMovie, oldestMovie), state.movieCollectList)
+    }
+
+    @Test
     fun `allMovieCollect 在 repository 發出空清單時轉為 Success empty state`() = runTest(dispatcher) {
         // Arrange
         val viewModel = CollectViewModel(FakeMovieRepository())
