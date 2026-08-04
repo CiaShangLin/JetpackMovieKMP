@@ -25,11 +25,13 @@ class MovieRepositoryImplTest {
         dataSource: FakeMovieDataSource = FakeMovieDataSource(),
         collectDao: FakeMovieCollectDao = FakeMovieCollectDao(),
         historyDao: FakeMovieHistoryDao = FakeMovieHistoryDao(),
+        currentTimeMillis: () -> Long = { 2L },
     ) = MovieRepositoryImpl(
         movieDataSource = dataSource,
         movieCollectDao = collectDao,
         movieHistoryDao = historyDao,
         ioDispatcher = UnconfinedTestDispatcher(),
+        currentTimeMillis = currentTimeMillis,
     )
 
     private val movie = MovieCardResult(id = 1, title = "A", timestamp = 1L)
@@ -153,6 +155,27 @@ class MovieRepositoryImplTest {
         assertEquals(1, collected.size)
         assertTrue(collected.first().isCollect)
         assertEquals(movie.id, collected.first().id)
+    }
+
+    @Test
+    fun insertMovieCollect_uses_shared_collection_time_instead_of_caller_timestamp() = runTest {
+        val collectDao = FakeMovieCollectDao()
+        val repository = repository(collectDao = collectDao)
+
+        repository.insertMovieCollect(movie.copy(timestamp = 1L))
+
+        assertEquals(2L, collectDao.getAllMovies().first().single().timestamp)
+    }
+
+    @Test
+    fun getAllMovieCollect_preserves_dao_newest_first_order() = runTest {
+        val collectionTimes = listOf(100L, 300L).iterator()
+        val repository = repository(currentTimeMillis = { collectionTimes.next() })
+
+        repository.insertMovieCollect(movie.copy(id = 1, timestamp = 0L))
+        repository.insertMovieCollect(movie.copy(id = 2, timestamp = 0L))
+
+        assertEquals(listOf(2, 1), repository.getAllMovieCollect().first().map { it.id })
     }
 
     @Test

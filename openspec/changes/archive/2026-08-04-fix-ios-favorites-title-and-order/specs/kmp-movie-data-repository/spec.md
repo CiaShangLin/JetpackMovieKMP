@@ -1,6 +1,6 @@
 ## MODIFIED Requirements
 
-### Requirement: Repository SHALL 提供收藏與瀏覽紀錄的本地讀寫
+### Requirement: 電影資料 Repository
 
 `shared/data` 的 `commonMain` SHALL 透過 `MovieRepository` 提供收藏與瀏覽紀錄的新增、刪除與 Flow 查詢。新增收藏時，`MovieRepository.insertMovieCollect(movieResult)` MUST 由 shared 層設定寫入當下的收藏時間，並寫入 `MovieCollectDao`；`getAllMovieCollect()` MUST 保留 DAO 的最新收藏優先順序，且每筆 emission 的 `isCollect` MUST 為 `true`。
 

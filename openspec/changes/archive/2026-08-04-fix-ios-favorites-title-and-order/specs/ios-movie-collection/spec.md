@@ -12,6 +12,8 @@ iOS 收藏 tab SHALL 透過既有 `MovieRepository.getAllMovieCollect()` 觀察 
 - **WHEN** shared `getAllMovieCollect()` 發出新增或刪除後的清單
 - **THEN** 收藏頁 SHALL 在不重新建立 app 或手動刷新畫面的情況下顯示 shared 提供的最新順序
 
+## ADDED Requirements
+
 ### Requirement: iOS 收藏頁 SHALL 顯示在地化頁面標題
 
 iOS 收藏 tab SHALL 在收藏清單與空狀態上方顯示在地化的收藏頁標題，並沿用 iOS 歷史頁既有的標頭視覺結構。

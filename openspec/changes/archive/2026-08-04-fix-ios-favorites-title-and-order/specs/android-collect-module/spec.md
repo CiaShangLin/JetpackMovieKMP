@@ -8,6 +8,10 @@
 - **WHEN** `getAllMovieCollect()` 發出至少一筆已依收藏時間由新到舊排序的 `MovieCardResult`
 - **THEN** 收藏頁 MUST 顯示收藏標題與每筆對應的 `MovieCard`，且不得在 Android UI 層重排 shared 回傳順序
 
+#### Scenario: 有收藏資料時顯示收藏電影
+- **WHEN** `getAllMovieCollect()` 發出至少一筆 `MovieCardResult`
+- **THEN** 收藏頁 MUST 顯示收藏標題與每筆對應的 `MovieCard`
+
 #### Scenario: 尚無收藏資料時顯示空狀態
 - **WHEN** `getAllMovieCollect()` 發出空清單
 - **THEN** 收藏頁 MUST 顯示空狀態圖示與「目前沒有收藏」的在地化文案，且不得顯示空白 grid

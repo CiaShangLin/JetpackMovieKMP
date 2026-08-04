@@ -37,6 +37,24 @@ class MovieCollectDaoTest {
     }
 
     @Test
+    fun getAllMovies_returns_newest_collect_first_then_sorts_equal_timestamps_by_id() = runTest {
+        val oldest = testMovieCollectEntity(id = 3).copy(timestamp = 100)
+        val equalTimestampHigherId = testMovieCollectEntity(id = 4).copy(timestamp = 200)
+        val newest = testMovieCollectEntity(id = 2).copy(timestamp = 300)
+        val equalTimestampLowerId = testMovieCollectEntity(id = 1).copy(timestamp = 200)
+
+        dao.insertMovieCollect(oldest)
+        dao.insertMovieCollect(equalTimestampHigherId)
+        dao.insertMovieCollect(newest)
+        dao.insertMovieCollect(equalTimestampLowerId)
+
+        assertEquals(
+            listOf(newest, equalTimestampLowerId, equalTimestampHigherId, oldest),
+            dao.getAllMovies().first(),
+        )
+    }
+
+    @Test
     fun deleteMovie_removes_it_from_getAllMovies() = runTest {
         val entity = testMovieCollectEntity()
         dao.insertMovieCollect(entity)

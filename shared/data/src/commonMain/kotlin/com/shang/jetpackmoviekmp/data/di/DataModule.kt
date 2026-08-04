@@ -8,6 +8,7 @@ import com.shang.jetpackmoviekmp.data.repository.UserDataRepositoryImpl
 import kotlinx.coroutines.CoroutineDispatcher
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
+import kotlin.time.Clock
 
 /**
  * 提供電影資料整合層依賴：[MovieRepository]、[UserDataRepository]。
@@ -24,6 +25,7 @@ fun dataModule() = module {
             movieCollectDao = get(),
             movieHistoryDao = get(),
             ioDispatcher = get(qualifier = named(CommonDispatcher.IO)),
+            currentTimeMillis = { Clock.System.now().toEpochMilliseconds() },
         )
     }
     single<UserDataRepository> {

@@ -68,7 +68,8 @@ internal class FakeMovieCollectDao : MovieCollectDao {
     override fun getAllMovies() = state.map { it }
 
     override suspend fun insertMovieCollect(entity: MovieCollectEntity) {
-        state.value = state.value.filterNot { it.id == entity.id } + entity
+        state.value = (state.value.filterNot { it.id == entity.id } + entity)
+            .sortedWith(compareByDescending<MovieCollectEntity> { it.timestamp }.thenBy { it.id })
     }
 
     override suspend fun deleteMovie(entity: MovieCollectEntity) {
