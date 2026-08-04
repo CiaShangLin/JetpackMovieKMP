@@ -1,0 +1,11 @@
+type: bug-fix
+workspace: branch
+branch: bug-fix/fix-android-language-switch-refresh
+base_branch: master
+verify_selected:
+  - doc-comment
+verified:
+  - doc-comment
+verified_at:
+  head: d462a2a54906d74148a230db8d32334392081ba1
+  diff_hash: e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
