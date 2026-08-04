@@ -40,7 +40,7 @@ internal fun initKoin(
             commonModule(),
             datastoreModule(dataStore),
             databaseModule(databaseBuilder),
-            networkModule(isDebug = isDebug, provideDefaultLanguageProvider = false),
+            networkModule(isDebug = isDebug),
             dataModule(),
             domainModule(),
             module {

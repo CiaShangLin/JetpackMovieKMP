@@ -4,7 +4,6 @@ import com.shang.jetpackmoviekmp.BuildConfig
 import com.shang.jetpackmoviekmp.common.LanguageProvider
 import com.shang.jetpackmoviekmp.network.datasource.MovieDataSource
 import com.shang.jetpackmoviekmp.network.datasource.MovieDataSourceImpl
-import com.shang.jetpackmoviekmp.network.provider.DefaultLanguageProvider
 import com.shang.jetpackmoviekmp.sharedJson
 import io.ktor.client.HttpClient
 import io.ktor.client.HttpClientConfig
@@ -20,18 +19,11 @@ import org.koin.dsl.module
 /**
  * 提供 shared 模組的 network 層依賴。
  *
+ * 此 module 依賴上游提供 [LanguageProvider]（production 由 `datastoreModule` 綁定）。
+ *
  * @param isDebug 為 `true` 時啟用 request logging。
- * @param provideDefaultLanguageProvider 是否綁定 [DefaultLanguageProvider] 作為 [LanguageProvider]。
- * production DI 必須設為 `false`，改為提供 datastore-backed 的 [LanguageProvider]
- * （見 `datastoreModule`），避免兩者對同一型別重複綁定；預設為 `true`，
- * 讓本 module 在未搭配 datastore module 時（例如測試）仍可獨立使用。
  */
-fun networkModule(isDebug: Boolean, provideDefaultLanguageProvider: Boolean = true) = module {
-    if (provideDefaultLanguageProvider) {
-        single<LanguageProvider> {
-            DefaultLanguageProvider()
-        }
-    }
+fun networkModule(isDebug: Boolean) = module {
     single<HttpClient> {
         createHttpClient(languageProvider = get(), isDebug = isDebug)
     }

@@ -33,7 +33,7 @@ class DataModuleTest : KoinTest {
         startKoin {
             modules(
                 commonModule(),
-                networkModule(isDebug = true, provideDefaultLanguageProvider = false),
+                networkModule(isDebug = true),
                 databaseModule { getTestDatabaseBuilder() },
                 datastoreModule(InMemoryPreferencesDataStore()),
                 dataModule(),
@@ -63,7 +63,7 @@ class DataModuleTest : KoinTest {
         // app 啟動才在別處炸掉。
         val koinApp = koinApplication {
             modules(
-                networkModule(isDebug = true, provideDefaultLanguageProvider = false),
+                networkModule(isDebug = true),
                 databaseModule { getTestDatabaseBuilder() },
                 datastoreModule(InMemoryPreferencesDataStore()),
                 dataModule(),

@@ -42,7 +42,7 @@ class DomainModuleTest : KoinTest {
         startKoin {
             modules(
                 commonModule(),
-                networkModule(isDebug = true, provideDefaultLanguageProvider = false),
+                networkModule(isDebug = true),
                 databaseModule { getTestDatabaseBuilder() },
                 datastoreModule(InMemoryPreferencesDataStore()),
                 dataModule(),
@@ -93,7 +93,7 @@ class DomainModuleTest : KoinTest {
         val koinApp = koinApplication {
             modules(
                 commonModule(),
-                networkModule(isDebug = true, provideDefaultLanguageProvider = false),
+                networkModule(isDebug = true),
                 databaseModule { getTestDatabaseBuilder() },
                 datastoreModule(InMemoryPreferencesDataStore()),
                 domainModule(),

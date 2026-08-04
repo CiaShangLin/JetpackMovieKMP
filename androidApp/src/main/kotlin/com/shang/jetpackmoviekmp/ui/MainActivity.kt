@@ -53,7 +53,6 @@ import com.shang.jetpackmoviekmp.feature.search.navigation.SearchKey
 import com.shang.jetpackmoviekmp.feature.search.navigation.searchEntry
 import com.shang.jetpackmoviekmp.feature.setting.navigation.SettingKey
 import com.shang.jetpackmoviekmp.feature.setting.navigation.settingEntry
-import com.shang.jetpackmoviekmp.model.LanguageMode
 import com.shang.jetpackmoviekmp.model.ThemeMode
 import com.shang.jetpackmoviekmp.navigation.MainNavItem
 import com.shang.jetpackmoviekmp.utils.LanguageSettingUtils
@@ -73,35 +72,29 @@ class MainActivity : ComponentActivity() {
             splashScreen.setKeepOnScreenCondition {
                 configuration.value is MainUiState.Loading
             }
-            LaunchedEffect(userData.languageMode) {
+            // 同步呼叫（而非 LaunchedEffect），確保 resources.updateConfiguration() 在下方
+            // key(languageMode) 觸發的重組之前就完成，避免字串讀到套用前的舊語言。
+            remember(userData.languageMode) {
                 LanguageSettingUtils.updateActivityLocale(
                     activity = this@MainActivity,
                     languageMode = userData.languageMode,
                 )
             }
 
-            LanguageProvider(languageMode = userData.languageMode) {
-                val backStack = rememberNavBackStack(HomeKey)
-                ThemeProvider(
-                    themeMode = userData.themeMode,
-                    activity = this@MainActivity,
-                ) {
+            val backStack = rememberNavBackStack(HomeKey)
+            ThemeProvider(
+                themeMode = userData.themeMode,
+                activity = this@MainActivity,
+            ) {
+                // 只包住畫面內容（不含上面的 backStack），語言切換時只重組字串顯示，
+                // 不會重置 backStack、也不需要 activity.recreate()。
+                key(userData.languageMode) {
                     MainScreen(configuration.value, backStack, onRetry = {
                         viewModel.retryConfiguration()
                     })
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun LanguageProvider(
-    languageMode: LanguageMode,
-    content: @Composable () -> Unit,
-) {
-    key(languageMode) {
-        content()
     }
 }
 

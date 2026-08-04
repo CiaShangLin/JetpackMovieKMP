@@ -1,0 +1,4 @@
+<resources>
+    <string name="collect_title">My Favorites</string>
+    <string name="collect_empty">No favorites yet</string>
+</resources>

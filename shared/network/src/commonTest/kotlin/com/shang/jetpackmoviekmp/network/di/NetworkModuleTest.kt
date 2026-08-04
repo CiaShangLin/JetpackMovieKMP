@@ -1,8 +1,10 @@
 package com.shang.jetpackmoviekmp.network.di
 
+import com.shang.jetpackmoviekmp.common.LanguageProvider
 import com.shang.jetpackmoviekmp.network.datasource.MovieDataSource
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
+import org.koin.dsl.module
 import org.koin.test.KoinTest
 import org.koin.test.inject
 import kotlin.test.AfterTest
@@ -17,7 +19,16 @@ class NetworkModuleTest : KoinTest {
     @BeforeTest
     fun setUp() {
         startKoin {
-            modules(networkModule(isDebug = true))
+            modules(
+                module {
+                    single<LanguageProvider> {
+                        object : LanguageProvider {
+                            override fun getLanguageCode(): String = "zh-TW"
+                        }
+                    }
+                },
+                networkModule(isDebug = true),
+            )
         }
     }
 
