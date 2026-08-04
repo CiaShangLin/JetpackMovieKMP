@@ -146,3 +146,16 @@ switch 包成一個回傳 `Result<T, AppError>`或類似結構的 extension func
 - 狀態: 待處理
 
 iOS「我的收藏」頁面需補上明確的 title UI。列表顯示時，應以收藏時間排序，越晚加入收藏的電影排在越前面（依 timestamp 由新到舊）。
+
+## 修正 Android 切換語言後 App 介面未同步更新
+
+- 類型: bug-fix
+- 記錄日期: 2026-08-04
+- 來源: master
+- 前置依賴: 無
+- 狀態: 待處理
+
+Android 端切換語言後，TMDB API 請求的語言已正確切換，但 App 本身的語言體系（如 Android
+資源／Compose UI 的 locale）沒有同步更新，因此介面文字仍維持原語言。需比對先前
+JetpackMovieCompose 專案可正常切換的作法，釐清並補上 Android locale／AppCompat 或 Compose
+組態更新機制，讓 App 介面與 API 語言一致切換。
