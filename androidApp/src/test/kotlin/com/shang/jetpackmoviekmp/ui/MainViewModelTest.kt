@@ -2,6 +2,7 @@ package com.shang.jetpackmoviekmp.ui
 
 import com.shang.jetpackmoviekmp.domain.usecase.GetConfigurationUseCase
 import com.shang.jetpackmoviekmp.model.ConfigurationBean
+import com.shang.jetpackmoviekmp.model.LanguageMode
 import com.shang.jetpackmoviekmp.model.UserData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -15,7 +16,9 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertIs
+import kotlin.test.assertTrue
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class MainViewModelTest {
@@ -112,5 +115,15 @@ class MainViewModelTest {
         // Assert
         assertEquals(UserData.getDefault(), viewModel.userData.value)
         job.cancel()
+    }
+
+    @Test
+    fun `same language recreates the activity at most once`() {
+        // Arrange
+        val viewModel = createViewModel()
+
+        // Act / Assert
+        assertTrue(viewModel.shouldRecreateForLanguage(LanguageMode.ENGLISH, localeChanged = true))
+        assertFalse(viewModel.shouldRecreateForLanguage(LanguageMode.ENGLISH, localeChanged = true))
     }
 }

@@ -3,6 +3,7 @@
 - [x] 1.1 修改 `MainActivity.kt` 的 `LaunchedEffect(userData.languageMode)`，在 `LanguageSettingUtils.updateActivityLocale()` 完成後呼叫 `activity.recreate()`
 - [x] 1.2 移除包住 `rememberNavBackStack(HomeKey)` 的 `key(languageMode)` 包裝，改為讓 backstack 依 Navigation3 既有序列化保存機制在 `recreate()` 後自動還原
 - [x] 1.3 手動驗證：在非首頁畫面（例如 Setting 頁、Detail 頁）切換語言，確認字串立即以新語言顯示，且停留在原本畫面
+- [x] 1.4 以 `MainViewModel` 保留已套用語言，確保同語言重建後不重複呼叫 `recreate()`，並新增單元測試防止 Splash 重建循環
 
 ## 2. androidApp：字串資源補齊
 

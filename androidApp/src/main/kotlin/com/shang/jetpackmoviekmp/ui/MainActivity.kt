@@ -78,7 +78,8 @@ class MainActivity : ComponentActivity() {
                     activity = this@MainActivity,
                     languageMode = userData.languageMode,
                 )
-                if (previousConfiguration.locales != this@MainActivity.resources.configuration.locales) {
+                val localeChanged = previousConfiguration.locales != this@MainActivity.resources.configuration.locales
+                if (viewModel.shouldRecreateForLanguage(userData.languageMode, localeChanged)) {
                     this@MainActivity.recreate()
                 }
             }
