@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import com.shang.jetpackmoviekmp.data.repository.MovieRepository
+import com.shang.jetpackmoviekmp.data.repository.UserDataRepository
 import com.shang.jetpackmoviekmp.domain.usecase.GetSearchMovieListUseCase
 import com.shang.jetpackmoviekmp.model.MovieCardData
 import com.shang.jetpackmoviekmp.model.asMovieCardResult
@@ -11,7 +12,9 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -21,10 +24,12 @@ import kotlinx.coroutines.launch
  * 管理電影搜尋關鍵字、分頁結果、收藏切換與重試操作。
  *
  * @property movieRepository 提供收藏資料的新增與刪除操作。
+ * @property userDataRepository 提供語言設定變化訊號，語言切換時以相同關鍵字重新搜尋。
  * @property getSearchMovieListUseCase 建立會同步收藏狀態的搜尋分頁資料流。
  */
 class SearchViewModel(
     private val movieRepository: MovieRepository,
+    private val userDataRepository: UserDataRepository,
     private val getSearchMovieListUseCase: GetSearchMovieListUseCase,
 ) : ViewModel() {
 
@@ -36,20 +41,19 @@ class SearchViewModel(
 
     /** 目前關鍵字對應的電影搜尋分頁資料。 */
     @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
-    val movieSearchPager = searchQuery
-        .debounce(SEARCH_DEBOUNCE_MILLIS)
+    val movieSearchPager = combine(
+        searchQuery.debounce(SEARCH_DEBOUNCE_MILLIS),
+        retryTrigger,
+        userDataRepository.userData.map { it.languageMode }.distinctUntilChanged(),
+    ) { query, _, _ -> query }
         .flatMapLatest { query ->
             if (query.isEmpty()) {
                 flowOf(PagingData.empty())
             } else {
-                retryTrigger
-                    .map { query }
-                    .flatMapLatest { searchQuery ->
-                        getSearchMovieListUseCase(
-                            query = searchQuery,
-                            scope = viewModelScope,
-                        )
-                    }
+                getSearchMovieListUseCase(
+                    query = query,
+                    scope = viewModelScope,
+                )
             }
         }
 

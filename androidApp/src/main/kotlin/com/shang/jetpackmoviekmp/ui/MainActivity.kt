@@ -74,6 +74,8 @@ class MainActivity : ComponentActivity() {
             }
             // 同步呼叫（而非 LaunchedEffect），確保 resources.updateConfiguration() 在下方
             // key(languageMode) 觸發的重組之前就完成，避免字串讀到套用前的舊語言。
+            // 手動測試切換點：改呼叫 LanguageSettingUtils.setApplicationLocales(userData.languageMode)
+            // 可比較 AppCompatDelegate 版本的行為，本次僅新增測試方法，預設仍維持 updateActivityLocale。
             remember(userData.languageMode) {
                 LanguageSettingUtils.updateActivityLocale(
                     activity = this@MainActivity,

@@ -32,6 +32,9 @@ internal class FakeMovieRepository : MovieRepository {
     var movieGenresResult: AppResult<MovieGenreBean> = AppResult.Success(MovieGenreBean())
     var movieListPager: Flow<PagingData<MovieCardResult>> = flowOf(PagingData.empty())
 
+    var getMovieListPagerCallCount: Int = 0
+        private set
+
     var insertMovieCollectCallCount: Int = 0
         private set
     var deleteMovieCollectCallCount: Int = 0
@@ -44,7 +47,10 @@ internal class FakeMovieRepository : MovieRepository {
 
     override fun getMovieGenres(): Flow<AppResult<MovieGenreBean>> = flowOf(movieGenresResult)
 
-    override fun getMovieListPager(withGenres: String): Flow<PagingData<MovieCardResult>> = movieListPager
+    override fun getMovieListPager(withGenres: String): Flow<PagingData<MovieCardResult>> {
+        getMovieListPagerCallCount++
+        return movieListPager
+    }
 
     override fun getMovieSearchPager(query: String): Flow<PagingData<MovieCardResult>> = flowOf(PagingData.empty())
 
@@ -82,8 +88,8 @@ internal class FakeMovieRepository : MovieRepository {
 }
 
 /**
- * [UserDataRepository] 測試替身。`HomeViewModel` 目前建構時注入但未實際使用，
- * 提供最小可用實作即可。
+ * [UserDataRepository] 測試替身，供 `HomeViewModel`／`HomeContentViewModel` 測試
+ * 驗證語言／主題變更時的資料重新載入行為。
  */
 internal class FakeUserDataRepository(
     initial: UserData = UserData.getDefault(),

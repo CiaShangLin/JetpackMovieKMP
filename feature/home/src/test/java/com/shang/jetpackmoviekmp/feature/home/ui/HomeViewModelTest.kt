@@ -2,7 +2,9 @@ package com.shang.jetpackmoviekmp.feature.home.ui
 
 import com.shang.jetpackmoviekmp.common.AppError
 import com.shang.jetpackmoviekmp.common.AppResult
+import com.shang.jetpackmoviekmp.model.LanguageMode
 import com.shang.jetpackmoviekmp.model.MovieGenreBean
+import com.shang.jetpackmoviekmp.model.ThemeMode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.launchIn
@@ -90,6 +92,52 @@ class HomeViewModelTest {
 
         // Assert
         assertEquals(HomeUiState.Success(genres), viewModel.movieGenres.value)
+        job.cancel()
+    }
+
+    @Test
+    fun `languageMode 變化時重新呼叫 getMovieGenres`() = runTest(dispatcher) {
+        // Arrange
+        val movieRepository = FakeMovieRepository().apply {
+            movieGenresResult = AppResult.Success(MovieGenreBean(genres = listOf(MovieGenreBean.MovieGenre(id = 1, name = "Old"))))
+        }
+        val userDataRepository = FakeUserDataRepository()
+        val viewModel = createViewModel(movieRepository = movieRepository, userDataRepository = userDataRepository)
+        val job = viewModel.movieGenres.launchIn(this)
+        assertEquals(
+            HomeUiState.Success(MovieGenreBean(genres = listOf(MovieGenreBean.MovieGenre(id = 1, name = "Old")))),
+            viewModel.movieGenres.value,
+        )
+
+        val newGenres = MovieGenreBean(genres = listOf(MovieGenreBean.MovieGenre(id = 2, name = "New")))
+        movieRepository.movieGenresResult = AppResult.Success(newGenres)
+
+        // Act
+        userDataRepository.setLanguageMode(LanguageMode.ENGLISH)
+
+        // Assert
+        assertEquals(HomeUiState.Success(newGenres), viewModel.movieGenres.value)
+        job.cancel()
+    }
+
+    @Test
+    fun `僅 themeMode 變化不觸發重新載入`() = runTest(dispatcher) {
+        // Arrange
+        val movieRepository = FakeMovieRepository().apply {
+            movieGenresResult = AppResult.Success(MovieGenreBean(genres = listOf(MovieGenreBean.MovieGenre(id = 1, name = "Old"))))
+        }
+        val userDataRepository = FakeUserDataRepository()
+        val viewModel = createViewModel(movieRepository = movieRepository, userDataRepository = userDataRepository)
+        val job = viewModel.movieGenres.launchIn(this)
+        val loadedGenres = viewModel.movieGenres.value
+
+        movieRepository.movieGenresResult = AppResult.Success(MovieGenreBean(genres = listOf(MovieGenreBean.MovieGenre(id = 2, name = "New"))))
+
+        // Act
+        userDataRepository.setThemeMode(ThemeMode.DARK)
+
+        // Assert
+        assertEquals(loadedGenres, viewModel.movieGenres.value)
         job.cancel()
     }
 }

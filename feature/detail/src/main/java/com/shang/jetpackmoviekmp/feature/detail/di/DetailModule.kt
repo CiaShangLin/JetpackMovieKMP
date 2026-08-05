@@ -9,6 +9,7 @@ fun detailModule() = module {
     viewModel { params ->
         MovieDetailViewModel(
             movieRepository = get(),
+            userDataRepository = get(),
             getMovieDetailUseCase = get(),
             getMovieRecommendUseCase = get(),
             movieId = params.get(),
