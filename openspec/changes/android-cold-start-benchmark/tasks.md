@@ -1,16 +1,16 @@
 ## 1. 依賴版本目錄與模組註冊
 
-- [ ] 1.1 於 `gradle/libs.versions.toml` 新增 Macrobenchmark 相關 version/library/plugin alias（例如 `androidx-benchmark-macro-junit4`、`androidx-profileinstaller`、`androidx-baselineprofile` plugin）
-- [ ] 1.2 於 `androidApp/build.gradle.kts` 新增 `testImplementation(libs.koin.test)`（`koin-test` alias 已存在於版本目錄）
-- [ ] 1.3 於 `settings.gradle.kts` 新增 `include(":benchmark")`
+- [x] 1.1 於 `gradle/libs.versions.toml` 新增 Macrobenchmark 相關 version/library/plugin alias（`androidx-benchmark-macro-junit4`、`androidx-uiautomator`、`android-test` plugin 已加入；`androidx-profileinstaller`、`androidx-baselineprofile` plugin 留待 Task 7 方案 B 時再加）
+- [x] 1.2 於 `androidApp/build.gradle.kts` 新增 `testImplementation(libs.koin.test)`（`koin-test` alias 已存在於版本目錄）
+- [x] 1.3 於 `settings.gradle.kts` 新增 `include(":benchmark")`
 
 ## 2. `:benchmark` module 建立
 
-- [ ] 2.1 建立 `benchmark/build.gradle.kts`，套用 `com.android.test` plugin，設定 `targetProjectPath = ":androidApp"` 與 `experimentalProperties["android.experimental.self-instrumenting"] = true`
-- [ ] 2.2 新增 `benchmark/src/main/AndroidManifest.xml`（`com.android.test` module 所需的最小 manifest）
-- [ ] 2.3 撰寫 `StartupBenchmark.kt`（`androidx.benchmark.macro.junit4.MacrobenchmarkRule`），量測 `androidApp` 冷啟動（`StartupMode.COLD`）
-- [ ] 2.4 於 `androidApp/build.gradle.kts` 新增 `benchmark` build type（繼承 `release`、`debuggable = false`、啟用 `profileable`）
-- [ ] 2.5 執行 `./gradlew :benchmark:assembleBenchmark` 確認 `:benchmark` module 可成功編譯
+- [x] 2.1 建立 `benchmark/build.gradle.kts`，套用 `com.android.test` plugin，設定 `targetProjectPath = ":androidApp"` 與 `experimentalProperties["android.experimental.self-instrumenting"] = true`
+- [x] 2.2 新增 `benchmark/src/main/AndroidManifest.xml`（`com.android.test` module 所需的最小 manifest）
+- [x] 2.3 撰寫 `StartupBenchmark.kt`（`androidx.benchmark.macro.junit4.MacrobenchmarkRule`），量測 `androidApp` 冷啟動（`StartupMode.COLD`）
+- [x] 2.4 於 `androidApp/build.gradle.kts` 新增 `benchmark` build type（繼承 `release`、`debuggable = false`、啟用 `profileable`）
+- [x] 2.5 執行 `./gradlew :benchmark:assembleBenchmark` 確認 `:benchmark` module 可成功編譯
 
 ## 3. Smoke test 與「優化前」基準量測（Checkpoint 0）
 
