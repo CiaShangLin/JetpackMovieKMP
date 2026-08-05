@@ -102,3 +102,4 @@ iOS 主畫面底部導覽 SHALL 包含五個固定 tab，依序為首頁、收�
 
 - **WHEN** 使用者從電影詳情頁 pop 回該 tab 的根內容畫面
 - **THEN** 底部 Tab Bar SHALL 重新顯示
+
