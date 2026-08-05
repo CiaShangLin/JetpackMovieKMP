@@ -55,6 +55,11 @@ dependencies {
     testImplementation(libs.kotlin.test.junit)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.koin.test)
+    testImplementation(projects.shared.database)
+    testImplementation(projects.shared.datastore)
+    testImplementation(projects.shared.network)
+    testImplementation(libs.androidx.room.runtime)
+    testImplementation(libs.androidx.sqlite.bundled)
 }
 
 android {

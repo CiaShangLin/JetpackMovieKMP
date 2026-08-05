@@ -20,10 +20,10 @@
 
 ## 4. 實作方案 A：Koin module 延遲載入
 
-- [ ] 4.1 於 `MainActivity.kt` 的 `mainEntry()` 中，為 `collectModule`、`historyModule`、`searchModule`、`detailModule`、`settingModule` 各自維護「已載入」旗標，在建立對應 `NavEntry` 之前同步呼叫 `loadKoinModules(listOf(xxxModule()))` 並標記為已載入，避免重複載入
-- [ ] 4.2 調整 `JetpackMovieApplication.onCreate()`：只同步載入首屏必要的 Koin module（`uiModule`、`mainModule`、`homeModule`），其餘改由 4.1 的機制延遲載入
-- [ ] 4.3 新增 `androidApp/src/test` 下的 Koin `checkModules()` 單元測試，驗證全部 8 個 module 加總後依賴圖可完整解析
-- [ ] 4.4 執行 `./gradlew :androidApp:assembleDebug` 確認建置成功
+- [x] 4.1 於 `MainActivity.kt` 的 `mainEntry()` 中，為 `collectModule`、`historyModule`、`searchModule`、`detailModule`、`settingModule` 各自維護「已載入」旗標，在建立對應 `NavEntry` 之前同步呼叫 `loadKoinModules(listOf(xxxModule()))` 並標記為已載入，避免重複載入
+- [x] 4.2 調整 `JetpackMovieApplication.onCreate()`：只同步載入首屏必要的 Koin module（`uiModule`、`mainModule`、`homeModule`），其餘改由 4.1 的機制延遲載入
+- [x] 4.3 新增 `androidApp/src/test` 下的 Koin module 依賴圖解析測試（`FeatureModulesResolutionTest`），驗證 `mainModule`／`homeModule`／`collectModule`／`historyModule`／`searchModule`／`detailModule`／`settingModule` 加總後依賴圖可完整解析；`uiModule` 因需要真實 Android Context，純 JVM 測試無法涵蓋，改由 Task 5 手動驗證涵蓋
+- [x] 4.4 執行 `./gradlew :androidApp:assembleDebug` 確認建置成功
 
 ## 5. 功能回歸驗證（方案 A，避免延遲載入破壞既有行為）
 

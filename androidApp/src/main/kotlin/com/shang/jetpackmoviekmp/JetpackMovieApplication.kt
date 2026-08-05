@@ -7,12 +7,7 @@ import coil3.PlatformContext
 import coil3.SingletonImageLoader
 import com.shang.jetpackmoviekmp.core.ui.di.uiModule
 import com.shang.jetpackmoviekmp.di.mainModule
-import com.shang.jetpackmoviekmp.feature.collect.di.collectModule
-import com.shang.jetpackmoviekmp.feature.detail.di.detailModule
-import com.shang.jetpackmoviekmp.feature.history.di.historyModule
 import com.shang.jetpackmoviekmp.feature.home.di.homeModule
-import com.shang.jetpackmoviekmp.feature.search.di.searchModule
-import com.shang.jetpackmoviekmp.feature.setting.di.settingModule
 import org.koin.android.ext.android.inject
 import org.koin.core.context.loadKoinModules
 
@@ -29,11 +24,6 @@ class JetpackMovieApplication : Application(), SingletonImageLoader.Factory {
                 uiModule(),
                 mainModule(),
                 homeModule(),
-                collectModule(),
-                historyModule(),
-                searchModule(),
-                detailModule(),
-                settingModule(),
             ),
         )
     }
