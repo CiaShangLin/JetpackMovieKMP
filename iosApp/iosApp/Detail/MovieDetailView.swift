@@ -38,6 +38,7 @@ struct MovieDetailView: View {
             .task {
                 await viewModel.fetchMovieRecommend()
             }
+            .toolbar(.hidden, for: .tabBar)
     }
 
     @ViewBuilder

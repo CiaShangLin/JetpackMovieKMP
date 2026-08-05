@@ -92,8 +92,14 @@ iOS 主畫面底部導覽 SHALL 包含五個固定 tab，依序為首頁、收�
 - **WHEN** 使用者在歷史 tab 點擊一張電影卡
 - **THEN** 歷史 tab 的 `NavigationStack` SHALL 推入以該電影 `movieCardId` 建立的電影詳情頁
 
-#### Scenario: 進入詳情頁時底部導覽列維持可見
+#### Scenario: 進入詳情頁時底部導覽列隱藏
 
 - **WHEN** 任一 tab 推入電影詳情頁
-- **THEN** 底部 Tab Bar SHALL 保持可見，不比照 Android 版本隱藏主導覽
+- **THEN** 底部 Tab Bar SHALL 隱藏，與 Android 版本行為一致
 - **AND** 返回操作 SHALL 一次僅 pop 一層，不影響其他 tab 各自的 `NavigationStack` 狀態
+
+#### Scenario: 返回列表頁時底部導覽列復原
+
+- **WHEN** 使用者從電影詳情頁 pop 回該 tab 的根內容畫面
+- **THEN** 底部 Tab Bar SHALL 重新顯示
+
