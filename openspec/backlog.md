@@ -111,11 +111,3 @@ iOS 端另外寫原生 Swift enum 因應。
 switch 包成一個回傳 `Result<T, AppError>`或類似結構的 extension function），
 以及 Android 端是否也有等效的重複判斷可以抽共用 mapper，減少兩平台個別消費
 `AppResult` 時的重複樣板程式碼。
-
-## 重構 iOS 導覽層級以隱藏詳細頁底部 Tab Bar
-
-- 類型: refactor
-- 記錄日期: 2026-08-03
-- 來源: add-ios-movie-detail（實作中發現）
-- 前置依賴: 無
-- 狀態: 待處理
