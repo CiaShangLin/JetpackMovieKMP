@@ -1,1 +1,4 @@
 type: bug-fix
+workspace: branch
+branch: bug-fix/fix-language-switch-data-refresh
+base_branch: master
