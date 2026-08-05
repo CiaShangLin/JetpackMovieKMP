@@ -1,1 +1,4 @@
 type: feature
+workspace: branch
+branch: feature/hide-movie-detail-tab-bar
+base_branch: master
