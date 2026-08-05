@@ -5,6 +5,8 @@ import android.content.Context
 import android.content.res.Configuration
 import android.os.Build
 import android.os.LocaleList
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.LocaleListCompat
 import com.shang.jetpackmoviekmp.model.LanguageMode
 import java.util.Locale
 
@@ -79,5 +81,20 @@ object LanguageSettingUtils {
 
         @Suppress("DEPRECATION")
         resources.updateConfiguration(configuration, resources.displayMetrics)
+    }
+
+    /**
+     * 使用 [AppCompatDelegate.setApplicationLocales] 切換應用語言，作為 [updateActivityLocale]
+     * 的替代測試方法，供手動比較兩者切換效果。
+     *
+     * @param languageMode 語言模式；`SYSTEM_DEFAULT` 對應空的 LocaleList，恢復跟隨系統語言
+     */
+    fun setApplicationLocales(languageMode: LanguageMode) {
+        val localeList = when (languageMode) {
+            LanguageMode.SYSTEM_DEFAULT -> LocaleListCompat.getEmptyLocaleList()
+            LanguageMode.TRADITIONAL_CHINESE -> LocaleListCompat.forLanguageTags("zh-TW")
+            LanguageMode.ENGLISH -> LocaleListCompat.forLanguageTags("en-US")
+        }
+        AppCompatDelegate.setApplicationLocales(localeList)
     }
 }

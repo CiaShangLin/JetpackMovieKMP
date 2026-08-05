@@ -1,0 +1,15 @@
+type: bug-fix
+workspace: branch
+branch: bug-fix/fix-language-switch-data-refresh
+base_branch: master
+verify_selected:
+  - unit-test
+  - doc-comment
+  - code-review
+verified:
+  - unit-test
+  - doc-comment
+  - code-review
+verified_at:
+  head: 9e6cde7a18f89e6e7561638cf363277d68e64e23
+  diff_hash: 07df98a9c5bf3ace016d30ba0613c854befdcbd0

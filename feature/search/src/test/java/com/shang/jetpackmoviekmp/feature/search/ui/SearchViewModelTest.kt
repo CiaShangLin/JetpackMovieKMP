@@ -3,17 +3,22 @@ package com.shang.jetpackmoviekmp.feature.search.ui
 import androidx.paging.PagingData
 import com.shang.jetpackmoviekmp.common.AppResult
 import com.shang.jetpackmoviekmp.data.repository.MovieRepository
+import com.shang.jetpackmoviekmp.data.repository.UserDataRepository
 import com.shang.jetpackmoviekmp.domain.usecase.GetSearchMovieListUseCase
 import com.shang.jetpackmoviekmp.model.ConfigurationBean
+import com.shang.jetpackmoviekmp.model.LanguageMode
 import com.shang.jetpackmoviekmp.model.MovieCardData
 import com.shang.jetpackmoviekmp.model.MovieCardResult
 import com.shang.jetpackmoviekmp.model.MovieCastAndCrewBean
 import com.shang.jetpackmoviekmp.model.MovieDetailBean
 import com.shang.jetpackmoviekmp.model.MovieGenreBean
 import com.shang.jetpackmoviekmp.model.MovieRecommendBean
+import com.shang.jetpackmoviekmp.model.ThemeMode
+import com.shang.jetpackmoviekmp.model.UserData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -164,11 +169,74 @@ class SearchViewModelTest {
         assertEquals(listOf(1), repository.deletedMovieCollectIds)
     }
 
-    private fun createViewModel(repository: MovieRepository): SearchViewModel =
+    @Test
+    fun `已有搜尋關鍵字時 languageMode 變化，以相同關鍵字重新從第一頁呼叫 getSearchMovieListUseCase`() = runTest(dispatcher) {
+        // Arrange
+        val repository = FakeMovieRepository()
+        val userDataRepository = FakeUserDataRepository()
+        val viewModel = createViewModel(repository, userDataRepository)
+        val job = viewModel.movieSearchPager.launchIn(this)
+        viewModel.startSearch("Dune")
+        advanceTimeBy(300)
+        runCurrent()
+
+        // Act
+        userDataRepository.setLanguageMode(LanguageMode.ENGLISH)
+        runCurrent()
+
+        // Assert
+        assertEquals(listOf("Dune", "Dune"), repository.searchQueries)
+        job.cancel()
+    }
+
+    @Test
+    fun `尚未輸入關鍵字時 languageMode 變化，MUST NOT 呼叫 getSearchMovieListUseCase`() = runTest(dispatcher) {
+        // Arrange
+        val repository = FakeMovieRepository()
+        val userDataRepository = FakeUserDataRepository()
+        val viewModel = createViewModel(repository, userDataRepository)
+        val job = viewModel.movieSearchPager.launchIn(this)
+        runCurrent()
+
+        // Act
+        userDataRepository.setLanguageMode(LanguageMode.ENGLISH)
+        runCurrent()
+
+        // Assert
+        assertTrue(repository.searchQueries.isEmpty())
+        job.cancel()
+    }
+
+    private fun createViewModel(
+        repository: MovieRepository,
+        userDataRepository: UserDataRepository = FakeUserDataRepository(),
+    ): SearchViewModel =
         SearchViewModel(
             movieRepository = repository,
+            userDataRepository = userDataRepository,
             getSearchMovieListUseCase = GetSearchMovieListUseCase(repository, dispatcher),
         )
+}
+
+private class FakeUserDataRepository(
+    initial: UserData = UserData.getDefault(),
+) : UserDataRepository {
+
+    private val state = MutableStateFlow(initial)
+
+    override val userData: Flow<UserData> get() = state
+
+    override suspend fun setConfiguration(configuration: ConfigurationBean) {
+        state.value = state.value.copy(configuration = configuration)
+    }
+
+    override suspend fun setThemeMode(themeMode: ThemeMode) {
+        state.value = state.value.copy(themeMode = themeMode)
+    }
+
+    override suspend fun setLanguageMode(languageMode: LanguageMode) {
+        state.value = state.value.copy(languageMode = languageMode)
+    }
 }
 
 private class FakeMovieRepository : MovieRepository {

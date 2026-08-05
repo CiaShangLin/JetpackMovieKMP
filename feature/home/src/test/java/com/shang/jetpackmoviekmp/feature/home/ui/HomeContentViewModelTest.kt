@@ -2,6 +2,7 @@ package com.shang.jetpackmoviekmp.feature.home.ui
 
 import androidx.paging.PagingData
 import com.shang.jetpackmoviekmp.domain.usecase.GetHomeMovieListUseCase
+import com.shang.jetpackmoviekmp.model.LanguageMode
 import com.shang.jetpackmoviekmp.model.MovieCardResult
 import com.shang.jetpackmoviekmp.model.MovieGenreBean
 import com.shang.jetpackmoviekmp.model.asMovieCardData
@@ -9,8 +10,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import java.util.concurrent.TimeUnit
@@ -37,13 +41,17 @@ class HomeContentViewModelTest {
         Dispatchers.resetMain()
     }
 
-    private fun createViewModel(movieRepository: FakeMovieRepository): HomeContentViewModel {
+    private fun createViewModel(
+        movieRepository: FakeMovieRepository,
+        userDataRepository: FakeUserDataRepository = FakeUserDataRepository(),
+    ): HomeContentViewModel {
         val useCase = GetHomeMovieListUseCase(
             movieRepository = movieRepository,
             ioDispatcher = dispatcher,
         )
         return HomeContentViewModel(
             movieRepository = movieRepository,
+            userDataRepository = userDataRepository,
             getMovieGenreUseCase = useCase,
             movieGenre = genre,
         )
@@ -64,6 +72,32 @@ class HomeContentViewModelTest {
 
         // Assert
         assertNotNull(pagingData)
+    }
+
+    @Test
+    fun `languageMode 變化時 movieList 以新語言從第一頁重新載入，不沿用舊分頁快取`() = runTest(dispatcher) {
+        // Arrange
+        val movieRepository = FakeMovieRepository().apply {
+            movieListPager = flowOf(PagingData.from(listOf(MovieCardResult(id = 1, title = "A"))))
+        }
+        val userDataRepository = FakeUserDataRepository()
+        val viewModel = createViewModel(movieRepository, userDataRepository)
+        var emissionCount = 0
+        // 維持單一持續收集（模擬使用者正在瀏覽分頁片單），而非每次斷言前重新訂閱，
+        // 才能驗證 flatMapLatest 在收集過程中真的因語言變化中斷舊 Pager 並重建。
+        val job = viewModel.movieList.onEach { emissionCount++ }.launchIn(this)
+        runCurrent()
+        assertEquals(1, movieRepository.getMovieListPagerCallCount)
+        assertEquals(1, emissionCount)
+
+        // Act：收集持續進行中切換語言，應中斷舊 Pager、以新語言從第一頁重新呼叫
+        userDataRepository.setLanguageMode(LanguageMode.ENGLISH)
+        runCurrent()
+
+        // Assert：langMode 變化觸發 flatMapLatest 重新建立 Pager，不沿用舊分頁
+        assertEquals(2, movieRepository.getMovieListPagerCallCount)
+        assertEquals(2, emissionCount)
+        job.cancel()
     }
 
     @Test

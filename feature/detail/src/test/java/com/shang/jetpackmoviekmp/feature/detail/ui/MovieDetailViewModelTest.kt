@@ -3,15 +3,19 @@ package com.shang.jetpackmoviekmp.feature.detail.ui
 import androidx.paging.PagingData
 import com.shang.jetpackmoviekmp.common.AppResult
 import com.shang.jetpackmoviekmp.data.repository.MovieRepository
+import com.shang.jetpackmoviekmp.data.repository.UserDataRepository
 import com.shang.jetpackmoviekmp.domain.usecase.GetMovieDetailUseCase
 import com.shang.jetpackmoviekmp.domain.usecase.GetMovieRecommendUseCase
 import com.shang.jetpackmoviekmp.model.ConfigurationBean
+import com.shang.jetpackmoviekmp.model.LanguageMode
 import com.shang.jetpackmoviekmp.model.MovieCardData
 import com.shang.jetpackmoviekmp.model.MovieCardResult
 import com.shang.jetpackmoviekmp.model.MovieCastAndCrewBean
 import com.shang.jetpackmoviekmp.model.MovieDetailBean
 import com.shang.jetpackmoviekmp.model.MovieGenreBean
 import com.shang.jetpackmoviekmp.model.MovieRecommendBean
+import com.shang.jetpackmoviekmp.model.ThemeMode
+import com.shang.jetpackmoviekmp.model.UserData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -115,8 +119,65 @@ class MovieDetailViewModelTest {
         recommendationJob.cancel()
     }
 
-    private fun createViewModel(repository: MovieRepository) = MovieDetailViewModel(
+    @Test
+    fun `languageMode 變化時 movieDetail、movieRecommendations、movieActors 分別重新呼叫對應 UseCase`() = runTest(dispatcher) {
+        // Arrange
+        val repository = FakeMovieRepository()
+        val userDataRepository = FakeUserDataRepository()
+        val viewModel = createViewModel(repository, userDataRepository)
+        val detailJob = viewModel.movieDetail.launchIn(this)
+        val actorJob = viewModel.movieActors.launchIn(this)
+        val recommendationJob = viewModel.movieRecommendations.launchIn(this)
+        runCurrent()
+        assertEquals(1, repository.detailRequests)
+        assertEquals(1, repository.actorRequests)
+        assertEquals(1, repository.recommendationRequests)
+
+        // Act
+        userDataRepository.setLanguageMode(LanguageMode.ENGLISH)
+        runCurrent()
+
+        // Assert
+        assertEquals(2, repository.detailRequests)
+        assertEquals(2, repository.actorRequests)
+        assertEquals(2, repository.recommendationRequests)
+        detailJob.cancel()
+        actorJob.cancel()
+        recommendationJob.cancel()
+    }
+
+    @Test
+    fun `retryMovieDetail 只重試 movieDetail，不影響 movieActors 與 movieRecommendations`() = runTest(dispatcher) {
+        // Arrange
+        val repository = FakeMovieRepository()
+        val viewModel = createViewModel(repository)
+        val detailJob = viewModel.movieDetail.launchIn(this)
+        val actorJob = viewModel.movieActors.launchIn(this)
+        val recommendationJob = viewModel.movieRecommendations.launchIn(this)
+        runCurrent()
+        assertEquals(1, repository.detailRequests)
+        assertEquals(1, repository.actorRequests)
+        assertEquals(1, repository.recommendationRequests)
+
+        // Act
+        viewModel.retryMovieDetail()
+        runCurrent()
+
+        // Assert
+        assertEquals(2, repository.detailRequests)
+        assertEquals(1, repository.actorRequests)
+        assertEquals(1, repository.recommendationRequests)
+        detailJob.cancel()
+        actorJob.cancel()
+        recommendationJob.cancel()
+    }
+
+    private fun createViewModel(
+        repository: MovieRepository,
+        userDataRepository: UserDataRepository = FakeUserDataRepository(),
+    ) = MovieDetailViewModel(
         movieRepository = repository,
+        userDataRepository = userDataRepository,
         getMovieDetailUseCase = GetMovieDetailUseCase(repository, dispatcher),
         getMovieRecommendUseCase = GetMovieRecommendUseCase(repository, dispatcher),
         movieId = MOVIE_ID,
@@ -137,6 +198,8 @@ class MovieDetailViewModelTest {
         var actorResult: AppResult<MovieCastAndCrewBean> = AppResult.Success(MovieCastAndCrewBean())
         var recommendationResult: Result<MovieRecommendBean> = Result.success(MovieRecommendBean())
         var detailRequests = 0
+        var recommendationRequests = 0
+        var actorRequests = 0
         val insertedCollectIds = mutableListOf<Int>()
         val deletedCollectIds = mutableListOf<Int>()
         val historyIds = mutableListOf<Int>()
@@ -150,8 +213,14 @@ class MovieDetailViewModelTest {
             detailRequests++
             return flowOf(detailResult)
         }
-        override fun getMovieRecommendations(id: Int): Flow<Result<MovieRecommendBean>> = flowOf(recommendationResult)
-        override fun getMovieActor(id: Int): Flow<AppResult<MovieCastAndCrewBean>> = flowOf(actorResult)
+        override fun getMovieRecommendations(id: Int): Flow<Result<MovieRecommendBean>> {
+            recommendationRequests++
+            return flowOf(recommendationResult)
+        }
+        override fun getMovieActor(id: Int): Flow<AppResult<MovieCastAndCrewBean>> {
+            actorRequests++
+            return flowOf(actorResult)
+        }
         override suspend fun insertMovieCollect(movieResult: MovieCardResult) { insertedCollectIds += movieResult.id }
         override suspend fun deleteMovieCollect(movieResult: MovieCardResult) { deletedCollectIds += movieResult.id }
         override fun getCollectedMovieIds(): Flow<List<Int>> = collectedIds
@@ -161,6 +230,27 @@ class MovieDetailViewModelTest {
         override suspend fun deleteMovieHistory(movieResult: MovieCardResult) = Unit
         override fun getAllMovieHistory(): Flow<List<MovieCardResult>> = flowOf(emptyList())
         override suspend fun deleteAllMovieHistory(): Boolean = true
+    }
+
+    private class FakeUserDataRepository(
+        initial: UserData = UserData.getDefault(),
+    ) : UserDataRepository {
+
+        private val state = MutableStateFlow(initial)
+
+        override val userData: Flow<UserData> get() = state
+
+        override suspend fun setConfiguration(configuration: ConfigurationBean) {
+            state.value = state.value.copy(configuration = configuration)
+        }
+
+        override suspend fun setThemeMode(themeMode: ThemeMode) {
+            state.value = state.value.copy(themeMode = themeMode)
+        }
+
+        override suspend fun setLanguageMode(languageMode: LanguageMode) {
+            state.value = state.value.copy(languageMode = languageMode)
+        }
     }
 
     private companion object {
