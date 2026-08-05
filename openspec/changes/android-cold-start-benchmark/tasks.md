@@ -14,9 +14,9 @@
 
 ## 3. Smoke test 與「優化前」基準量測（Checkpoint 0）
 
-- [ ] 3.1 選定一台實體 Android 裝置，在其上執行 `./gradlew :benchmark:connectedCheck`，確認 `StartupBenchmark` 可成功執行並產出報告（不修改任何啟動路徑程式碼）
-- [ ] 3.2 記錄量測裝置資訊（型號、Android 版本）與 `CompilationMode` 設定，後續 Checkpoint 1／2 MUST 沿用同一台裝置與相同設定
-- [ ] 3.3 將 Checkpoint 0 冷啟動量測結果（P50，樣本足夠時含 P90）整理進 `openspec/changes/android-cold-start-benchmark/baseline-report.md`
+- [x] 3.1 選定一台實體 Android 裝置，在其上執行 `./gradlew :benchmark:connectedCheck`，確認 `StartupBenchmark` 可成功執行並產出報告（不修改任何啟動路徑程式碼）
+- [x] 3.2 記錄量測裝置資訊（型號、Android 版本）與 `CompilationMode` 設定，後續 Checkpoint 1／2 MUST 沿用同一台裝置與相同設定
+- [x] 3.3 將 Checkpoint 0 冷啟動量測結果（P50，樣本足夠時含 P90）整理進 `openspec/changes/android-cold-start-benchmark/baseline-report.md`
 
 ## 4. 實作方案 A：Koin module 延遲載入
 
