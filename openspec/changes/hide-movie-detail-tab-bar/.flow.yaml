@@ -2,3 +2,14 @@ type: feature
 workspace: branch
 branch: feature/hide-movie-detail-tab-bar
 base_branch: master
+verify_selected:
+  - code-review
+  - unit-test
+  - doc-comment
+verified:
+  - unit-test
+  - doc-comment
+  - code-review
+verified_at:
+  head: e23c7f769bef36204b8e5c41f22e5a5c1b0f05bf
+  diff_hash: 4fca57dc7346d737b21af7137bbad136ee6bd155
