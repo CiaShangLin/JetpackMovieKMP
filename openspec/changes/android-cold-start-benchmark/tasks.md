@@ -27,9 +27,9 @@
 
 ## 5. 功能回歸驗證（方案 A，避免延遲載入破壞既有行為）
 
-- [ ] 5.1 手動驗證：依序點擊底部導覽列收藏、歷史、搜尋、設定分頁，確認各分頁正常渲染，且不出現 Koin 注入失敗（例如 `NoBeanDefFoundException`）
-- [ ] 5.2 手動驗證：Splash 畫面仍在 `MainViewModel.configuration` 進入 `Success`／`Error` 時正確收起，行為與既有 `android-app-entry` capability 一致
-- [ ] 5.3 手動驗證：從各分頁進入電影詳情（`MovieDetailKey`）與返回流程正常運作
+- [x] 5.1 手動驗證：依序點擊底部導覽列收藏、歷史、搜尋、設定分頁，確認各分頁正常渲染，且不出現 Koin 注入失敗（例如 `NoBeanDefFoundException`）
+- [x] 5.2 手動驗證：Splash 畫面仍在 `MainViewModel.configuration` 進入 `Success`／`Error` 時正確收起，行為與既有 `android-app-entry` capability 一致
+- [x] 5.3 手動驗證：從各分頁進入電影詳情（`MovieDetailKey`）與返回流程正常運作
 
 ## 6. 方案 A 複測（Checkpoint 1）
 
