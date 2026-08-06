@@ -51,9 +51,9 @@
 
 ## 8. 方案 B 複測（Checkpoint 2）與最終比較報告
 
-- [ ] 8.1 使用與 Task 3 相同裝置與 `CompilationMode` 設定，重新執行 `./gradlew :benchmark:connectedCheck`
-- [ ] 8.2 將 Checkpoint 2 冷啟動量測結果整理進 `openspec/changes/android-cold-start-benchmark/after-report-baseline-profile.md`，並彙整與 Checkpoint 0 的量化比較（Checkpoint 1／方案 A 已回退，僅作為診斷記錄附註，不納入最終效果歸因）
-- [ ] 8.3 若 Baseline Profile 造成任一功能回歸或效能未見改善，於報告中記錄原因
+- [x] 8.1 使用與 Task 3 相同裝置與 `CompilationMode` 設定，重新執行 `./gradlew :benchmark:connectedCheck`；因 `:benchmark` module 現同時含 `StartupBenchmark`／`BaselineProfileGenerator` 兩個測試類別、執行順序未受控，另外用 `-Pandroid.testInstrumentationRunnerArguments.class=com.shang.benchmark.StartupBenchmark` 單獨重跑一次排除污染
+- [ ] 8.2 將 Checkpoint 2 冷啟動量測結果整理進 `openspec/changes/android-cold-start-benchmark/after-report-baseline-profile.md`（**進行中**：已記錄兩次原始量測數據，P50 皆遠高於 Checkpoint 0 基準且不符合 Task 6 已知的熱降頻模式，判定為異常，結論待補——需先在同一 session 內做「有／無 Baseline Profile」A/B 對照排查後再回填）
+- [ ] 8.3 若 Baseline Profile 造成任一功能回歸或效能未見改善，於報告中記錄原因（待 8.2 排查結果確定後處理）
 
 ## 9. 最終驗證
 
