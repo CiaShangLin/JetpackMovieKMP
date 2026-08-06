@@ -1,4 +1,0 @@
-type: refactor
-workspace: worktree
-branch: refactor/android-movie-card-title-two-lines
-base_branch: master

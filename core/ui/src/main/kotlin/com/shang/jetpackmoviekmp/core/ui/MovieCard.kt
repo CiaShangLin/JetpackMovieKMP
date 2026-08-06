@@ -105,6 +105,15 @@ fun MovieCover(model: Any) {
     )
 }
 
+/**
+ * 電影標題文字。
+ *
+ * 固定佔用 2 行垂直空間（`minLines` 與 `maxLines` 皆為 2），
+ * 使同一格線中的卡片高度不因標題實際行數而參差不齊，行為對齊 iOS 端
+ * `MovieCardView` 的 `.lineLimit(2, reservesSpace: true)`。
+ *
+ * @param title 電影標題文字，超過 2 行會被截斷。
+ */
 @Composable
 fun MovieTitle(title: String) {
     Text(
@@ -112,6 +121,7 @@ fun MovieTitle(title: String) {
         style = MaterialTheme.typography.titleMedium,
         color = MaterialTheme.colorScheme.onSurface,
         modifier = Modifier.padding(start = 8.dp, top = 8.dp, end = 8.dp),
+        minLines = 2,
         maxLines = 2,
     )
 }
