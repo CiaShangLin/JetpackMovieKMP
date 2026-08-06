@@ -3,7 +3,7 @@
 ## Requirements
 ### Requirement: commonMain 提供中立的跨層共用型別
 
-`shared/common` 的 `commonMain` MUST 在 `com.shang.jetpackmoviekmp.common` package 提供 `LanguageProvider`、`BaseHostUrlProvider`、`NetworkException`、`AppResult`、`AppError` 型別定義；該 package MUST NOT 依賴 `network` 或 `datastore` package 底下的任何型別，確保依賴方向永遠是消費端（`shared:network`、`shared:datastore`）依賴 `shared:common`，而非反向。
+`shared/common` 的 `commonMain` MUST 在 `com.shang.jetpackmoviekmp.common` package 提供 `LanguageProvider`、`BaseHostUrlProvider`、`NetworkException`、`AppResult`、`AppError`、`UiState` 型別定義；該 package MUST NOT 依賴 `network` 或 `datastore` package 底下的任何型別，確保依賴方向永遠是消費端（`shared:network`、`shared:datastore`）依賴 `shared:common`，而非反向。
 
 #### Scenario: common package 不依賴 network 或 datastore
 - **WHEN** 檢查 `shared:common` 模組底下所有檔案的 import
@@ -31,7 +31,15 @@
 
 #### Scenario: AppError 繼承 Exception，呼叫端可直接當 Throwable 使用
 - **WHEN** 檢查 `com.shang.jetpackmoviekmp.common.AppError` 的宣告
-- **THEN** `AppError` MUST 繼承 `kotlin.Exception`（而非單純 `sealed interface`），使呼叫端可直接把 `AppError` 實例當作 `Throwable` 持有（例如 `androidApp` 的 `MainUiState.Error(val throwable: Throwable)`），不需要額外的轉換函式；`AppError.Network` 的 `cause` MUST 等於其攜帶的 `NetworkException`
+- **THEN** `AppError` MUST 繼承 `kotlin.Exception`（而非單純 `sealed interface`），使呼叫端可直接把 `AppError` 實例當作 `Throwable` 持有（例如 `com.shang.jetpackmoviekmp.common.UiState.Error(val throwable: Throwable)`），不需要額外的轉換函式；`AppError.Network` 的 `cause` MUST 等於其攜帶的 `NetworkException`
+
+#### Scenario: UiState 定義位於 common，供 ViewModel 層統一表達 Loading/Success/Error
+- **WHEN** 解析 `com.shang.jetpackmoviekmp.common.UiState`
+- **THEN** 該型別存在於 `shared:common` 模組，為 `sealed interface UiState<out T>`，包含 `Loading`（`data object`）、`Success<T>(val data: T)`、`Error(val throwable: Throwable)` 三個子型別，`Error.throwable` MUST 為非 null
+
+#### Scenario: AppResult 提供轉換為 UiState 的 extension
+- **WHEN** 解析 `com.shang.jetpackmoviekmp.common` package 底下的 `AppResult<T>.toUiState()` extension function
+- **THEN** 該 extension MUST 存在於 `shared:common` 模組，`AppResult.Success<T>` MUST 轉換為 `UiState.Success<T>`，`AppResult.Failure` MUST 轉換為 `UiState.Error`，且轉換後的 `throwable` MUST 等於原始 `AppResult.Failure.error`
 
 ### Requirement: common 提供共用 CoroutineScope 與 CoroutineDispatcher 的 Koin module
 

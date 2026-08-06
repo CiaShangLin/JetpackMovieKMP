@@ -34,6 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.shang.jetpackmoviekmp.common.UiState
 import com.shang.jetpackmoviekmp.core.designsystem.component.JMAsyncImage
 import com.shang.jetpackmoviekmp.core.designsystem.theme.StarRatingColor
 import com.shang.jetpackmoviekmp.core.ui.ErrorScreen
@@ -74,13 +75,13 @@ fun MovieDetailScreen(
 
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         when (val state = movieDetail) {
-            MovieDetailUiState.Loading -> LoadingScreen()
-            is MovieDetailUiState.Error -> ErrorScreen(
+            UiState.Loading -> LoadingScreen()
+            is UiState.Error -> ErrorScreen(
                 throwable = state.throwable,
                 onRetry = viewModel::retryMovieDetail,
             )
-            is MovieDetailUiState.Success -> MovieDetailContent(
-                movie = state.movie,
+            is UiState.Success -> MovieDetailContent(
+                movie = state.data,
                 isCollect = movieCollect,
                 movieActors = movieActors,
                 movieRecommendations = movieRecommendations,
@@ -98,8 +99,8 @@ fun MovieDetailScreen(
             Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = null)
         }
 
-        if (movieDetail is MovieDetailUiState.Success) {
-            val movie = (movieDetail as MovieDetailUiState.Success).movie
+        if (movieDetail is UiState.Success) {
+            val movie = (movieDetail as UiState.Success).data
             DetailIconButton(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
@@ -138,8 +139,8 @@ private fun DetailIconButton(
 private fun MovieDetailContent(
     movie: MovieDetailBean,
     isCollect: Boolean,
-    movieActors: DetailSectionState<List<MovieCastAndCrewBean.Cast>>,
-    movieRecommendations: DetailSectionState<List<com.shang.jetpackmoviekmp.model.MovieCardResult>>,
+    movieActors: UiState<List<MovieCastAndCrewBean.Cast>>,
+    movieRecommendations: UiState<List<com.shang.jetpackmoviekmp.model.MovieCardResult>>,
     onMovieClick: (MovieCardData) -> Unit,
     onCollectClick: (MovieCardData) -> Unit,
 ) {
@@ -203,11 +204,11 @@ private fun MovieOverview(overview: String) {
 }
 
 @Composable
-private fun MovieActors(state: DetailSectionState<List<MovieCastAndCrewBean.Cast>>) {
+private fun MovieActors(state: UiState<List<MovieCastAndCrewBean.Cast>>) {
     when (state) {
-        DetailSectionState.Loading -> LoadingScreen()
-        is DetailSectionState.Error -> Unit
-        is DetailSectionState.Success -> if (state.data.isNotEmpty()) {
+        UiState.Loading -> LoadingScreen()
+        is UiState.Error -> Unit
+        is UiState.Success -> if (state.data.isNotEmpty()) {
             Column(modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp)) {
                 Text(stringResource(R.string.movie_detail_main_cast), style = MaterialTheme.typography.headlineSmall)
                 Spacer(modifier = Modifier.height(8.dp))
@@ -226,14 +227,14 @@ private fun MovieActors(state: DetailSectionState<List<MovieCastAndCrewBean.Cast
 
 @Composable
 private fun MovieRecommendations(
-    movieRecommendations: DetailSectionState<List<com.shang.jetpackmoviekmp.model.MovieCardResult>>,
+    movieRecommendations: UiState<List<com.shang.jetpackmoviekmp.model.MovieCardResult>>,
     onMovieClick: (MovieCardData) -> Unit,
     onCollectClick: (MovieCardData) -> Unit,
 ) {
     when (movieRecommendations) {
-        DetailSectionState.Loading -> LoadingScreen()
-        is DetailSectionState.Error -> Unit
-        is DetailSectionState.Success -> if (movieRecommendations.data.isNotEmpty()) {
+        UiState.Loading -> LoadingScreen()
+        is UiState.Error -> Unit
+        is UiState.Success -> if (movieRecommendations.data.isNotEmpty()) {
             Column(modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp)) {
                 Text(stringResource(R.string.movie_detail_recommendations), style = MaterialTheme.typography.headlineSmall)
                 Spacer(modifier = Modifier.height(8.dp))

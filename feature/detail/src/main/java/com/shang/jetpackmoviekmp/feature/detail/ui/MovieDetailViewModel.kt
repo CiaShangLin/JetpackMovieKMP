@@ -3,11 +3,16 @@ package com.shang.jetpackmoviekmp.feature.detail.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.shang.jetpackmoviekmp.common.AppResult
+import com.shang.jetpackmoviekmp.common.UiState
+import com.shang.jetpackmoviekmp.common.toUiState
 import com.shang.jetpackmoviekmp.data.repository.MovieRepository
 import com.shang.jetpackmoviekmp.data.repository.UserDataRepository
 import com.shang.jetpackmoviekmp.domain.usecase.GetMovieDetailUseCase
 import com.shang.jetpackmoviekmp.domain.usecase.GetMovieRecommendUseCase
 import com.shang.jetpackmoviekmp.model.MovieCardData
+import com.shang.jetpackmoviekmp.model.MovieCardResult
+import com.shang.jetpackmoviekmp.model.MovieCastAndCrewBean
+import com.shang.jetpackmoviekmp.model.MovieDetailBean
 import com.shang.jetpackmoviekmp.model.asMovieCardResult
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -43,18 +48,13 @@ class MovieDetailViewModel(
 
     /** 電影主詳情的載入狀態；失敗後可由 [retryMovieDetail] 重新載入。 */
     @OptIn(ExperimentalCoroutinesApi::class)
-    val movieDetail = combine(retryTrigger, languageMode) { _, _ -> Unit }
+    val movieDetail: StateFlow<UiState<MovieDetailBean>> = combine(retryTrigger, languageMode) { _, _ -> Unit }
         .flatMapLatest { getMovieDetailUseCase(movieId) }
-        .map { result ->
-            when (result) {
-                is AppResult.Success -> MovieDetailUiState.Success(result.data)
-                is AppResult.Failure -> MovieDetailUiState.Error(result.error)
-            }
-        }
+        .map { result -> result.toUiState() }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = MovieDetailUiState.Loading,
+            initialValue = UiState.Loading,
         )
 
     /** 目前電影是否已收藏。 */
@@ -68,36 +68,31 @@ class MovieDetailViewModel(
 
     /** 推薦電影區塊的載入狀態；失敗時由畫面隱藏該區塊。 */
     @OptIn(ExperimentalCoroutinesApi::class)
-    val movieRecommendations: StateFlow<DetailSectionState<List<com.shang.jetpackmoviekmp.model.MovieCardResult>>> =
+    val movieRecommendations: StateFlow<UiState<List<MovieCardResult>>> =
         languageMode
             .flatMapLatest { getMovieRecommendUseCase(movieId) }
-            .map { result ->
-                when (result) {
-                    is AppResult.Success -> DetailSectionState.Success(result.data)
-                    is AppResult.Failure -> DetailSectionState.Error(result.error)
-                }
-            }
+            .map { result -> result.toUiState() }
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5_000),
-                initialValue = DetailSectionState.Loading,
+                initialValue = UiState.Loading,
             )
 
     /** 主要演員區塊的載入狀態；失敗時由畫面隱藏該區塊。 */
     @OptIn(ExperimentalCoroutinesApi::class)
-    val movieActors: StateFlow<DetailSectionState<List<com.shang.jetpackmoviekmp.model.MovieCastAndCrewBean.Cast>>> =
+    val movieActors: StateFlow<UiState<List<MovieCastAndCrewBean.Cast>>> =
         languageMode
             .flatMapLatest { movieRepository.getMovieActor(movieId) }
             .map { result ->
                 when (result) {
-                    is AppResult.Success -> DetailSectionState.Success(result.data.cast)
-                    is AppResult.Failure -> DetailSectionState.Error(result.error)
+                    is AppResult.Success -> UiState.Success(result.data.cast)
+                    is AppResult.Failure -> UiState.Error(result.error)
                 }
             }
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5_000),
-                initialValue = DetailSectionState.Loading,
+                initialValue = UiState.Loading,
             )
 
     /** 觸發電影主詳情重新載入。 */

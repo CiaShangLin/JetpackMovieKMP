@@ -1,5 +1,6 @@
 package com.shang.jetpackmoviekmp.ui
 
+import com.shang.jetpackmoviekmp.common.UiState
 import com.shang.jetpackmoviekmp.domain.usecase.GetConfigurationUseCase
 import com.shang.jetpackmoviekmp.model.ConfigurationBean
 import com.shang.jetpackmoviekmp.model.UserData
@@ -56,7 +57,7 @@ class MainViewModelTest {
         val job = viewModel.configuration.launchIn(this)
 
         // Assert
-        assertEquals(MainUiState.Success(ConfigurationBean()), viewModel.configuration.value)
+        assertEquals(UiState.Success(ConfigurationBean()), viewModel.configuration.value)
         job.cancel()
     }
 
@@ -75,7 +76,7 @@ class MainViewModelTest {
         val job = viewModel.configuration.launchIn(this)
 
         // Assert
-        assertIs<MainUiState.Error>(viewModel.configuration.value)
+        assertIs<UiState.Error>(viewModel.configuration.value)
         job.cancel()
     }
 
@@ -90,14 +91,14 @@ class MainViewModelTest {
         }
         val viewModel = createViewModel(movieRepository, userDataRepository)
         val job = viewModel.configuration.launchIn(this)
-        assertIs<MainUiState.Error>(viewModel.configuration.value)
+        assertIs<UiState.Error>(viewModel.configuration.value)
         movieRepository.configurationResult = Result.success(ConfigurationBean())
 
         // Act
         viewModel.retryConfiguration()
 
         // Assert
-        assertEquals(MainUiState.Success(ConfigurationBean()), viewModel.configuration.value)
+        assertEquals(UiState.Success(ConfigurationBean()), viewModel.configuration.value)
         job.cancel()
     }
 

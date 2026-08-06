@@ -2,6 +2,7 @@ package com.shang.jetpackmoviekmp.feature.detail.ui
 
 import androidx.paging.PagingData
 import com.shang.jetpackmoviekmp.common.AppResult
+import com.shang.jetpackmoviekmp.common.UiState
 import com.shang.jetpackmoviekmp.data.repository.MovieRepository
 import com.shang.jetpackmoviekmp.data.repository.UserDataRepository
 import com.shang.jetpackmoviekmp.domain.usecase.GetMovieDetailUseCase
@@ -57,7 +58,7 @@ class MovieDetailViewModelTest {
         runCurrent()
 
         // Assert
-        assertEquals(MovieDetailUiState.Success(MovieDetailBean(id = MOVIE_ID, title = "Dune")), viewModel.movieDetail.value)
+        assertEquals(UiState.Success(MovieDetailBean(id = MOVIE_ID, title = "Dune")), viewModel.movieDetail.value)
         assertEquals(listOf(MOVIE_ID), repository.historyIds)
         job.cancel()
     }
@@ -78,7 +79,7 @@ class MovieDetailViewModelTest {
 
         // Assert
         assertEquals(2, repository.detailRequests)
-        assertIs<MovieDetailUiState.Error>(viewModel.movieDetail.value)
+        assertIs<UiState.Error>(viewModel.movieDetail.value)
         job.cancel()
     }
 
@@ -113,8 +114,8 @@ class MovieDetailViewModelTest {
         runCurrent()
 
         // Assert
-        assertIs<DetailSectionState.Error>(viewModel.movieActors.value)
-        assertIs<DetailSectionState.Error>(viewModel.movieRecommendations.value)
+        assertIs<UiState.Error>(viewModel.movieActors.value)
+        assertIs<UiState.Error>(viewModel.movieRecommendations.value)
         actorJob.cancel()
         recommendationJob.cancel()
     }

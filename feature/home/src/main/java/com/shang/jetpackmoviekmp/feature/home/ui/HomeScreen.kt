@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.paging.compose.collectAsLazyPagingItems
+import com.shang.jetpackmoviekmp.common.UiState
 import com.shang.jetpackmoviekmp.core.designsystem.component.JMLazyVerticalGrid
 import com.shang.jetpackmoviekmp.core.designsystem.component.JMScrollableTabRow
 import com.shang.jetpackmoviekmp.core.designsystem.component.JMTab
@@ -40,9 +41,9 @@ fun HomeScreen(
     val movieGenresState by viewModel.movieGenres.collectAsState()
 
     when (val state = movieGenresState) {
-        is HomeUiState.Loading -> HomeLoadingScreen()
-        is HomeUiState.Success -> HomeSuccessScreen(state.movieGenres, onMovieClick = onMovieClick)
-        is HomeUiState.Error -> HomeErrorScreen(onRetry = {
+        is UiState.Loading -> HomeLoadingScreen()
+        is UiState.Success -> HomeSuccessScreen(state.data, onMovieClick = onMovieClick)
+        is UiState.Error -> HomeErrorScreen(onRetry = {
             viewModel.retry()
         })
     }

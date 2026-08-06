@@ -2,6 +2,7 @@ package com.shang.jetpackmoviekmp.feature.home.ui
 
 import com.shang.jetpackmoviekmp.common.AppError
 import com.shang.jetpackmoviekmp.common.AppResult
+import com.shang.jetpackmoviekmp.common.UiState
 import com.shang.jetpackmoviekmp.model.LanguageMode
 import com.shang.jetpackmoviekmp.model.MovieGenreBean
 import com.shang.jetpackmoviekmp.model.ThemeMode
@@ -54,7 +55,7 @@ class HomeViewModelTest {
         val job = viewModel.movieGenres.launchIn(this)
 
         // Assert
-        assertEquals(HomeUiState.Success(genres), viewModel.movieGenres.value)
+        assertEquals(UiState.Success(genres), viewModel.movieGenres.value)
         job.cancel()
     }
 
@@ -70,7 +71,7 @@ class HomeViewModelTest {
         val job = viewModel.movieGenres.launchIn(this)
 
         // Assert
-        assertIs<HomeUiState.Error>(viewModel.movieGenres.value)
+        assertIs<UiState.Error>(viewModel.movieGenres.value)
         job.cancel()
     }
 
@@ -82,7 +83,7 @@ class HomeViewModelTest {
         }
         val viewModel = createViewModel(movieRepository = movieRepository)
         val job = viewModel.movieGenres.launchIn(this)
-        assertIs<HomeUiState.Error>(viewModel.movieGenres.value)
+        assertIs<UiState.Error>(viewModel.movieGenres.value)
 
         val genres = MovieGenreBean(genres = listOf(MovieGenreBean.MovieGenre(id = 28, name = "Action")))
         movieRepository.movieGenresResult = AppResult.Success(genres)
@@ -91,7 +92,7 @@ class HomeViewModelTest {
         viewModel.retry()
 
         // Assert
-        assertEquals(HomeUiState.Success(genres), viewModel.movieGenres.value)
+        assertEquals(UiState.Success(genres), viewModel.movieGenres.value)
         job.cancel()
     }
 
@@ -105,7 +106,7 @@ class HomeViewModelTest {
         val viewModel = createViewModel(movieRepository = movieRepository, userDataRepository = userDataRepository)
         val job = viewModel.movieGenres.launchIn(this)
         assertEquals(
-            HomeUiState.Success(MovieGenreBean(genres = listOf(MovieGenreBean.MovieGenre(id = 1, name = "Old")))),
+            UiState.Success(MovieGenreBean(genres = listOf(MovieGenreBean.MovieGenre(id = 1, name = "Old")))),
             viewModel.movieGenres.value,
         )
 
@@ -116,7 +117,7 @@ class HomeViewModelTest {
         userDataRepository.setLanguageMode(LanguageMode.ENGLISH)
 
         // Assert
-        assertEquals(HomeUiState.Success(newGenres), viewModel.movieGenres.value)
+        assertEquals(UiState.Success(newGenres), viewModel.movieGenres.value)
         job.cancel()
     }
 

@@ -35,6 +35,7 @@ import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
+import com.shang.jetpackmoviekmp.common.UiState
 import com.shang.jetpackmoviekmp.core.designsystem.component.JMBackground
 import com.shang.jetpackmoviekmp.core.designsystem.component.JMNavigationSuiteScaffold
 import com.shang.jetpackmoviekmp.core.designsystem.theme.JetpackMovieComposeTheme
@@ -56,6 +57,7 @@ import com.shang.jetpackmoviekmp.feature.search.navigation.SearchKey
 import com.shang.jetpackmoviekmp.feature.search.navigation.searchEntry
 import com.shang.jetpackmoviekmp.feature.setting.navigation.SettingKey
 import com.shang.jetpackmoviekmp.feature.setting.navigation.settingEntry
+import com.shang.jetpackmoviekmp.model.ConfigurationBean
 import com.shang.jetpackmoviekmp.model.ThemeMode
 import com.shang.jetpackmoviekmp.navigation.MainNavItem
 import com.shang.jetpackmoviekmp.utils.LanguageSettingUtils
@@ -73,7 +75,7 @@ class MainActivity : ComponentActivity() {
             val configuration = viewModel.configuration.collectAsState()
             val userData by viewModel.userData.collectAsState()
             splashScreen.setKeepOnScreenCondition {
-                configuration.value is MainUiState.Loading
+                configuration.value is UiState.Loading
             }
             // 同步呼叫（而非 LaunchedEffect），確保 resources.updateConfiguration() 在下方
             // key(languageMode) 觸發的重組之前就完成，避免字串讀到套用前的舊語言。
@@ -153,7 +155,7 @@ private fun ThemeProvider(
 }
 
 @Composable
-fun MainScreen(mainUiState: MainUiState, backStack: NavBackStack<NavKey>, onRetry: () -> Unit) {
+fun MainScreen(mainUiState: UiState<ConfigurationBean>, backStack: NavBackStack<NavKey>, onRetry: () -> Unit) {
     JMBackground(
         modifier = Modifier
             .fillMaxSize()
@@ -163,15 +165,15 @@ fun MainScreen(mainUiState: MainUiState, backStack: NavBackStack<NavKey>, onRetr
             .semantics { testTagsAsResourceId = true },
     ) {
         when (mainUiState) {
-            is MainUiState.Loading -> {
+            is UiState.Loading -> {
                 MainLoadingScreen()
             }
 
-            is MainUiState.Error -> {
+            is UiState.Error -> {
                 MainErrorScreen(mainUiState.throwable as Exception?, onRetry = onRetry)
             }
 
-            is MainUiState.Success -> {
+            is UiState.Success -> {
                 SuccessScreen(backStack = backStack)
             }
         }

@@ -21,7 +21,7 @@
 
 ### Requirement: `MainActivity` MUST 使用 `androidx.core:core-splashscreen` 顯示啟動畫面
 
-`MainActivity` MUST 透過官方 `androidx.core:core-splashscreen` 的 `installSplashScreen()` API 顯示啟動畫面，並在 `MainUiState` 為 `Loading` 時持續顯示，直到設定載入完成。
+`MainActivity` MUST 透過官方 `androidx.core:core-splashscreen` 的 `installSplashScreen()` API 顯示啟動畫面，並在 `MainViewModel.configuration`（型別為 `shared/common` 的 `UiState<ConfigurationBean>`）為 `UiState.Loading` 時持續顯示，直到設定載入完成。
 
 #### Scenario: 依賴與 theme 設定齊備
 
@@ -32,7 +32,7 @@
 
 #### Scenario: Splash 隨設定載入狀態收起
 
-- **WHEN** `MainViewModel.configuration` 從 `MainUiState.Loading` 轉為 `MainUiState.Success` 或 `MainUiState.Error`
+- **WHEN** `MainViewModel.configuration` 從 `UiState.Loading` 轉為 `UiState.Success` 或 `UiState.Error`
 - **THEN** splash screen MUST 結束顯示，交由對應的 Success／Error 畫面接手
 
 ### Requirement: `MainActivity` 主要導覽骨架 MUST 使用 Navigation3

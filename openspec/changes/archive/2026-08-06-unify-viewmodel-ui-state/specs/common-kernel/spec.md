@@ -30,7 +30,7 @@
 
 #### Scenario: AppError 繼承 Exception，呼叫端可直接當 Throwable 使用
 - **WHEN** 檢查 `com.shang.jetpackmoviekmp.common.AppError` 的宣告
-- **THEN** `AppError` MUST 繼承 `kotlin.Exception`（而非單純 `sealed interface`），使呼叫端可直接把 `AppError` 實例當作 `Throwable` 持有（例如 `androidApp` 的 `MainUiState.Error(val throwable: Throwable)`），不需要額外的轉換函式；`AppError.Network` 的 `cause` MUST 等於其攜帶的 `NetworkException`
+- **THEN** `AppError` MUST 繼承 `kotlin.Exception`（而非單純 `sealed interface`），使呼叫端可直接把 `AppError` 實例當作 `Throwable` 持有（例如 `com.shang.jetpackmoviekmp.common.UiState.Error(val throwable: Throwable)`），不需要額外的轉換函式；`AppError.Network` 的 `cause` MUST 等於其攜帶的 `NetworkException`
 
 #### Scenario: UiState 定義位於 common，供 ViewModel 層統一表達 Loading/Success/Error
 - **WHEN** 解析 `com.shang.jetpackmoviekmp.common.UiState`

@@ -1,4 +1,0 @@
-type: refactor
-workspace: worktree
-branch: refactor/unify-viewmodel-ui-state
-base_branch: master

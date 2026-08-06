@@ -2,9 +2,11 @@ package com.shang.jetpackmoviekmp.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.shang.jetpackmoviekmp.common.AppResult
+import com.shang.jetpackmoviekmp.common.UiState
+import com.shang.jetpackmoviekmp.common.toUiState
 import com.shang.jetpackmoviekmp.data.repository.UserDataRepository
 import com.shang.jetpackmoviekmp.domain.usecase.GetConfigurationUseCase
+import com.shang.jetpackmoviekmp.model.ConfigurationBean
 import com.shang.jetpackmoviekmp.model.UserData
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -16,6 +18,12 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
+/**
+ * 管理 App 啟動設定與使用者資料的 UI 狀態。
+ *
+ * @property getConfigurationUseCase 取得遠端設定的用例。
+ * @property userDataRepository 使用者偏好設定資料來源。
+ */
 class MainViewModel(
     private val getConfigurationUseCase: GetConfigurationUseCase,
     private val userDataRepository: UserDataRepository,
@@ -23,23 +31,19 @@ class MainViewModel(
 
     private val _retryTrigger = MutableSharedFlow<Unit>()
 
+    /** 設定的載入狀態；失敗後可由 [retryConfiguration] 重新載入。 */
     @OptIn(ExperimentalCoroutinesApi::class)
-    val configuration: StateFlow<MainUiState> = _retryTrigger
+    val configuration: StateFlow<UiState<ConfigurationBean>> = _retryTrigger
         .onStart { emit(Unit) } // 初始載入
         .flatMapLatest {
             getConfigurationUseCase()
-                .map { result ->
-                    when (result) {
-                        is AppResult.Success -> MainUiState.Success(result.data)
-                        is AppResult.Failure -> MainUiState.Error(result.error)
-                    }
-                }
-                .onStart { emit(MainUiState.Loading) }
+                .map { result -> result.toUiState() }
+                .onStart { emit(UiState.Loading) }
         }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = MainUiState.Loading,
+            initialValue = UiState.Loading,
         )
 
     val userData = userDataRepository.userData.stateIn(
