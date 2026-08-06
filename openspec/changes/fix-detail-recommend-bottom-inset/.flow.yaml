@@ -1,4 +1,0 @@
-type: bug-fix
-workspace: worktree
-branch: bug-fix/fix-detail-recommend-bottom-inset
-base_branch: master
