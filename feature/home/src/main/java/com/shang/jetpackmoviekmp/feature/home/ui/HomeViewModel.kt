@@ -2,7 +2,8 @@ package com.shang.jetpackmoviekmp.feature.home.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.shang.jetpackmoviekmp.common.AppResult
+import com.shang.jetpackmoviekmp.common.UiState
+import com.shang.jetpackmoviekmp.common.toUiState
 import com.shang.jetpackmoviekmp.data.repository.MovieRepository
 import com.shang.jetpackmoviekmp.data.repository.UserDataRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -37,17 +38,12 @@ class HomeViewModel(
         ) { _, _ -> Unit }
             .flatMapLatest {
                 movieRepository.getMovieGenres()
-                    .map { result ->
-                        when (result) {
-                            is AppResult.Success -> HomeUiState.Success(result.data)
-                            is AppResult.Failure -> HomeUiState.Error(result.error)
-                        }
-                    }
+                    .map { result -> result.toUiState() }
             }
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.Companion.WhileSubscribed(5000),
-                initialValue = HomeUiState.Loading,
+                initialValue = UiState.Loading,
             )
 
     /** 觸發電影分類清單重新載入。 */

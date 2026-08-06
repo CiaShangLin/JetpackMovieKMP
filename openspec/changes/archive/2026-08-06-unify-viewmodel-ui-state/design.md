@@ -9,7 +9,7 @@
 **Goals:**
 - 在 `shared/common` 提供單一 `UiState<T>` 泛型型別，取代 `MainUiState`、`HomeUiState`、`MovieDetailUiState`、`DetailSectionState<T>` 四個獨立定義。
 - 提供 `AppResult<T>.toUiState()` extension，消除各 ViewModel 手寫的 `AppResult -> UiState` mapping 樣板。
-- 透過 `typealias` 保留 `MainUiState`、`HomeUiState`、`MovieDetailUiState` 原有型別名稱，讓既有呼叫端程式碼（`MainUiState.Loading`、`when (state) { is MovieDetailUiState.Success -> ... }`）與既有 spec 文字（`android-app-entry`、`android-home-module` 提及的型別名稱）不需變動。
+- `androidApp`、`feature/home`、`feature/detail` 呼叫端全面改用 `UiState<T>`（`UiState.Loading`、`UiState.Success`、`is UiState.Error`），不再保留 `MainUiState`、`HomeUiState`、`MovieDetailUiState` 這些 feature-local 型別名稱；`android-app-entry`、`android-home-module` 兩份 spec 中引用這些型別名稱的文字同步改寫（見本次 change 的 `specs/android-app-entry/spec.md`、`specs/android-home-module/spec.md`）。
 - 統一 `Error.throwable` 為非 null，修正 `HomeUiState.Error(throwable: Throwable?)` 目前與其他型別不一致的簽章。
 
 **Non-Goals:**
@@ -37,22 +37,24 @@ fun <T> AppResult<T>.toUiState(): UiState<T> = when (this) {
 ```
 `AppError : Exception`（已由 `common-kernel` 規範），故 `UiState.Error(error)` 可直接把 `AppError` 當 `Throwable` 帶入，不需額外轉換。
 
-**2. 以 `typealias` 保留 feature 端型別名稱，而非直接改用 `UiState<ConfigurationBean>` 內聯**
-考慮過直接讓 `MainViewModel.configuration: StateFlow<UiState<ConfigurationBean>>` 內聯泛型，但這會：
-(a) 破壞 `android-app-entry`、`android-home-module` spec 中明確寫出的型別名稱（`MainUiState.Loading`、`HomeUiState`），需要同步修改兩份 spec；
-(b) 降低呼叫端可讀性（`is UiState.Success<ConfigurationBean>` 不如 `is MainUiState.Success` 直觀）。
-改用 `typealias MainUiState = UiState<ConfigurationBean>` 後，Kotlin 允許透過別名存取巢狀 classifier（`MainUiState.Loading`、`MainUiState.Success`、`is MainUiState.Error` 皆可直接編譯），現有 `when` exhaustive 分支與 spec 文字都不需異動，同時仍消除了重複的 sealed type 定義與 mapping 邏輯。
+**2. 呼叫端直接內聯使用 `UiState<ConfigurationBean>`，不透過 `typealias` 保留 feature 端型別名稱**
+原本考慮用 `typealias MainUiState = UiState<ConfigurationBean>` 保留既有型別名稱與呼叫端寫法（`MainUiState.Loading`），但實作時發現這個假設在 Kotlin 不成立：**typealias 無法讓呼叫端透過別名存取被別名型別的巢狀 classifier**——`typealias MainUiState = UiState<ConfigurationBean>` 定義後，`MainUiState.Loading` 會編譯失敗（`Unresolved reference 'Loading'`），因為 `Loading`／`Success`／`Error` 是定義在 `UiState` 上的巢狀型別，Kotlin 的 typealias 只取代型別參照本身，不會把巢狀 classifier 的查找路徑也轉發到別名上。
 
-**3. `DetailSectionState<T>` 直接刪除，不保留 typealias**
-`DetailSectionState<T>` 本身就是泛型、且只在 `feature/detail` 內部使用（`movieRecommendations`、`movieActors` 兩處），沒有像 `MainUiState`/`HomeUiState` 一樣被 spec 具名引用（`android-movie-detail-module` spec 只描述行為，未提及型別名稱），因此直接改用 `UiState<List<MovieCardResult>>`／`UiState<List<MovieCastAndCrewBean.Cast>>`，不新增額外 typealias，避免多一層無意義的別名。
+因此改為直接讓 `MainViewModel.configuration: StateFlow<UiState<ConfigurationBean>>` 內聯泛型，呼叫端一律改寫為 `UiState.Loading`／`UiState.Success`／`is UiState.Error`。這會：
+(a) 是 **BREAKING** 變更：`MainUiState`、`HomeUiState`、`MovieDetailUiState` 型別名稱不再存在，`android-app-entry`、`android-home-module` spec 中明確寫出這些型別名稱的文字需要同步修改（已在本次 change 的 `specs/android-app-entry/spec.md`、`specs/android-home-module/spec.md` 處理）；
+(b) 換得型別系統的單一事實來源（`shared/common.UiState<T>`），不需要為每個 feature 額外維護一個 typealias 宣告檔案。
+
+**3. `DetailSectionState<T>` 直接刪除**
+`DetailSectionState<T>` 本身就是泛型、且只在 `feature/detail` 內部使用（`movieRecommendations`、`movieActors` 兩處），沒有像 `MainUiState`/`HomeUiState` 一樣被 spec 具名引用（`android-movie-detail-module` spec 只描述行為，未提及型別名稱），因此直接改用 `UiState<List<MovieCardResult>>`／`UiState<List<MovieCastAndCrewBean.Cast>>`，與決策 2 的做法一致。
 
 **4. `Error.throwable` 統一非 null**
 `HomeUiState.Error(throwable: Throwable?)` 目前允許 null，但實際 mapping 來源 `AppResult.Failure.error: AppError`（非 null）從未產生 null throwable，nullable 純屬歷史不一致。統一為非 null 後，`HomeViewModel` 呼叫端若有 `throwable?.let { ... }` 之類的 null 檢查需一併簡化（改為直接使用）。
 
 ## Risks / Trade-offs
 
-- **[Risk] typealias 對巢狀 classifier 的存取雖然是合法 Kotlin 語法，但部分工具（如某些 IDE 重構、KDoc 產生器）對 typealias 巢狀存取的支援不如原生型別完整** → Mitigation：僅在 `MainUiState`、`HomeUiState`、`MovieDetailUiState` 三處使用，範圍小；`./gradlew :androidApp:assembleDebug`、`./gradlew ktlintCheck` 與各 feature module 既有 unit test 可在編譯期立即驗證 typealias 是否正確展開。
+- **[Risk] 移除 `MainUiState`／`HomeUiState`／`MovieDetailUiState` 型別名稱是 BREAKING 變更，任何未同步更新的呼叫端會編譯失敗** → Mitigation：透過 `./gradlew :androidApp:assembleDebug`、各 feature module 既有 unit test 在編譯期立即攔截；`android-app-entry`、`android-home-module` 兩份 spec 中引用舊型別名稱的文字已同步改寫為 `UiState<T>`。
 - **[Risk] `HomeUiState.Error(throwable: Throwable?)` 改為非 null 是簽章變更，若有呼叫端依賴 null 分支（例如顯示不同文案）會編譯錯誤或行為改變** → Mitigation：修改前先搜尋 `feature/home` 內所有 `HomeUiState.Error` 建構與消費點，逐一確認並同步調整；`feature:home` 既有 unit test 需全數通過。
+- **[Risk] `UiState.Success<T>` 的欄位統一命名為 `data`，與原本各 feature 各自取的欄位名（`MainUiState.Success.data`、`HomeUiState.Success.movieGenres`、`MovieDetailUiState.Success.movie`）不一致，消費端需同步改寫欄位存取** → Mitigation：`HomeScreen.kt`（`state.movieGenres` → `state.data`）、`MovieDetailScreen.kt`（`state.movie` → `state.data`）已同步修改，並由既有 UI 邏輯測試與編譯期檢查覆蓋。
 - **[Trade-off] `shared/common` 新增的 `UiState<T>` 目前只被 Android 端使用，iOS 端（`shared/app` commonMain 之外的 iosMain）不會消費它** → 屬於刻意的 Non-Goal（見上），因為 iOS 已有語意不同的 `*LoadState` 機制；`shared/common` 是 KMP 模組但型別本身不含平台相依程式碼，放在 commonMain 不影響 iOS 建置或 SKIE 匯出範圍（新型別未在任何 iOS 匯出邊界的 public API 中被引用）。
 
 ## Migration Plan

@@ -1,0 +1,15 @@
+type: refactor
+workspace: worktree
+branch: refactor/unify-viewmodel-ui-state
+base_branch: master
+verify_selected:
+  - unit-test
+  - doc-comment
+  - code-review
+verified:
+  - unit-test
+  - doc-comment
+  - code-review
+verified_at:
+  head: 40ca41e83c7022fdf6b459a370787fc8311d0e8c
+  diff_hash: 13a273626b6f4a53bdac740236cb6a560934fd59
