@@ -22,6 +22,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemContentType
+import androidx.paging.compose.itemKey
 import com.shang.jetpackmoviekmp.common.UiState
 import com.shang.jetpackmoviekmp.core.designsystem.component.JMLazyVerticalGrid
 import com.shang.jetpackmoviekmp.core.designsystem.component.JMScrollableTabRow
@@ -133,7 +135,11 @@ fun HomeScreenPager(
             verticalArrangement = Arrangement.spacedBy(8.dp), // 垂直間距
             horizontalArrangement = Arrangement.spacedBy(8.dp), // 水平間距
         ) {
-            items(movieList.itemCount) {
+            items(
+                count = movieList.itemCount,
+                key = movieList.itemKey { it.id },
+                contentType = movieList.itemContentType { "MovieCard" },
+            ) {
                 val movieCardData = movieList[it]?.asMovieCardData() ?: return@items
                 MovieCard(
                     modifier = Modifier,

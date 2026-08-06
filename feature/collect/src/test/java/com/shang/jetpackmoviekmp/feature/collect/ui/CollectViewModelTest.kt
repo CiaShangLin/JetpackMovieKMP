@@ -15,6 +15,7 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -94,5 +95,27 @@ class CollectViewModelTest {
         )
         assertEquals(1, repository.deleteMovieCollectCallCount, "刪除操作應只呼叫一次")
         assertEquals(movie.id, repository.deletedMovie?.id, "刪除的電影 id 應與點擊項目相同")
+    }
+
+    @Test
+    fun `取消收藏清單中一部電影後，其餘電影 id 仍對應各自原本的電影`() = runTest(dispatcher) {
+        // Arrange：收藏清單同時含多部電影
+        val remainingMovieA = MovieCardResult(id = 1, title = "保留電影 A", isCollect = true)
+        val targetMovie = MovieCardResult(id = 2, title = "待取消電影", isCollect = true)
+        val remainingMovieB = MovieCardResult(id = 3, title = "保留電影 B", isCollect = true)
+        val repository = FakeMovieRepository().apply {
+            collectedMovies.value = listOf(remainingMovieA, targetMovie, remainingMovieB)
+        }
+        val viewModel = CollectViewModel(repository)
+
+        // Act：只對清單中間那部電影觸發取消收藏
+        viewModel.removeMovieCollect(targetMovie.asMovieCardData())
+
+        // Assert：只刪除目標電影，其餘電影的 id 與資料未被觸及
+        assertTrue(repository.deleteMovieCollectLatch.await(1, TimeUnit.SECONDS))
+        assertEquals(1, repository.deleteMovieCollectCallCount, "刪除操作應只呼叫一次")
+        assertEquals(targetMovie.id, repository.deletedMovie?.id)
+        assertNotEquals(remainingMovieA.id, repository.deletedMovie?.id)
+        assertNotEquals(remainingMovieB.id, repository.deletedMovie?.id)
     }
 }

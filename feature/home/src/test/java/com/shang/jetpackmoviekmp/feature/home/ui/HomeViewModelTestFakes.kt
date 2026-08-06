@@ -39,6 +39,8 @@ internal class FakeMovieRepository : MovieRepository {
         private set
     var deleteMovieCollectCallCount: Int = 0
         private set
+    var lastInsertedMovie: MovieCardResult? = null
+        private set
 
     val insertMovieCollectLatch = CountDownLatch(1)
     val deleteMovieCollectLatch = CountDownLatch(1)
@@ -64,6 +66,7 @@ internal class FakeMovieRepository : MovieRepository {
 
     override suspend fun insertMovieCollect(movieResult: MovieCardResult) {
         insertMovieCollectCallCount++
+        lastInsertedMovie = movieResult
         insertMovieCollectLatch.countDown()
     }
 

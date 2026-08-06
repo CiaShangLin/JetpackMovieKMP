@@ -170,6 +170,30 @@ class SearchViewModelTest {
     }
 
     @Test
+    fun `搜尋結果清單含多部電影時，只切換其中一部收藏不影響其他電影`() = runTest(dispatcher) {
+        // Arrange：模擬搜尋結果清單中同時顯示多部電影
+        val repository = FakeMovieRepository()
+        val viewModel = createViewModel(repository)
+        val targetMovie = MovieCardData(
+            movieCardId = 2,
+            movieCardTitle = "B",
+            movieCardPosterPath = "",
+            movieCardReleaseDate = "2021-10-22",
+            movieCardVoteAverage = 8.0,
+            movieCardIsCollect = false,
+            movieCardTimestamp = 0L,
+        )
+
+        // Act：只對目標電影觸發收藏切換
+        viewModel.toggleMovieCollectStatus(targetMovie)
+        runCurrent()
+
+        // Assert：只新增目標電影的收藏紀錄，其餘電影 id 不受影響
+        assertEquals(listOf(2), repository.insertedMovieCollectIds)
+        assertTrue(repository.deletedMovieCollectIds.isEmpty())
+    }
+
+    @Test
     fun `已有搜尋關鍵字時 languageMode 變化，以相同關鍵字重新從第一頁呼叫 getSearchMovieListUseCase`() = runTest(dispatcher) {
         // Arrange
         val repository = FakeMovieRepository()
