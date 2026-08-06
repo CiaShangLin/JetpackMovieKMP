@@ -102,41 +102,7 @@ switch 包成一個回傳 `Result<T, AppError>`或類似結構的 extension func
 以及 Android 端是否也有等效的重複判斷可以抽共用 mapper，減少兩平台個別消費
 `AppResult` 時的重複樣板程式碼。
 
-## 優化 Android MovieCard 列表效能：加 key 與收藏狀態判斷
-
-- 類型: refactor
-- 記錄日期: 2026-08-06
-- 來源: bug-fix/fix-nav3-bottom-tab-back-exit（實作中發現）
-- 前置依賴: 無
-- 狀態: 待處理
-
-Android 端 MovieCard 列表（LazyColumn/LazyRow/Paging 清單）目前沒有替 item 加上穩定的
-`key`，評估補上以減少不必要的重組與提升捲動效能。同時要一併檢查收藏（collect）狀態的
-判斷邏輯是否有跟著 key 化調整而受影響，避免收藏標記在重組後對錯 item。
-
-## 電影詳細頁推薦電影列表底部被擋到，需加底部間距
-
-- 類型: bug-fix
-- 記錄日期: 2026-08-06
-- 來源: bug-fix/fix-nav3-bottom-tab-back-exit（實作中發現）
-- 前置依賴: 無
-- 狀態: 待處理
-
-Android 電影詳細頁「推薦電影」列表目前底部沒有留白，內容會被其他元素（例如底部導覽列
-或系統手勢區）擋到，需要補上底部 padding/spacer。
-
-## Android 切換 tab 或從詳細頁返回時避免不必要的 API 刷新
-
-- 類型: bug-fix
-- 記錄日期: 2026-08-06
-- 來源: master
-- 前置依賴: 無
-- 狀態: 待處理
-
-Android 端目前切換 tab（Home／Search）或從詳細頁返回時，畫面都會重新打 API 刷新，
-即使該畫面已有快取資料也一樣。需調整成有快取時不重新刷新，避免不必要的網路請求。
-
-## 添加 Android release 打包簽名和混淆相關設定
+## 設定 Android Release 的 GitHub Actions CI/CD 流程
 
 - 類型: feature
 - 記錄日期: 2026-08-06
@@ -144,5 +110,5 @@ Android 端目前切換 tab（Home／Search）或從詳細頁返回時，畫面�
 - 前置依賴: 無
 - 狀態: 待處理
 
-目前 `androidApp` 尚未設定 release 打包用的簽名（signingConfig）與混淆（ProGuard/R8）
-相關規則，需要補上 release build type 的簽名設定與對應的 `proguard-rules.pro` 規則。
+需要建立/調整 GitHub Actions workflow，串接 androidApp 現有的 release 簽章與 R8
+混淆設定（參考 ce2673e），自動化 Android release 的建置、簽章與發布流程。
