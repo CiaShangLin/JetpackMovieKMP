@@ -162,3 +162,26 @@ Android 端可考慮在 `Text` 加上 `minLines = 2`（Compose Foundation Text �
 
 Android 端使用 Navigation3 切換底部 Tab 後，按返回鍵會直接退出 App，而不是先返回
 上一個 Tab／該 Tab 內的上一層畫面，需要評估調整 Nav3 的返回堆疊處理方式。
+
+## 優化 Android MovieCard 列表效能：加 key 與收藏狀態判斷
+
+- 類型: refactor
+- 記錄日期: 2026-08-06
+- 來源: bug-fix/fix-nav3-bottom-tab-back-exit（實作中發現）
+- 前置依賴: 無
+- 狀態: 待處理
+
+Android 端 MovieCard 列表（LazyColumn/LazyRow/Paging 清單）目前沒有替 item 加上穩定的
+`key`，評估補上以減少不必要的重組與提升捲動效能。同時要一併檢查收藏（collect）狀態的
+判斷邏輯是否有跟著 key 化調整而受影響，避免收藏標記在重組後對錯 item。
+
+## 電影詳細頁推薦電影列表底部被擋到，需加底部間距
+
+- 類型: bug-fix
+- 記錄日期: 2026-08-06
+- 來源: bug-fix/fix-nav3-bottom-tab-back-exit（實作中發現）
+- 前置依賴: 無
+- 狀態: 待處理
+
+Android 電影詳細頁「推薦電影」列表目前底部沒有留白，內容會被其他元素（例如底部導覽列
+或系統手勢區）擋到，需要補上底部 padding/spacer。

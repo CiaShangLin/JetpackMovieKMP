@@ -223,8 +223,7 @@ fun SuccessScreen(backStack: NavBackStack<NavKey>) {
                     selected = currentKey == item.key,
                     onClick = {
                         if (currentKey != item.key) {
-                            backStack.removeLastOrNull()
-                            backStack.add(item.key)
+                            switchTab(backStack, item.key)
                         }
                     },
                     // benchmark/BaselineProfileGenerator.kt 有一份對應的 nav_* resource-id 硬編碼清單，
