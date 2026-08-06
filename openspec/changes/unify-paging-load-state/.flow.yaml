@@ -1,4 +1,0 @@
-type: refactor
-workspace: worktree
-branch: refactor/unify-paging-load-state
-base_branch: master

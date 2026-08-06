@@ -1,0 +1,15 @@
+type: refactor
+workspace: worktree
+branch: refactor/unify-paging-load-state
+base_branch: master
+verify_selected:
+  - unit-test
+  - doc-comment
+  - code-review
+verified:
+  - unit-test
+  - doc-comment
+  - code-review
+verified_at:
+  head: 7485f9127c839f090bf1ed45a31772aff2d1cdcc
+  diff_hash: c2e741a8a9b9a43d50c6744431f9addcf5f40e10
