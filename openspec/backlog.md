@@ -135,3 +135,14 @@ Android 電影詳細頁「推薦電影」列表目前底部沒有留白，內容
 
 Android 端目前切換 tab（Home／Search）或從詳細頁返回時，畫面都會重新打 API 刷新，
 即使該畫面已有快取資料也一樣。需調整成有快取時不重新刷新，避免不必要的網路請求。
+
+## 添加 Android release 打包簽名和混淆相關設定
+
+- 類型: feature
+- 記錄日期: 2026-08-06
+- 來源: master
+- 前置依賴: 無
+- 狀態: 待處理
+
+目前 `androidApp` 尚未設定 release 打包用的簽名（signingConfig）與混淆（ProGuard/R8）
+相關規則，需要補上 release build type 的簽名設定與對應的 `proguard-rules.pro` 規則。
