@@ -1,1 +1,4 @@
 type: feature
+workspace: worktree
+branch: feature/optimize-android-movie-card-list-performance
+base_branch: master
