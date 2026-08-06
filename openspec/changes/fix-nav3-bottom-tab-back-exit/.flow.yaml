@@ -1,4 +1,0 @@
-type: bug-fix
-workspace: worktree
-branch: bug-fix/fix-nav3-bottom-tab-back-exit
-base_branch: master
