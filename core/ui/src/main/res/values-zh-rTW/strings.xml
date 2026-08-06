@@ -10,5 +10,8 @@
 
     <!-- 重試相關文字 -->
     <string name="retry_button_text">重試</string>
+
+    <!-- Paging 分頁載入狀態文字 -->
+    <string name="paging_no_more_data_text">沒有更多資料</string>
 </resources>
 

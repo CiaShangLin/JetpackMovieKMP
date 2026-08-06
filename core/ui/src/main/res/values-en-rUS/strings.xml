@@ -11,5 +11,8 @@
     <!-- Retry related text -->
     <string name="retry_button_text">Retry</string>
 
+    <!-- Paging load state text -->
+    <string name="paging_no_more_data_text">No more results</string>
+
 </resources>
 

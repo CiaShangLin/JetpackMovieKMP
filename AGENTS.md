@@ -92,7 +92,7 @@ shared/data       ── Repository 實作、Paging（app 端 PagingSource）、
 shared/domain     ── UseCase（Get*UseCase），只依賴 data
 shared/app        ── 組裝層：InitKoin 彙整所有 Koin module；iOS framework（baseName "Shared"）從這裡輸出
 core/designsystem ── Android Compose 元件庫（JM* 前綴元件、theme）
-core/ui           ── Android 共用 UI（MovieCard、MovieListPagerScreen、Coil HostInterceptor）
+core/ui           ── Android 共用 UI（MovieCard、Paging LoadState UI、Coil HostInterceptor）
 androidApp        ── Android 入口（Application 初始化 Koin、MainActivity、Navigation3）
 ```
 
