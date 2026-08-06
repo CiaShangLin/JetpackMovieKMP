@@ -58,16 +58,6 @@
 
 之後若有相關的 iOS change，可參考這個方向評估是否要重構成 Environment-based 寫法。
 
-## Android 端添加 Benchmark 冷啟動優化
-
-- 類型: feature
-- 記錄日期: 2026-08-03
-- 來源: master
-- 前置依賴: 無
-- 狀態: 待處理
-
-評估在 `androidApp` 導入 Macrobenchmark 模組，量測冷啟動時間並依量測結果進行優化（如 Baseline Profile、啟動路徑上的初始化邏輯調整）。
-
 ## 簡化 iOS ViewModel 收藏操作邏輯，減少重複程式碼
 
 - 類型: refactor
@@ -111,57 +101,6 @@ iOS 端另外寫原生 Swift enum 因應。
 switch 包成一個回傳 `Result<T, AppError>`或類似結構的 extension function），
 以及 Android 端是否也有等效的重複判斷可以抽共用 mapper，減少兩平台個別消費
 `AppResult` 時的重複樣板程式碼。
-
-## 讓 Android 電影卡片標題預設撐滿兩行，對齊 iOS 做法
-
-- 類型: bug-fix
-- 記錄日期: 2026-08-06
-- 來源: android-cold-start-benchmark（實作中發現）
-- 前置依賴: 無
-- 狀態: 待處理
-
-Android `MovieTitle`（`core/ui/src/main/kotlin/com/shang/jetpackmoviekmp/core/ui/MovieCard.kt:108-117`）
-目前只設 `maxLines = 2`，標題只有一行時卡片高度會比兩行時矮，造成同列卡片高度不齊。
-
-iOS 對應的 `titleSection`（`iosApp/iosApp/Common/MovieCard/MovieCardView.swift:71-78`）用
-`.lineLimit(2, reservesSpace: true)` 讓標題預留兩行空間，即使文字只有一行也維持固定高度。
-
-Android 端可考慮在 `Text` 加上 `minLines = 2`（Compose Foundation Text 支援）對齊此行為。
-
-## 優化 Android 首頁 Paging 資料，改用 UiState 形式包裝
-
-- 類型: refactor
-- 記錄日期: 2026-08-06
-- 來源: android-cold-start-benchmark（實作中發現）
-- 前置依賴: 無
-- 狀態: 待處理
-
-目前 Android 首頁（Home）頁面的資料（含 Paging 清單）尚未統一包裝成 UiState
-（Loading/Success/Error 等狀態），評估導入 UiState 形式，讓首頁資料流與載入／錯誤狀態
-呈現方式更一致。
-
-## 將共用 UiState 放進 common module，並調整優化詳細頁
-
-- 類型: refactor
-- 記錄日期: 2026-08-06
-- 來源: android-cold-start-benchmark（實作中發現）
-- 前置依賴: 無
-- 狀態: 待處理
-
-延續首頁 UiState 化的想法，評估把共用的 UiState 定義抽到 `core`／common module，
-讓 Android 端多個頁面（含電影詳細頁）可以共用同一套 UiState 型別，並依此調整優化
-詳細頁目前的資料呈現方式。
-
-## 修正 Android Nav3 切換底部 Tab 後按返回鍵直接退出 App 的問題
-
-- 類型: bug-fix
-- 記錄日期: 2026-08-06
-- 來源: android-cold-start-benchmark（實作中發現）
-- 前置依賴: 無
-- 狀態: 待處理
-
-Android 端使用 Navigation3 切換底部 Tab 後，按返回鍵會直接退出 App，而不是先返回
-上一個 Tab／該 Tab 內的上一層畫面，需要評估調整 Nav3 的返回堆疊處理方式。
 
 ## 優化 Android MovieCard 列表效能：加 key 與收藏狀態判斷
 
