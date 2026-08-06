@@ -43,9 +43,11 @@
 
 > 方案 A 已回退（見 Task 6.3），本方案基於同步載入的程式碼狀態（即 Checkpoint 0 基準）進行，不疊加方案 A。
 
-- [ ] 7.1 新增 `androidx.profileinstaller` 依賴至 `androidApp/build.gradle.kts`
-- [ ] 7.2 在 `:benchmark` module 新增 `BaselineProfileGenerator`，產生 `androidApp` 的 Baseline Profile
-- [ ] 7.3 執行 `./gradlew :androidApp:assembleDebug` 確認建置成功
+> **實作方式變更**：原計畫透過 `androidx.baselineprofile` Gradle plugin 全自動產生／整合 Baseline Profile，但該 plugin 目前最新版本（穩定版 1.4.1／測試版 1.5.0-beta01）都尚未支援 AGP 9.3.0 預設的 new DSL 架構，連續在兩個階段撞牆：(1) 套用階段直接丟 `Module :androidApp is not a supported android module.`，需以 `android.newDsl=false` 繞過；(2) 繞過後在 variant 解析階段又出現 `No matching variant of project :benchmark was found`（producer 端未能正確標記 `release` build type 的 baseline profile 輸出 variant）。因為每次繞過都需要對整個專案設定動手術（`android.newDsl` 是專案層級開關），且問題並非一次性、後續可能還有更多隱藏的不相容之處，因此改為**不套用 plugin，手動產生並複製 Baseline Profile**：`BaselineProfileGenerator` 測試本身可正常執行並產出完整、有效的 profile（已驗證，27,949 行規則），只是失去 `generateBaselineProfile` 這個一鍵整合 task，日後啟動路徑有重大變更時需手動重跑下方三個步驟更新檔案。
+
+- [x] 7.1 新增 `androidx.profileinstaller` 依賴至 `androidApp/build.gradle.kts`；`gradle/libs.versions.toml` 新增對應 library alias（版號 1.4.1）
+- [x] 7.2 在 `:benchmark` module 新增 `BaselineProfileGenerator`，執行 `./gradlew :benchmark:connectedBenchmarkAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.shang.benchmark.BaselineProfileGenerator` 產生 profile，並手動複製輸出檔（`benchmark/build/outputs/connected_android_test_additional_output/benchmark/connected/<裝置>/BaselineProfileGenerator_generate-baseline-prof.txt`）至 `androidApp/src/main/baseline-prof.txt`
+- [x] 7.3 執行 `./gradlew :androidApp:assembleDebug` 確認建置成功（含 `ktlintCheck`、`:benchmark:assembleBenchmark`）
 
 ## 8. 方案 B 複測（Checkpoint 2）與最終比較報告
 
