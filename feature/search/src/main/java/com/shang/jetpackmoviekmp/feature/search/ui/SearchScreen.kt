@@ -33,6 +33,8 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemContentType
+import androidx.paging.compose.itemKey
 import com.shang.jetpackmoviekmp.core.designsystem.component.JMLazyVerticalGrid
 import com.shang.jetpackmoviekmp.core.ui.MovieCard
 import com.shang.jetpackmoviekmp.core.ui.PagingLoadStateFooter
@@ -155,7 +157,11 @@ private fun SearchResultScreen(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        items(movieSearchPager.itemCount) { index ->
+        items(
+            count = movieSearchPager.itemCount,
+            key = movieSearchPager.itemKey { it.id },
+            contentType = movieSearchPager.itemContentType { "MovieCard" },
+        ) { index ->
             val movie = movieSearchPager[index] ?: return@items
             MovieCard(
                 data = movie.asMovieCardData(),

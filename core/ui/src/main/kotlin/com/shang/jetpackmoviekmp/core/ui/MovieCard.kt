@@ -1,7 +1,6 @@
 package com.shang.jetpackmoviekmp.core.ui
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,15 +22,23 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.drawscope.Fill
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil3.request.ImageRequest
 import com.shang.jetpackmoviekmp.core.designsystem.component.JMAsyncImage
 import com.shang.jetpackmoviekmp.core.designsystem.theme.StarRatingColor
+import com.shang.jetpackmoviekmp.core.ui.coil.TmdbImageSize
 import com.shang.jetpackmoviekmp.model.MovieCardData
 
 /** Preview 使用的示範圖片 URL。 */
@@ -52,14 +59,11 @@ fun MovieCard(
                 elevation = 4.dp,
                 shape = MaterialTheme.shapes.medium,
             )
-            .clip(MaterialTheme.shapes.medium)
-            .background(
-                color = MaterialTheme.colorScheme.surface,
-            )
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.onSurface,
+            .movieCardSurface(
                 shape = MaterialTheme.shapes.medium,
+                backgroundColor = MaterialTheme.colorScheme.surface,
+                borderColor = MaterialTheme.colorScheme.onSurface,
+                borderWidth = 1.dp,
             )
             .clickable {
                 onMovieClick(data)
@@ -95,6 +99,7 @@ fun MovieCover(model: Any) {
     JMAsyncImage(
         model = ImageRequest.Builder(LocalContext.current)
             .data(model)
+            .apply { extras[TmdbImageSize.key] = TmdbImageSize.LIST_THUMBNAIL }
             .build(),
         contentDescription = null,
         modifier = Modifier
@@ -103,6 +108,31 @@ fun MovieCover(model: Any) {
             .padding(start = 1.dp, end = 1.dp, top = 1.dp),
         contentScale = ContentScale.FillBounds,
     )
+}
+
+/**
+ * 以單次繪製合併背景填色與邊框，取代 `background` + `border` 兩層 modifier，
+ * 降低每個清單項目的 draw phase 呼叫次數；視覺輸出（顏色、圓角、邊框寬度）與原本一致。
+ */
+private fun Modifier.movieCardSurface(
+    shape: Shape,
+    backgroundColor: Color,
+    borderColor: Color,
+    borderWidth: Dp,
+): Modifier = drawWithCache {
+    val path = shape.createOutline(size, layoutDirection, this).toPath()
+    val strokeWidthPx = borderWidth.toPx()
+    onDrawBehind {
+        drawPath(path = path, color = backgroundColor, style = Fill)
+        drawPath(path = path, color = borderColor, style = Stroke(width = strokeWidthPx))
+    }
+}
+
+/** 將 [Outline] 轉為可直接繪製的 [Path]，涵蓋矩形、圓角矩形與任意路徑三種形狀。 */
+private fun Outline.toPath(): Path = when (this) {
+    is Outline.Rectangle -> Path().apply { addRect(rect) }
+    is Outline.Rounded -> Path().apply { addRoundRect(roundRect) }
+    is Outline.Generic -> path
 }
 
 /**

@@ -1,0 +1,15 @@
+type: feature
+workspace: worktree
+branch: feature/optimize-android-movie-card-list-performance
+base_branch: master
+verify_selected:
+  - unit-test
+  - doc-comment
+  - code-review
+verified:
+  - doc-comment
+  - unit-test
+  - code-review
+verified_at:
+  head: 049de8763bca97b12550a55e3aa735ca113ca574
+  diff_hash: f19be337a707976a8c4c7ecf6a5ab85d9222f870

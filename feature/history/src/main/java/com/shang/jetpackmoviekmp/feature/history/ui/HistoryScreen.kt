@@ -118,7 +118,7 @@ fun HistorySuccessScreen(
             verticalArrangement = Arrangement.spacedBy(8.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            items(historyList) { movie ->
+            items(historyList, key = { it.id }) { movie ->
                 MovieCard(
                     data = movie.asMovieCardData(),
                     onMovieClick = onMovieClick,

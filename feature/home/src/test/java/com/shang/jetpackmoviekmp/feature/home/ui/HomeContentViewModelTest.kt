@@ -22,6 +22,7 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
@@ -131,5 +132,26 @@ class HomeContentViewModelTest {
         assertTrue(movieRepository.deleteMovieCollectLatch.await(1, TimeUnit.SECONDS))
         assertEquals(1, movieRepository.deleteMovieCollectCallCount)
         assertEquals(0, movieRepository.insertMovieCollectCallCount)
+    }
+
+    @Test
+    fun `清單含多部電影時，切換其中一部收藏只作用在該電影，不影響其他電影`() = runTest(dispatcher) {
+        // Arrange：模擬清單中同時顯示多部電影，其中一部是使用者實際點擊的目標
+        val movieRepository = FakeMovieRepository()
+        val viewModel = createViewModel(movieRepository)
+        val otherMovie = MovieCardResult(id = 1, title = "A", isCollect = false).asMovieCardData()
+        val targetMovie = MovieCardResult(id = 2, title = "B", isCollect = false).asMovieCardData()
+        val anotherMovie = MovieCardResult(id = 3, title = "C", isCollect = true).asMovieCardData()
+
+        // Act：只對目標電影觸發收藏切換
+        viewModel.toggleMovieCollectStatus(targetMovie)
+
+        // Assert：只送出目標電影的 insert 呼叫，其餘電影的收藏狀態不受影響
+        assertTrue(movieRepository.insertMovieCollectLatch.await(1, TimeUnit.SECONDS))
+        assertEquals(1, movieRepository.insertMovieCollectCallCount)
+        assertEquals(0, movieRepository.deleteMovieCollectCallCount)
+        assertEquals(targetMovie.movieCardId, movieRepository.lastInsertedMovie?.id)
+        assertNotEquals(otherMovie.movieCardId, movieRepository.lastInsertedMovie?.id)
+        assertNotEquals(anotherMovie.movieCardId, movieRepository.lastInsertedMovie?.id)
     }
 }

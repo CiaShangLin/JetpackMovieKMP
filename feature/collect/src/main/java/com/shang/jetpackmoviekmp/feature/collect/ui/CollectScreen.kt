@@ -112,7 +112,7 @@ fun CollectSuccessScreen(
             verticalArrangement = Arrangement.spacedBy(8.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            items(movieCollectList) { movie ->
+            items(movieCollectList, key = { it.id }) { movie ->
                 MovieCard(
                     data = movie.asMovieCardData(),
                     onMovieClick = onMovieClick,
