@@ -1,0 +1,15 @@
+type: bug-fix
+workspace: worktree
+branch: bug-fix/fix-detail-recommend-bottom-inset
+base_branch: master
+verify_selected:
+  - unit-test
+  - doc-comment
+  - code-review
+verified:
+  - unit-test
+  - doc-comment
+  - code-review
+verified_at:
+  head: eddc3983bb8577b520bc41c40cc817a25b2ed3e3
+  diff_hash: 66d49581aeab6d44eec9f6b6bc2804f2e405c7d4
