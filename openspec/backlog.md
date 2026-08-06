@@ -124,3 +124,14 @@ Android 端 MovieCard 列表（LazyColumn/LazyRow/Paging 清單）目前沒有�
 
 Android 電影詳細頁「推薦電影」列表目前底部沒有留白，內容會被其他元素（例如底部導覽列
 或系統手勢區）擋到，需要補上底部 padding/spacer。
+
+## Android 切換 tab 或從詳細頁返回時避免不必要的 API 刷新
+
+- 類型: bug-fix
+- 記錄日期: 2026-08-06
+- 來源: master
+- 前置依賴: 無
+- 狀態: 待處理
+
+Android 端目前切換 tab（Home／Search）或從詳細頁返回時，畫面都會重新打 API 刷新，
+即使該畫面已有快取資料也一樣。需調整成有快取時不重新刷新，避免不必要的網路請求。
