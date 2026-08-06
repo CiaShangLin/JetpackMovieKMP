@@ -1,4 +1,0 @@
-type: feature
-workspace: branch
-branch: feature/android-cold-start-benchmark
-base_branch: master

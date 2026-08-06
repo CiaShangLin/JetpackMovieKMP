@@ -52,11 +52,11 @@
 ## 8. 方案 B 複測（Checkpoint 2）與最終比較報告
 
 - [x] 8.1 使用與 Task 3 相同裝置與 `CompilationMode` 設定，重新執行 `./gradlew :benchmark:connectedCheck`；因 `:benchmark` module 現同時含 `StartupBenchmark`／`BaselineProfileGenerator` 兩個測試類別、執行順序未受控，另外用 `-Pandroid.testInstrumentationRunnerArguments.class=com.shang.benchmark.StartupBenchmark` 單獨重跑一次排除污染
-- [ ] 8.2 將 Checkpoint 2 冷啟動量測結果整理進 `openspec/changes/android-cold-start-benchmark/after-report-baseline-profile.md`（**進行中**：已記錄兩次原始量測數據，P50 皆遠高於 Checkpoint 0 基準且不符合 Task 6 已知的熱降頻模式，判定為異常，結論待補——需先在同一 session 內做「有／無 Baseline Profile」A/B 對照排查後再回填）
-- [ ] 8.3 若 Baseline Profile 造成任一功能回歸或效能未見改善，於報告中記錄原因（待 8.2 排查結果確定後處理）
+- [x] 8.2 將 Checkpoint 2 冷啟動量測結果整理進 `openspec/changes/android-cold-start-benchmark/after-report-baseline-profile.md`：SM-S9360 兩次原始量測 P50 皆遠高於 Checkpoint 0 基準，成因未明；換機至 SM-A715F 後已在同一 session 內完成「有／無 Baseline Profile」A/B 對照——有 baseline 後兩輪高度收斂（1,673ms／1,667ms），無 baseline 三輪離散（1,923／2,569／1,788ms），pooled 中位數有 baseline 快約 15%。因測試順序未對調、樣本數少，此正向訊號證據力有限，但已足夠確認**未見回歸**
+- [x] 8.3 Baseline Profile 未觀察到功能回歸或效能倒退；正向改善訊號初步但未經嚴謹確認（順序對調補測列為可選後續強化項目），決定保留方案 B、不回退，詳見 `after-report-baseline-profile.md` 結論段落
 
 ## 9. 最終驗證
 
-- [ ] 9.1 執行 `./gradlew ktlintCheck`
-- [ ] 9.2 執行 `./gradlew :androidApp:assembleDebug` 確認正式 debug 建置不受影響
-- [ ] 9.3 執行 `openspec validate android-cold-start-benchmark --type change --strict --no-interactive`
+- [x] 9.1 執行 `./gradlew ktlintCheck`：通過
+- [x] 9.2 執行 `./gradlew :androidApp:assembleDebug` 確認正式 debug 建置不受影響：通過
+- [x] 9.3 執行 `openspec validate android-cold-start-benchmark --type change --strict --no-interactive`：通過（`Change 'android-cold-start-benchmark' is valid`）
