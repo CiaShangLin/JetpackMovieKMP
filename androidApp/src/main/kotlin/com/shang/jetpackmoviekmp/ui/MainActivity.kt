@@ -251,8 +251,6 @@ fun SuccessScreen(backStack: NavBackStack<NavKey>) {
             }
         },
     ) {
-        // 待各分頁 feature module 導入後再依 MainNavItem 補上對應的 NavEntry，
-        // 尚未導入的分頁一律回退到 PlaceholderScreen。
         navDisplay()
     }
 }
