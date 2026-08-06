@@ -25,7 +25,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavEntry
@@ -153,7 +156,10 @@ fun MainScreen(mainUiState: MainUiState, backStack: NavBackStack<NavKey>, onRetr
     JMBackground(
         modifier = Modifier
             .fillMaxSize()
-            .padding(WindowInsets.statusBars.asPaddingValues()),
+            .padding(WindowInsets.statusBars.asPaddingValues())
+            // 讓 testTag 在 UiAutomator 端可透過 resource-id 查找，不受裝置語言影響，
+            // 供 :benchmark module 的 BaselineProfileGenerator 驅動導覽列切換頁籤使用。
+            .semantics { testTagsAsResourceId = true },
     ) {
         when (mainUiState) {
             is MainUiState.Loading -> {
@@ -221,6 +227,9 @@ fun SuccessScreen(backStack: NavBackStack<NavKey>) {
                             backStack.add(item.key)
                         }
                     },
+                    // benchmark/BaselineProfileGenerator.kt 有一份對應的 nav_* resource-id 硬編碼清單，
+                    // 改這裡（尤其是 enum name）要記得同步更新那邊。
+                    modifier = Modifier.testTag("nav_${item.name.lowercase()}"),
                     icon = {
                         Icon(
                             item.unselectedIcon,
@@ -249,26 +258,28 @@ fun SuccessScreen(backStack: NavBackStack<NavKey>) {
 private fun mainEntry(
     navKey: NavKey,
     backStack: NavBackStack<NavKey>,
-): NavEntry<NavKey> = when (navKey) {
-    HomeKey -> homeEntry(onMovieClick = { movieId ->
-        backStack.add(MovieDetailKey(movieId))
-    }).second
-    CollectKey -> collectEntry(onMovieClick = { movie ->
-        backStack.add(MovieDetailKey(movie.movieCardId))
-    }).second
-    HistoryKey -> historyEntry(onMovieClick = { movie ->
-        backStack.add(MovieDetailKey(movie.movieCardId))
-    }).second
-    SearchKey -> searchEntry(onMovieClick = { movie ->
-        backStack.add(MovieDetailKey(movie.movieCardId))
-    }).second
-    SettingKey -> settingEntry().second
-    is MovieDetailKey -> movieDetailEntry(
-        key = navKey,
-        onBackClick = { backStack.removeLastOrNull() },
-        onMovieClick = { movie -> backStack.add(MovieDetailKey(movie.movieCardId)) },
-    ).second
-    else -> NavEntry(navKey) { PlaceholderScreen() }
+): NavEntry<NavKey> {
+    return when (navKey) {
+        HomeKey -> homeEntry(onMovieClick = { movieId ->
+            backStack.add(MovieDetailKey(movieId))
+        }).second
+        CollectKey -> collectEntry(onMovieClick = { movie ->
+            backStack.add(MovieDetailKey(movie.movieCardId))
+        }).second
+        HistoryKey -> historyEntry(onMovieClick = { movie ->
+            backStack.add(MovieDetailKey(movie.movieCardId))
+        }).second
+        SearchKey -> searchEntry(onMovieClick = { movie ->
+            backStack.add(MovieDetailKey(movie.movieCardId))
+        }).second
+        SettingKey -> settingEntry().second
+        is MovieDetailKey -> movieDetailEntry(
+            key = navKey,
+            onBackClick = { backStack.removeLastOrNull() },
+            onMovieClick = { movie -> backStack.add(MovieDetailKey(movie.movieCardId)) },
+        ).second
+        else -> NavEntry(navKey) { PlaceholderScreen() }
+    }
 }
 
 @Composable

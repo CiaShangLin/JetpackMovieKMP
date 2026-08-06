@@ -68,6 +68,10 @@
 
 除了 tasks.md Task 5 的手動點擊驗證外，另於 `androidApp` 新增一個純 JVM 單元測試（`androidApp/src/test`，此 source set 已存在），使用 `koin-test`（`gradle/libs.versions.toml` 已有 `koin-test` alias，僅需在 `androidApp/build.gradle.kts` 加上 `testImplementation(libs.koin.test)`）的 `checkModules()` API，一次驗證全部 8 個 Koin module（`uiModule`、`mainModule`、`homeModule`、`collectModule`、`historyModule`、`searchModule`、`detailModule`、`settingModule`）加總在一起時依賴圖可完整解析，不需要 instrumentation 或裝置即可快速抓出遺漏或錯置的 bean 定義。此測試驗證的是「延遲載入不會改變最終的依賴圖完整性」，手動點擊驗證的是「延遲載入的時機正確、UI 層不會在載入完成前嘗試取得依賴」，兩者互補。
 
+### 3.3 方案 A 驗收結果：已測試並回退
+
+Checkpoint 1 診斷（詳見 `after-report-koin-lazy-load.md`）發現：依裝置熱狀態分桶比較後，Koin 延遲載入與同步載入版本的 `timeToInitialDisplayMs` 差異僅 ~1–2%，落在量測本身的雜訊範圍內（部分輪次變異係數達 20%~34%），無法判定有實質改善。依 Decision 2 的三段式量測設計初衷（能歸因才值得保留），決定回退方案 A：`JetpackMovieApplication.onCreate()` 恢復同步載入全部 8 個 Koin module，`MainActivity.kt` 移除延遲載入機制；3.2 的 `checkModules()` 驗證測試（`FeatureModulesResolutionTest`）保留，因其驗證的是依賴圖完整性，與載入時機無關。方案 B（Baseline Profile）改以 Checkpoint 0 基準（`baseline-report.md`，P50 1,118.6ms）作為比較對象。
+
 ### 4. `benchmark` build type 設定
 
 依 Macrobenchmark 官方建議，在 `androidApp/build.gradle.kts` 新增 `benchmark` build type（繼承 `release`，關閉 `debuggable`、開啟 `profileable`），避免直接對 `debug`／`release` build 量測造成失真（`debug` 有額外偵錯開銷、`release` 預設不可用 profiler attach）。此設定只影響建置設定，不影響現有 `debug`／`release` 行為與簽章設定。
@@ -85,8 +89,8 @@
 2. 執行 smoke test 確認 `:benchmark:connectedCheck` 可成功量測並產出報告。
 3. 記錄「優化前」基準報告（Checkpoint 0：`baseline-report.md`）。
 4. 實作 Koin 延遲載入（方案 A），新增 `checkModules()` 單元測試並完成手動點擊驗證。
-5. 重新執行測試，記錄 Checkpoint 1 報告（`after-report-koin-lazy-load.md`）。
-6. 疊加實作 Baseline Profile 生成（方案 B）。
+5. 重新執行測試，記錄 Checkpoint 1 報告（`after-report-koin-lazy-load.md`）；診斷結果顯示效能差異在雜訊範圍內，回退方案 A（見 Decision 3.3）。
+6. 疊加實作 Baseline Profile 生成（方案 B，基於 Checkpoint 0 基準狀態進行，因方案 A 已回退）。
 7. 再次執行測試，記錄 Checkpoint 2 報告（`after-report-baseline-profile.md`），並彙整三個檢查點的量化比較。
 8. 若延遲載入導致任何既有功能（分頁切換、注入時機）出現回歸，優先回退該 feature module 的延遲載入，改回同步載入，不影響其餘已驗證的模組。
 

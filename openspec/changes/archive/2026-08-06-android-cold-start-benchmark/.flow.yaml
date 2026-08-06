@@ -1,0 +1,15 @@
+type: feature
+workspace: branch
+branch: feature/android-cold-start-benchmark
+base_branch: master
+verify_selected:
+  - unit-test
+  - doc-comment
+  - code-review
+verified:
+  - unit-test
+  - doc-comment
+  - code-review
+verified_at:
+  head: 3b570e2bc962f2b0429e3056f129891a357cbb30
+  diff_hash: b33fcb20ecdf3a3a3067bab00b35027168d79972

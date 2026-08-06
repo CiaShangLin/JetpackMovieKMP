@@ -30,6 +30,7 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.core.splashscreen)
+    implementation(libs.androidx.profileinstaller)
     implementation(libs.koin.android)
     implementation(libs.koin.compose)
     implementation(libs.koin.compose.viewmodel)
@@ -54,6 +55,12 @@ dependencies {
     testImplementation(libs.kotlin.test)
     testImplementation(libs.kotlin.test.junit)
     testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.koin.test)
+    testImplementation(projects.shared.database)
+    testImplementation(projects.shared.datastore)
+    testImplementation(projects.shared.network)
+    testImplementation(libs.androidx.room.runtime)
+    testImplementation(libs.androidx.sqlite.bundled)
 }
 
 android {
@@ -75,6 +82,12 @@ android {
     buildTypes {
         getByName("release") {
             isMinifyEnabled = false
+        }
+        create("benchmark") {
+            initWith(buildTypes.getByName("release"))
+            signingConfig = signingConfigs.getByName("debug")
+            matchingFallbacks += listOf("release")
+            isDebuggable = false
         }
     }
     compileOptions {
