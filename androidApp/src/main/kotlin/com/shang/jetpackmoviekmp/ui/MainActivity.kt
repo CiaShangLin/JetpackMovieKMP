@@ -84,6 +84,7 @@ class MainActivity : ComponentActivity() {
                     activity = this@MainActivity,
                     languageMode = userData.languageMode,
                 )
+                userData.languageMode
             }
 
             val backStack = rememberNavBackStack(HomeKey)

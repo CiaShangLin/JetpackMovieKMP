@@ -1,0 +1,11 @@
+type: refactor
+workspace: worktree
+branch: refactor/android-movie-card-title-two-lines
+base_branch: master
+verify_selected:
+  - doc-comment
+verified:
+  - doc-comment
+verified_at:
+  head: 03b3d75f00f756ebd0092bc36b074e597a44b13a
+  diff_hash: eeb3c1d8c2eac5bf54c926245fe06c0ee0bd313f
