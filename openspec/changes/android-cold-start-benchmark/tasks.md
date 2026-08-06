@@ -20,6 +20,8 @@
 
 ## 4. 實作方案 A：Koin module 延遲載入
 
+> **狀態更新**：本方案已於 Task 6 複測後回退（效能差異在量測雜訊範圍內，未見改善），詳見 Task 6.3 與 `after-report-koin-lazy-load.md`。以下項目保留勾選作為實作歷史記錄，程式碼目前已回退為同步載入。
+
 - [x] 4.1 於 `MainActivity.kt` 的 `mainEntry()` 中，為 `collectModule`、`historyModule`、`searchModule`、`detailModule`、`settingModule` 各自維護「已載入」旗標，在建立對應 `NavEntry` 之前同步呼叫 `loadKoinModules(listOf(xxxModule()))` 並標記為已載入，避免重複載入
 - [x] 4.2 調整 `JetpackMovieApplication.onCreate()`：只同步載入首屏必要的 Koin module（`uiModule`、`mainModule`、`homeModule`），其餘改由 4.1 的機制延遲載入
 - [x] 4.3 新增 `androidApp/src/test` 下的 Koin module 依賴圖解析測試（`FeatureModulesResolutionTest`），驗證 `mainModule`／`homeModule`／`collectModule`／`historyModule`／`searchModule`／`detailModule`／`settingModule` 加總後依賴圖可完整解析；`uiModule` 因需要真實 Android Context，純 JVM 測試無法涵蓋，改由 Task 5 手動驗證涵蓋
@@ -33,11 +35,13 @@
 
 ## 6. 方案 A 複測（Checkpoint 1）
 
-- [ ] 6.1 使用與 Task 3 相同裝置與 `CompilationMode` 設定，重新執行 `./gradlew :benchmark:connectedCheck`
-- [ ] 6.2 將 Checkpoint 1 冷啟動量測結果整理進 `openspec/changes/android-cold-start-benchmark/after-report-koin-lazy-load.md`，並列出與 Checkpoint 0 的量化比較（絕對值與百分比差異）
-- [ ] 6.3 若延遲載入造成功能回歸或效能未見改善，於報告中記錄原因並視需要回退對應 feature module 的延遲載入
+- [x] 6.1 使用與 Task 3 相同裝置與 `CompilationMode` 設定，重新執行 `./gradlew :benchmark:connectedCheck`（實際執行方式：人工試跑時觀察到「感覺變慢」，故先以受控 A/B 診斷測試排查——同一裝置、同一 session 內，eager 版與延遲載入版各連續跑 5 輪 `:benchmark:connectedCheck`，非嚴格複用 Checkpoint 0 的動畫關閉／USB 條件，詳見 `after-report-koin-lazy-load.md`）
+- [x] 6.2 將 Checkpoint 1 冷啟動量測結果整理進 `openspec/changes/android-cold-start-benchmark/after-report-koin-lazy-load.md`（因量測條件與 Checkpoint 0 不同，未做絕對值比較，改採同一 session 內 eager vs 延遲載入版的相對比較）
+- [x] 6.3 診斷結果：依裝置熱狀態分桶後，延遲載入與同步載入的效能差異僅 ~1-2%，落在量測雜訊範圍內，效能未見改善，依此決定回退方案 A——`JetpackMovieApplication.kt` 恢復同步載入全部 8 個 module，`MainActivity.kt` 移除延遲載入機制；`FeatureModulesResolutionTest`（Task 4.3）保留
 
 ## 7. 實作方案 B：Baseline Profile
+
+> 方案 A 已回退（見 Task 6.3），本方案基於同步載入的程式碼狀態（即 Checkpoint 0 基準）進行，不疊加方案 A。
 
 - [ ] 7.1 新增 `androidx.profileinstaller` 依賴至 `androidApp/build.gradle.kts`
 - [ ] 7.2 在 `:benchmark` module 新增 `BaselineProfileGenerator`，產生 `androidApp` 的 Baseline Profile
@@ -46,7 +50,7 @@
 ## 8. 方案 B 複測（Checkpoint 2）與最終比較報告
 
 - [ ] 8.1 使用與 Task 3 相同裝置與 `CompilationMode` 設定，重新執行 `./gradlew :benchmark:connectedCheck`
-- [ ] 8.2 將 Checkpoint 2 冷啟動量測結果整理進 `openspec/changes/android-cold-start-benchmark/after-report-baseline-profile.md`，並彙整 Checkpoint 0／1／2 三者的量化比較
+- [ ] 8.2 將 Checkpoint 2 冷啟動量測結果整理進 `openspec/changes/android-cold-start-benchmark/after-report-baseline-profile.md`，並彙整與 Checkpoint 0 的量化比較（Checkpoint 1／方案 A 已回退，僅作為診斷記錄附註，不納入最終效果歸因）
 - [ ] 8.3 若 Baseline Profile 造成任一功能回歸或效能未見改善，於報告中記錄原因
 
 ## 9. 最終驗證

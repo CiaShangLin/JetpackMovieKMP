@@ -41,45 +41,22 @@ import com.shang.jetpackmoviekmp.core.designsystem.theme.PrimaryContainer
 import com.shang.jetpackmoviekmp.core.designsystem.theme.SurfaceVariant
 import com.shang.jetpackmoviekmp.core.ui.ErrorScreen
 import com.shang.jetpackmoviekmp.core.ui.LoadingScreen
-import com.shang.jetpackmoviekmp.feature.collect.di.collectModule
 import com.shang.jetpackmoviekmp.feature.collect.navigation.CollectKey
 import com.shang.jetpackmoviekmp.feature.collect.navigation.collectEntry
-import com.shang.jetpackmoviekmp.feature.detail.di.detailModule
 import com.shang.jetpackmoviekmp.feature.detail.navigation.MovieDetailKey
 import com.shang.jetpackmoviekmp.feature.detail.navigation.movieDetailEntry
-import com.shang.jetpackmoviekmp.feature.history.di.historyModule
 import com.shang.jetpackmoviekmp.feature.history.navigation.HistoryKey
 import com.shang.jetpackmoviekmp.feature.history.navigation.historyEntry
 import com.shang.jetpackmoviekmp.feature.home.navigation.HomeKey
 import com.shang.jetpackmoviekmp.feature.home.navigation.homeEntry
-import com.shang.jetpackmoviekmp.feature.search.di.searchModule
 import com.shang.jetpackmoviekmp.feature.search.navigation.SearchKey
 import com.shang.jetpackmoviekmp.feature.search.navigation.searchEntry
-import com.shang.jetpackmoviekmp.feature.setting.di.settingModule
 import com.shang.jetpackmoviekmp.feature.setting.navigation.SettingKey
 import com.shang.jetpackmoviekmp.feature.setting.navigation.settingEntry
 import com.shang.jetpackmoviekmp.model.ThemeMode
 import com.shang.jetpackmoviekmp.navigation.MainNavItem
 import com.shang.jetpackmoviekmp.utils.LanguageSettingUtils
 import org.koin.compose.viewmodel.koinViewModel
-import org.koin.core.context.loadKoinModules
-import kotlin.reflect.KClass
-
-private val loadedFeatureModuleKeys = mutableSetOf<KClass<out NavKey>>()
-
-private fun loadFeatureModuleIfNeeded(navKey: NavKey) {
-    val keyClass = navKey::class
-    if (!loadedFeatureModuleKeys.add(keyClass)) return
-    val module = when (navKey) {
-        is CollectKey -> collectModule()
-        is HistoryKey -> historyModule()
-        is SearchKey -> searchModule()
-        is SettingKey -> settingModule()
-        is MovieDetailKey -> detailModule()
-        else -> return
-    }
-    loadKoinModules(listOf(module))
-}
 
 class MainActivity : ComponentActivity() {
 
@@ -273,7 +250,6 @@ private fun mainEntry(
     navKey: NavKey,
     backStack: NavBackStack<NavKey>,
 ): NavEntry<NavKey> {
-    loadFeatureModuleIfNeeded(navKey)
     return when (navKey) {
         HomeKey -> homeEntry(onMovieClick = { movieId ->
             backStack.add(MovieDetailKey(movieId))
