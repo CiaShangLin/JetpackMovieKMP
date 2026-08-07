@@ -1,0 +1,15 @@
+type: refactor
+workspace: worktree
+branch: refactor/refactor-ios-favorite-toggle
+base_branch: master
+verify_selected:
+  - unit-test
+  - doc-comment
+  - code-review
+verified:
+  - unit-test
+  - doc-comment
+  - code-review
+verified_at:
+  head: 67bdcb8eca008270fd29dae70e251cd42329dba4
+  diff_hash: aaafebc8a0b74ca6d200a43bcee4780e5a5f6de8

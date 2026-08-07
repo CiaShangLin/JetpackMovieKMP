@@ -1,4 +1,0 @@
-type: refactor
-workspace: worktree
-branch: refactor/refactor-ios-favorite-toggle
-base_branch: master

@@ -1,6 +1,6 @@
+@testable import JetpackMovieKMP
 import Shared
 import XCTest
-@testable import JetpackMovieKMP
 
 @MainActor
 final class SearchViewModelTests: XCTestCase {
@@ -8,7 +8,7 @@ final class SearchViewModelTests: XCTestCase {
         // Arrange
         var presenterCreated = false
         let viewModel = SearchViewModel(
-            movieRepository: FakeMovieCollectionToggling(),
+            toggler: MovieCollectToggler(repository: FakeMovieCollectionToggling()),
             createPresenter: { _ in
                 presenterCreated = true
                 return FakeSearchPresenter()
@@ -29,7 +29,7 @@ final class SearchViewModelTests: XCTestCase {
         // Arrange
         var presenters: [FakeSearchPresenter] = []
         let viewModel = SearchViewModel(
-            movieRepository: FakeMovieCollectionToggling(),
+            toggler: MovieCollectToggler(repository: FakeMovieCollectionToggling()),
             createPresenter: { _ in
                 let presenter = FakeSearchPresenter()
                 presenters.append(presenter)
@@ -52,7 +52,7 @@ final class SearchViewModelTests: XCTestCase {
         let presenter = FakeSearchPresenter()
         presenter.items = [makeMovie(id: 1)]
         let viewModel = SearchViewModel(
-            movieRepository: FakeMovieCollectionToggling(),
+            toggler: MovieCollectToggler(repository: FakeMovieCollectionToggling()),
             createPresenter: { _ in presenter }
         )
 
@@ -70,7 +70,7 @@ final class SearchViewModelTests: XCTestCase {
         // Arrange
         let presenter = FakeSearchPresenter()
         let viewModel = SearchViewModel(
-            movieRepository: FakeMovieCollectionToggling(),
+            toggler: MovieCollectToggler(repository: FakeMovieCollectionToggling()),
             createPresenter: { _ in presenter }
         )
         viewModel.submit(query: "dune")
@@ -86,7 +86,7 @@ final class SearchViewModelTests: XCTestCase {
         // Arrange
         var presenters: [FakeSearchPresenter] = []
         let viewModel = SearchViewModel(
-            movieRepository: FakeMovieCollectionToggling(),
+            toggler: MovieCollectToggler(repository: FakeMovieCollectionToggling()),
             createPresenter: { _ in
                 let presenter = FakeSearchPresenter()
                 presenters.append(presenter)
@@ -108,7 +108,7 @@ final class SearchViewModelTests: XCTestCase {
         // Arrange
         var presenters: [FakeSearchPresenter] = []
         let viewModel = SearchViewModel(
-            movieRepository: FakeMovieCollectionToggling(),
+            toggler: MovieCollectToggler(repository: FakeMovieCollectionToggling()),
             createPresenter: { _ in
                 let presenter = FakeSearchPresenter()
                 presenters.append(presenter)
@@ -128,7 +128,7 @@ final class SearchViewModelTests: XCTestCase {
         let presenter = FakeSearchPresenter()
         presenter.items = [makeMovie(id: 1)]
         let viewModel = SearchViewModel(
-            movieRepository: FakeMovieCollectionToggling(),
+            toggler: MovieCollectToggler(repository: FakeMovieCollectionToggling()),
             createPresenter: { _ in presenter }
         )
         viewModel.submit(query: "dune")
@@ -144,7 +144,7 @@ final class SearchViewModelTests: XCTestCase {
         // Arrange
         let repository = FakeMovieCollectionToggling()
         let viewModel = SearchViewModel(
-            movieRepository: repository,
+            toggler: MovieCollectToggler(repository: repository),
             createPresenter: { _ in FakeSearchPresenter() }
         )
         let data = makeMovieCardData(isCollect: false)
@@ -161,7 +161,7 @@ final class SearchViewModelTests: XCTestCase {
         // Arrange
         let repository = FakeMovieCollectionToggling()
         let viewModel = SearchViewModel(
-            movieRepository: repository,
+            toggler: MovieCollectToggler(repository: repository),
             createPresenter: { _ in FakeSearchPresenter() }
         )
         let data = makeMovieCardData(isCollect: true)
@@ -184,7 +184,7 @@ final class SearchViewModelTests: XCTestCase {
             }
         }
         let viewModel = SearchViewModel(
-            movieRepository: repository,
+            toggler: MovieCollectToggler(repository: repository),
             createPresenter: { _ in FakeSearchPresenter() }
         )
         let data = makeMovieCardData(isCollect: false)

@@ -8,24 +8,26 @@ final class MovieDetailViewModel {
     private let movieRepository: MovieRepository
     private let getMovieDetailUseCase: GetMovieDetailUseCase
     private let getMovieRecommendUseCase: GetMovieRecommendUseCase
+    private let toggler: MovieCollectToggler
 
     var uiState: MovieDetailUiState = .loading
     var actorUiState: MovieActorUiState = .loading
     var recommendUiState: MovieRecommendUiState = .loading
 
-    private var isUpdatingCollection = false
     var isCollect = false
 
     init(
         movieId: Int,
         movieRepository: MovieRepository,
         getMovieDetailUseCase: GetMovieDetailUseCase,
-        getMovieRecommendUseCase: GetMovieRecommendUseCase
+        getMovieRecommendUseCase: GetMovieRecommendUseCase,
+        toggler: MovieCollectToggler = MovieCollectToggler()
     ) {
         self.movieId = movieId
         self.movieRepository = movieRepository
         self.getMovieDetailUseCase = getMovieDetailUseCase
         self.getMovieRecommendUseCase = getMovieRecommendUseCase
+        self.toggler = toggler
     }
 
     func observeCollectStatus() async {
@@ -92,38 +94,15 @@ final class MovieDetailViewModel {
         }
     }
 
+    /// 切換目前這部電影詳情頁本身的收藏狀態，實際寫入委派給 `toggler`。
+    /// - Parameter data: 目前詳情頁對應的電影；是否已收藏依 `isCollect`（由 `observeCollectStatus()` 維護）判斷。
     func toggleMovieCollectStatus(data: MovieCardResult) async {
-        guard !isUpdatingCollection else { return }
-
-        isUpdatingCollection = true
-        defer { isUpdatingCollection = false }
-
-        do {
-            if isCollect {
-                try await movieRepository.deleteMovieCollect(movieResult: data)
-            } else {
-                try await movieRepository.insertMovieCollect(movieResult: data)
-            }
-        } catch {
-            print("切換收藏失敗：\(error.localizedDescription)")
-        }
+        await toggler.toggle(currentIsCollect: isCollect, movie: data)
     }
 
+    /// 切換推薦清單中單一電影卡片的收藏狀態，實際寫入委派給 `toggler`。
+    /// - Parameter data: 使用者點擊收藏按鈕的推薦電影卡片，`movieCardIsCollect` 決定要新增還是移除。
     func toggleRecommendCollectStatus(data: MovieCardData) async {
-        guard !isUpdatingCollection else { return }
-
-        isUpdatingCollection = true
-        defer { isUpdatingCollection = false }
-
-        do {
-            switch MovieCollectAction(data: data) {
-            case let .delete(movie):
-                try await movieRepository.deleteMovieCollect(movieResult: movie)
-            case let .insert(movie):
-                try await movieRepository.insertMovieCollect(movieResult: movie)
-            }
-        } catch {
-            print("切換收藏失敗：\(error.localizedDescription)")
-        }
+        await toggler.toggle(currentIsCollect: data.movieCardIsCollect, movie: data.asMovieCardResult())
     }
 }

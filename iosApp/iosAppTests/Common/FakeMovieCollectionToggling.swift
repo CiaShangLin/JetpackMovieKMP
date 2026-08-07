@@ -1,5 +1,5 @@
-import Shared
 @testable import JetpackMovieKMP
+import Shared
 
 final class FakeMovieCollectionToggling: MovieCollectionToggling {
     private(set) var insertedMovies: [MovieCardResult] = []

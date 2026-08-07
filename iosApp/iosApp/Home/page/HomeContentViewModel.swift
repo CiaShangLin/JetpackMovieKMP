@@ -7,19 +7,18 @@ final class HomeContentViewModel {
     private let movieGenre: MovieGenreBean.MovieGenre
     private let homeViewModel: HomeViewModel
     private var homeMovieListPresenter: HomeMovieListPresenter?
-    private let movieRepository: MovieRepository
-    private var isUpdatingCollection = false
+    private let toggler: MovieCollectToggler
     private(set) var state: HomeContentUiState = .loading
     private(set) var movies: [MovieCardResult] = []
     private(set) var itemCount: Int = 0
     private(set) var appendLoadState: HomeMovieListLoadState?
 
     init(
-        movieRepository: MovieRepository,
         movieGenre: MovieGenreBean.MovieGenre,
-        homeViewModel: HomeViewModel
+        homeViewModel: HomeViewModel,
+        toggler: MovieCollectToggler = MovieCollectToggler()
     ) {
-        self.movieRepository = movieRepository
+        self.toggler = toggler
         self.movieGenre = movieGenre
         self.homeViewModel = homeViewModel
     }
@@ -56,22 +55,10 @@ final class HomeContentViewModel {
         homeMovieListPresenter?.retry()
     }
 
+    /// 切換單一電影卡片的收藏狀態，實際寫入委派給 `toggler`。
+    /// - Parameter data: 使用者點擊收藏按鈕的電影卡片，`movieCardIsCollect` 決定要新增還是移除。
     func toggleMovieCollectStatus(data: MovieCardData) async {
-        guard !isUpdatingCollection else { return }
-
-        isUpdatingCollection = true
-        defer { isUpdatingCollection = false }
-
-        do {
-            switch MovieCollectAction(data: data) {
-            case let .delete(movie):
-                try await movieRepository.deleteMovieCollect(movieResult: movie)
-            case let .insert(movie):
-                try await movieRepository.insertMovieCollect(movieResult: movie)
-            }
-        } catch {
-            print("切換收藏失敗：\(error.localizedDescription)")
-        }
+        await toggler.toggle(currentIsCollect: data.movieCardIsCollect, movie: data.asMovieCardResult())
     }
 
     private func observePagesUpdated(presenter: HomeMovieListPresenter) async {

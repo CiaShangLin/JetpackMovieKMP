@@ -17,7 +17,6 @@ struct HomeContentView: View {
     ) {
         self.movieGenre = movieGenre
         _viewModel = State(initialValue: HomeContentViewModel(
-            movieRepository: KoinHelper.shared.getMovieRepository(),
             movieGenre: movieGenre,
             homeViewModel: homeViewModel
         ))
