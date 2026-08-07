@@ -71,6 +71,9 @@ val keystoreProperties = Properties().apply {
     }
 }
 
+val keystoreFile = rootProject.file("keystore/release.jks")
+val hasReleaseKeystore = keystoreFile.exists()
+
 android {
     namespace = "com.shang.jetpackmoviekmp"
     compileSdk = libs.versions.android.compile.sdk.get().toInt()
@@ -88,11 +91,13 @@ android {
         }
     }
     signingConfigs {
-        create("release") {
-            storeFile = rootProject.file(keystoreProperties.getProperty("storeFile", ""))
-            storePassword = keystoreProperties.getProperty("storePassword", "")
-            keyAlias = keystoreProperties.getProperty("keyAlias", "")
-            keyPassword = keystoreProperties.getProperty("keyPassword", "")
+        if (hasReleaseKeystore) {
+            create("release") {
+                storeFile = keystoreFile
+                storePassword = System.getenv("storePassword")
+                keyAlias = System.getenv("keyAlias")
+                keyPassword = System.getenv("keyPassword")
+            }
         }
     }
     buildTypes {
@@ -100,7 +105,9 @@ android {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-            signingConfig = signingConfigs.getByName("release")
+            if (hasReleaseKeystore) {
+                signingConfig = signingConfigs.getByName("release")
+            }
         }
         create("benchmark") {
             initWith(buildTypes.getByName("release"))
