@@ -22,7 +22,7 @@
 
 ## 4. 驗證
 
-- [ ] 4.1 於 GitHub Actions 頁面手動觸發一次 `workflow_dispatch`，確認 `test` job 與 `build-and-release` job 都能成功執行並產出 GitHub Release 與 APK 附件
-- [ ] 4.2 驗證「測試先行」邊界：暫時讓某個單元測試失敗後觸發一次（或以 code review 方式確認 job 相依設定），確認 `build-and-release` 不會執行、不會產生 Release
+- [x] 4.1 於 GitHub Actions 頁面手動觸發一次 `workflow_dispatch`，確認 `test` job 與 `build-and-release` job 都能成功執行並產出 GitHub Release 與 APK 附件 — 改用實際 push tag `v0.0.1` 完整驗證（run 31193726610），`test` job 4m6s 通過、`build-and-release` job 3m52s 通過，成功建立 Release：https://github.com/CiaShangLin/JetpackMovieKMP/releases/tag/v0.0.1，附件 `JetpackMovieKMP-v0.0.1-release.apk`
+- [x] 4.2 驗證「測試先行」邊界：暫時讓某個單元測試失敗後觸發一次（或以 code review 方式確認 job 相依設定），確認 `build-and-release` 不會執行、不會產生 Release — 以 code review 方式確認：`.github/workflows/release-apk.yml` 的 `build-and-release` job 設有 `needs: test`，此為 GitHub Actions 平台語意保證，`test` job 失敗時 `build-and-release` 不會被排程執行
 - [x] 4.3 執行 `./gradlew ktlintCheck` 確認本次新增檔案未破壞既有格式檢查（本次未變更 Kotlin/Swift 程式碼，僅新增 YAML 與文件）— BUILD SUCCESSFUL
 - [x] 4.4 執行 `openspec validate add-release-ci-workflow --type change --strict --no-interactive`，確認本次 change 的所有 artifacts 通過驗證 — Change 'add-release-ci-workflow' is valid
