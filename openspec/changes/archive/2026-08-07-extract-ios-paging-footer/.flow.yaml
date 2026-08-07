@@ -1,0 +1,15 @@
+type: refactor
+workspace: worktree
+branch: refactor/extract-ios-paging-footer
+base_branch: master
+verify_selected:
+  - unit-test
+  - doc-comment
+  - code-review
+verified:
+  - unit-test
+  - doc-comment
+  - code-review
+verified_at:
+  head: 67bdcb8eca008270fd29dae70e251cd42329dba4
+  diff_hash: ea16e77c8824c0a08016c9498d7be39060c91dee

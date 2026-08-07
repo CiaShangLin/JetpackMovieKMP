@@ -68,7 +68,12 @@ struct SearchView: View {
                     .refreshable {
                         viewModel.refresh()
                     }
-                appendFooter
+                if let appendLoadState = viewModel.appendLoadState {
+                    PagingAppendFooterView(
+                        loadState: appendLoadState.asAppendLoadState(),
+                        onRetry: { viewModel.retry() }
+                    )
+                }
             }
         case let .failure(message):
             ErrorView(
@@ -77,21 +82,18 @@ struct SearchView: View {
             )
         }
     }
+}
 
-    @ViewBuilder
-    private var appendFooter: some View {
-        if let appendLoadState = viewModel.appendLoadState {
-            switch onEnum(of: appendLoadState) {
-            case .idle:
-                EmptyView()
-            case .loading:
-                ProgressView().padding()
-            case .error:
-                Button("home_retry_button") {
-                    viewModel.retry()
-                }
-                .padding()
-            }
+extension SearchMovieListLoadState {
+    /// 將 shared 層的 `SearchMovieListLoadState` 轉換為共用 Footer 元件使用的 `AppendLoadState`。
+    func asAppendLoadState() -> AppendLoadState {
+        switch onEnum(of: self) {
+        case .idle:
+            .idle
+        case .loading:
+            .loading
+        case let .error(error):
+            .error(message: error.message)
         }
     }
 }

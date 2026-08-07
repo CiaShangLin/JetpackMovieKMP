@@ -65,7 +65,12 @@ struct HomeContentView: View {
                         }
                     }
                 }.padding(.horizontal, JMSpacing.spacing16)
-                appendFooter
+                if let appendLoadState = viewModel.appendLoadState {
+                    PagingAppendFooterView(
+                        loadState: appendLoadState.asAppendLoadState(),
+                        onRetry: { viewModel.retry() }
+                    )
+                }
             }
             .refreshable {
                 viewModel.refresh()
@@ -79,22 +84,18 @@ struct HomeContentView: View {
             )
         }
     }
+}
 
-    @ViewBuilder
-    private var appendFooter: some View {
-        if let appendLoadState = viewModel.appendLoadState {
-            switch onEnum(of: appendLoadState) {
-            case .idle:
-                EmptyView()
-            case .loading:
-                ProgressView()
-                    .padding()
-            case .error:
-                Button("home_retry_button") {
-                    viewModel.retry()
-                }
-                .padding()
-            }
+extension HomeMovieListLoadState {
+    /// 將 shared 層的 `HomeMovieListLoadState` 轉換為共用 Footer 元件使用的 `AppendLoadState`。
+    func asAppendLoadState() -> AppendLoadState {
+        switch onEnum(of: self) {
+        case .idle:
+            .idle
+        case .loading:
+            .loading
+        case let .error(error):
+            .error(message: error.message)
         }
     }
 }
