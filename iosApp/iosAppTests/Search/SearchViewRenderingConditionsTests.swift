@@ -16,7 +16,7 @@ final class SearchViewRenderingConditionsTests: XCTestCase {
         // Arrange
         let presenter = FakeSearchPresenter()
         let viewModel = SearchViewModel(
-            movieRepository: FakeMovieCollectionToggling(),
+            toggler: MovieCollectToggler(repository: FakeMovieCollectionToggling()),
             createPresenter: { _ in presenter }
         )
 
@@ -38,7 +38,7 @@ final class SearchViewRenderingConditionsTests: XCTestCase {
         // Arrange
         let presenter = FakeSearchPresenter()
         let viewModel = SearchViewModel(
-            movieRepository: FakeMovieCollectionToggling(),
+            toggler: MovieCollectToggler(repository: FakeMovieCollectionToggling()),
             createPresenter: { _ in presenter }
         )
 
@@ -62,7 +62,7 @@ final class SearchViewRenderingConditionsTests: XCTestCase {
         // Arrange
         let presenter = FakeSearchPresenter()
         let viewModel = SearchViewModel(
-            movieRepository: FakeMovieCollectionToggling(),
+            toggler: MovieCollectToggler(repository: FakeMovieCollectionToggling()),
             createPresenter: { _ in presenter }
         )
 
@@ -83,7 +83,7 @@ final class SearchViewRenderingConditionsTests: XCTestCase {
         // Arrange
         let presenter = FakeSearchPresenter()
         let viewModel = SearchViewModel(
-            movieRepository: FakeMovieCollectionToggling(),
+            toggler: MovieCollectToggler(repository: FakeMovieCollectionToggling()),
             createPresenter: { _ in presenter }
         )
 
@@ -103,7 +103,7 @@ final class SearchViewRenderingConditionsTests: XCTestCase {
         // Arrange
         let presenter = FakeSearchPresenter()
         let viewModel = SearchViewModel(
-            movieRepository: FakeMovieCollectionToggling(),
+            toggler: MovieCollectToggler(repository: FakeMovieCollectionToggling()),
             createPresenter: { _ in presenter }
         )
         viewModel.submit(query: "dune")
@@ -127,7 +127,7 @@ final class SearchViewRenderingConditionsTests: XCTestCase {
         // Arrange
         let presenter = FakeSearchPresenter()
         let viewModel = SearchViewModel(
-            movieRepository: FakeMovieCollectionToggling(),
+            toggler: MovieCollectToggler(repository: FakeMovieCollectionToggling()),
             createPresenter: { _ in presenter }
         )
         viewModel.submit(query: "dune")

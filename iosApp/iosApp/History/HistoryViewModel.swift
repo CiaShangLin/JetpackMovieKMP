@@ -6,15 +6,17 @@ import Shared
 final class HistoryViewModel {
     private let movieRepository: MovieRepository
     private let getHistoryMovieListUseCase: GetHistoryMovieListUseCase
+    private let toggler: MovieCollectToggler
     private(set) var uiState: HistoryUiState = .empty
-    private var isUpdatingCollection = false
     private var isClearingHistory = false
     init(
         movieRepository: MovieRepository,
-        getHistoryMovieListUseCase: GetHistoryMovieListUseCase
+        getHistoryMovieListUseCase: GetHistoryMovieListUseCase,
+        toggler: MovieCollectToggler = MovieCollectToggler()
     ) {
         self.movieRepository = movieRepository
         self.getHistoryMovieListUseCase = getHistoryMovieListUseCase
+        self.toggler = toggler
     }
 
     func loadHistory() async {
@@ -38,21 +40,9 @@ final class HistoryViewModel {
         }
     }
 
-    func toggleMovieCollect(data: MovieCardData) async {
-        guard !isUpdatingCollection else { return }
-
-        isUpdatingCollection = true
-        defer { isUpdatingCollection = false }
-
-        do {
-            switch MovieCollectAction(data: data) {
-            case let .delete(movie):
-                try await movieRepository.deleteMovieCollect(movieResult: movie)
-            case let .insert(movie):
-                try await movieRepository.insertMovieCollect(movieResult: movie)
-            }
-        } catch {
-            print("切換收藏失敗：\(error.localizedDescription)")
-        }
+    /// 切換單一歷史紀錄卡片的收藏狀態，實際寫入委派給 `toggler`。
+    /// - Parameter data: 使用者點擊收藏按鈕的電影卡片，`movieCardIsCollect` 決定要新增還是移除。
+    func toggleMovieCollectStatus(data: MovieCardData) async {
+        await toggler.toggle(currentIsCollect: data.movieCardIsCollect, movie: data.asMovieCardResult())
     }
 }

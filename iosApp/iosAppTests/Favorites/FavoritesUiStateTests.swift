@@ -1,6 +1,6 @@
+@testable import JetpackMovieKMP
 import Shared
 import XCTest
-@testable import JetpackMovieKMP
 
 final class FavoritesUiStateTests: XCTestCase {
     func testMake_withEmptyMovies_returnsEmptyState() {
@@ -50,8 +50,8 @@ final class FavoritesUiStateTests: XCTestCase {
 
     func testMake_preservesMoviesInSharedRepositoryOrder() {
         // Arrange
-        let newestMovie = MovieCardResult(id: 2, title: "Newest", isCollect: true)
-        let oldestMovie = MovieCardResult(id: 1, title: "Oldest", isCollect: true)
+        let newestMovie = makeMovie(id: 2, title: "Newest")
+        let oldestMovie = makeMovie(id: 1, title: "Oldest")
 
         // Act
         let state = FavoritesUiState.make(movies: [newestMovie, oldestMovie])
@@ -61,5 +61,26 @@ final class FavoritesUiStateTests: XCTestCase {
             return XCTFail("有收藏資料時應產生 success state")
         }
         XCTAssertEqual(data.map(\.id), [newestMovie.id, oldestMovie.id])
+    }
+
+    private func makeMovie(id: Int32, title: String) -> MovieCardResult {
+        MovieCardResult(
+            adult: false,
+            backdropPath: "",
+            genreIds: [],
+            id: id,
+            originalLanguage: "en",
+            originalTitle: title,
+            overview: "",
+            popularity: 0,
+            posterPath: "",
+            releaseDate: "2026-01-01",
+            title: title,
+            video: false,
+            voteAverage: 0,
+            voteCount: 0,
+            isCollect: true,
+            timestamp: 0
+        )
     }
 }

@@ -1,28 +1,6 @@
 import Observation
 import Shared
 
-/// `SearchViewModel` 收藏切換依賴的抽象介面；只取 `MovieRepository` 用到的兩支方法，
-/// 讓測試不需要為完整的 `MovieRepository` 建立 Fake。
-///
-/// `MovieRepository`本身是 Kotlin interface 匯出的 Swift protocol，protocol 不能用
-/// extension 補上新的繼承關係，因此改用一個轉發用的 adapter 包住真正的 repository。
-protocol MovieCollectionToggling {
-    func insertMovieCollect(movieResult: MovieCardResult) async throws
-    func deleteMovieCollect(movieResult: MovieCardResult) async throws
-}
-
-private struct MovieRepositoryCollectionAdapter: MovieCollectionToggling {
-    let repository: MovieRepository
-
-    func insertMovieCollect(movieResult: MovieCardResult) async throws {
-        try await repository.insertMovieCollect(movieResult: movieResult)
-    }
-
-    func deleteMovieCollect(movieResult: MovieCardResult) async throws {
-        try await repository.deleteMovieCollect(movieResult: movieResult)
-    }
-}
-
 /// `SearchViewModel` 依賴的抽象介面，讓測試可以用 Fake 取代真正的 Paging Presenter。
 protocol SearchPresenting: AnyObject {
     func get(index: Int32) -> MovieCardResult?
@@ -67,8 +45,8 @@ extension SearchMovieListPresenter: SearchPresenting {
 @Observable
 @MainActor
 final class SearchViewModel {
-    /// Repository 僅處理收藏寫入；搜尋分頁與載入狀態由 Kotlin presenter 負責。
-    private let movieRepository: MovieCollectionToggling
+    /// 收藏寫入委派給共用的 toggler；搜尋分頁與載入狀態由 Kotlin presenter 負責。
+    private let toggler: MovieCollectToggler
 
     /// 監聽語言模式變化用；跟 movieRepository 一樣走建構子注入，維持可測試性。
     private let userDataRepository: UserDataRepository
@@ -83,9 +61,6 @@ final class SearchViewModel {
 
     /// 保存最近一次有效提交的 query；系統搜尋欄清空不會改它，refresh 才能重建同一搜尋。
     private var submittedQuery: String?
-
-    /// 收藏寫入是非同步的；用旗標避免連點造成 insert/delete 同時執行而得到不一致結果。
-    private var isUpdatingCollection = false
 
     /// 首頁 loading/error 與結果畫面的狀態。
     private(set) var state: SearchUiState = .initial
@@ -107,15 +82,13 @@ final class SearchViewModel {
     private var lastLanguageMode: LanguageMode?
 
     init(
-        movieRepository: MovieCollectionToggling = MovieRepositoryCollectionAdapter(
-            repository: KoinHelper.shared.getMovieRepository()
-        ),
+        toggler: MovieCollectToggler = MovieCollectToggler(),
         userDataRepository: UserDataRepository = KoinHelper.shared.userDataRepository(),
         createPresenter: @escaping (String) -> SearchPresenting = {
             KoinHelper.shared.createSearchMovieListPresenter(query: $0)
         }
     ) {
-        self.movieRepository = movieRepository
+        self.toggler = toggler
         self.userDataRepository = userDataRepository
         self.createPresenter = createPresenter
     }
@@ -187,22 +160,10 @@ final class SearchViewModel {
         }
     }
 
+    /// 切換單一搜尋結果卡片的收藏狀態，實際寫入委派給 `toggler`。
+    /// - Parameter data: 使用者點擊收藏按鈕的搜尋結果卡片，`movieCardIsCollect` 決定要新增還是移除。
     func toggleMovieCollectStatus(data: MovieCardData) async {
-        guard !isUpdatingCollection else { return }
-
-        isUpdatingCollection = true
-        defer { isUpdatingCollection = false }
-
-        do {
-            switch MovieCollectAction(data: data) {
-            case let .delete(movie):
-                try await movieRepository.deleteMovieCollect(movieResult: movie)
-            case let .insert(movie):
-                try await movieRepository.insertMovieCollect(movieResult: movie)
-            }
-        } catch {
-            print("切換收藏失敗：\(error.localizedDescription)")
-        }
+        await toggler.toggle(currentIsCollect: data.movieCardIsCollect, movie: data.asMovieCardResult())
     }
 
     private func observePagesUpdated(presenter: SearchPresenting) async {

@@ -96,7 +96,7 @@ struct HistoryView: View {
                         },
                         onCollectTap: { movie in
                             Task {
-                                await viewModel.toggleMovieCollect(data: movie)
+                                await viewModel.toggleMovieCollectStatus(data: movie)
                             }
                         }
                     )
