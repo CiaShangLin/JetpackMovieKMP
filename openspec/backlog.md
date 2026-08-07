@@ -2,33 +2,6 @@
 
 開發途中發現、留待之後建立新 change 處理的項目，由 /flow-note 維護。
 
-## 評估抽出共用的 Paging Append Footer 元件
-
-- 類型: refactor
-- 記錄日期: 2026-07-27
-- 來源: add-ios-home-movie-list（實作中發現）
-- 前置依賴: 無
-- 狀態: 待處理
-
-### 背景
-
-`iosApp/iosApp/Home/page/HomeContentView.swift` 的 `appendFooter`（顯示 Paging append
-載入中／失敗重試按鈕的清單尾端元件）目前做成私有的 `@ViewBuilder` computed property，
-沒有抽成共用元件。
-
-原因：目前只有 Home 這一個消費者，`FavoritesView`／`HistoryView` 都還是空的 placeholder
-畫面（`Text("main_favorite_placeholder")` 等），沒有分頁需求；且 `appendFooter` 目前綁定的
-型別是 `HomeMovieListLoadState`（Home 專屬的 Kotlin sealed interface，透過 `onEnum(of:)`
-橋接），若之後 Favorites／History 也要做分頁，八成會比照現有模式各自有自己的 LoadState
-型別，屆時才能看清楚共用介面該怎麼切（例如改用 `isLoading: Bool`／`hasError: Bool`／
-`onRetry: () -> Void` 這種跟具體 Kotlin 型別解耦的參數）。
-
-### 後續調整
-
-等之後真的有第二個分頁畫面（例如 Favorites 或 History 導入分頁）時，再回頭評估是否要把
-兩邊共通的 append footer 邏輯抽成共用 View，並設計跟 Kotlin sealed interface 解耦的介面。
-
-
 ## 整理 iOS 資料夾分類
 
 - 類型: refactor
@@ -39,24 +12,6 @@
 
 規劃 iOS 端資料夾分類。
 
-
-## 簡化 iOS ViewModel 收藏操作邏輯，減少重複程式碼
-
-- 類型: refactor
-- 記錄日期: 2026-08-03
-- 來源: add-ios-movie-detail（實作中發現）
-- 前置依賴: 無
-- 狀態: 待處理
-
-`MovieRepository` 的收藏相關操作（`insertMovieCollect`／`deleteMovieCollect`／
-`getCollectedMovieIds`／`getMovieCollectEntityById`）目前預期會在多個 iOS ViewModel
-各自重複實作類似邏輯：`HomeViewModel`／`HomeContentViewModel`、`FavoritesViewModel`、
-`SearchViewModel`、`HistoryViewModel`，以及規劃中的 `MovieDetailViewModel`（觀察單一
-電影收藏狀態、切換收藏／取消收藏，皆需透過 `onEnum(of:)` 處理 `AppResult`／橋接型別）。
-
-待 `MovieDetailViewModel` 的收藏功能實作完成、重複模式更明確之後，評估抽出共用的
-收藏操作邏輯（例如一個共用的 collect helper／service，封裝 toggle 與觀察單一電影收藏
-狀態的邏輯），減少各 ViewModel 之間的重複程式碼。
 
 ## 討論簡化 iOS 與 Android 端 AppResult 消費方式，看能否減少重複樣板
 
