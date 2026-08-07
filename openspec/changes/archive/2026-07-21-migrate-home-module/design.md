@@ -31,7 +31,7 @@
 `HomeContentViewModel` 原本用 `@HiltViewModel(assistedFactory = ...)` + `@AssistedInject` 傳入執行期才知道的 `movieGenre: MovieGenreBean.MovieGenre`。Koin 沒有獨立的 assisted-factory 機制，改用 Koin 原生的參數注入：
 
 ```kotlin
-// feature/home/src/main/java/com/shang/jetpackmoviekmp/feature/home/di/HomeModule.kt
+// feature/home/src/main/java/com/shang/jetpackmoviekmp.keystore/feature/home/di/HomeModule.kt
 fun homeModule() = module {
     viewModel {
         HomeViewModel(userDataRepository = get(), movieRepository = get())

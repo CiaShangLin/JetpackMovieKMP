@@ -68,7 +68,7 @@ plugins {
 }
 
 android {
-    namespace = "com.shang.jetpackmoviekmp.core.designsystem"
+    namespace = "com.shang.jetpackmoviekmp.keystore.core.designsystem"
 }
 ```
 

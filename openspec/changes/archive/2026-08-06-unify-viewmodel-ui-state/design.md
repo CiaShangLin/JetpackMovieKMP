@@ -23,7 +23,7 @@
 現有型別中 `MainUiState`、`MovieDetailUiState`、`DetailSectionState<T>`（3/5）已用 `sealed interface`，且此型別不需要建構子邏輯，`sealed interface` 更輕量、與多數既有寫法一致。`HomeUiState`、`CollectUiState`、`HistoryUiState` 的 `sealed class` 寫法視為統一前的不一致，本次一併修正 `HomeUiState`。
 
 ```kotlin
-// shared/common/src/commonMain/kotlin/com/shang/jetpackmoviekmp/common/UiState.kt
+// shared/common/src/commonMain/kotlin/com/shang/jetpackmoviekmp.keystore/common/UiState.kt
 sealed interface UiState<out T> {
     data object Loading : UiState<Nothing>
     data class Success<T>(val data: T) : UiState<T>
