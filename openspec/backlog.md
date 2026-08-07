@@ -29,7 +29,7 @@
 兩邊共通的 append footer 邏輯抽成共用 View，並設計跟 Kotlin sealed interface 解耦的介面。
 
 
-## 整理 iOS 資料夾分類與跨平台 i18n 時間設定方式
+## 整理 iOS 資料夾分類
 
 - 類型: refactor
 - 記錄日期: 2026-08-02
@@ -37,26 +37,8 @@
 - 前置依賴: 無
 - 狀態: 待處理
 
-規劃 iOS 端資料夾分類，並整理 Android 與 iOS 的國際化時間設定方法，確認各平台的 locale、時區與日期時間格式處理方式可一致對應。
+規劃 iOS 端資料夾分類。
 
-## 優化 iOS 語言切換即時刷新的實作方式
-
-- 類型: refactor
-- 記錄日期: 2026-08-02
-- 來源: add-ios-setting-module（實作中發現）
-- 前置依賴: 無
-- 狀態: 待處理
-
-目前 `HomeViewModel.swift`／`SearchViewModel.swift` 各自獨立訂閱
-`KoinHelper.shared.userDataRepository().userData`，各自維護 `lastLanguageMode`
-判斷語言是否變化，變化時分別觸發自己的 refresh（commit 0287cdc）。
-
-討論時曾考慮改成跟 `IosApp.swift` 的 `themeMode` 對稱的寫法：由 root 統一訂閱一次，
-透過 SwiftUI `.environment(\.appLanguageMode, ...)` 往下傳遞語言值，各畫面改用
-`.onChange(of: languageMode)` 反應並呼叫各自的 refresh 邏輯，藉此去除 Home／Search
-兩邊重複的訂閱與 diff 程式碼。使用者當下決定先維持現狀，不在這次 change 內變更。
-
-之後若有相關的 iOS change，可參考這個方向評估是否要重構成 Environment-based 寫法。
 
 ## 簡化 iOS ViewModel 收藏操作邏輯，減少重複程式碼
 
