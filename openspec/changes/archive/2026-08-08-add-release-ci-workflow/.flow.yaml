@@ -1,0 +1,9 @@
+type: feature
+workspace: branch
+branch: feature/add-release-ci-workflow
+base_branch: master
+verify_selected: []
+verified: []
+verified_at:
+  head: 1c61bd569c5f3d19fcbbaa0627b884941e926b38
+  diff_hash: e69de29bb2d1d6434b8b29ae775ad8c2e48c5391 # 排除本檔案自身異動後的 diff hash

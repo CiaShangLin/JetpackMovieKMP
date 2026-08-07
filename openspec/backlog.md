@@ -49,3 +49,17 @@ switch 包成一個回傳 `Result<T, AppError>`或類似結構的 extension func
 
 需要建立/調整 GitHub Actions workflow，串接 androidApp 現有的 release 簽章與 R8
 混淆設定（參考 ce2673e），自動化 Android release 的建置、簽章與發布流程。
+
+## 修正切換底部 Tab 時首頁重新觸發 API 的問題
+
+- 類型: bug-fix
+- 記錄日期: 2026-08-07
+- 來源: add-release-ci-workflow（實作中發現）
+- 前置依賴: 無
+- 狀態: 待處理
+
+目前 Android 在切換底部 Tab 時，只要切到其他 Tab 後再切回首頁（或切換到其他
+Tab 的當下），首頁就會重新觸發一次 API 請求。需要討論是不是 Navigation3 的
+scene/backstack 生命週期造成畫面重組導致重新請求，或回頭檢查之前對 Nav3 導覽
+做過的調整是否有影響到這裡，找出根因後再決定怎麼調整（例如用 rememberSaveable、
+ViewModel scope 綁定導覽層級，或調整 LaunchedEffect 的觸發條件）。
