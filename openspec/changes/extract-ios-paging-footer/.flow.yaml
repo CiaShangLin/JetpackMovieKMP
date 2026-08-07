@@ -1,4 +1,0 @@
-type: refactor
-workspace: worktree
-branch: refactor/extract-ios-paging-footer
-base_branch: master
