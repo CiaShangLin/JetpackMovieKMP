@@ -61,6 +61,34 @@ on a macOS machine with the Swift tooling installed.
 The app calls the TMDB API and expects a key in a root-level `key.properties` file (not committed to
 version control). Copy `key.properties.example` to `key.properties` and fill in `TMDB_API_KEY`.
 
+### Release CI（GitHub Actions）
+
+`.github/workflows/release-apk.yml` 會在 push 符合 `v*.*.*` 格式的 tag（或手動
+`workflow_dispatch`）時觸發：先跑 `test` job 執行單元測試，通過後才進入
+`build-and-release` job 打包 release APK，並自動建立 GitHub Release、上傳 APK
+附件。只打包 APK，不產出 AAB。
+
+首次啟用前，需先在 GitHub repo 的 **Settings → Secrets and variables →
+Actions** 設定以下 Secrets：
+
+| Secret 名稱 | 對應用途 |
+|---|---|
+| `TMDB_API_KEY` | 產生 CI 端的 `key.properties`，供 `shared/network` 讀取 |
+| `KEYSTORE_BASE64` | Release 簽章 keystore 檔案的 base64 內容（本機用 `base64` 指令編碼要用來簽章的 `.jks`/`.keystore` 檔案） |
+| `KEYSTORE_PASSWORD` | 對應 `androidApp/build.gradle.kts` 讀取的環境變數 `storePassword` |
+| `KEY_ALIAS` | 對應環境變數 `keyAlias` |
+| `KEY_PASSWORD` | 對應環境變數 `keyPassword` |
+
+CI 會把 `KEYSTORE_BASE64` 解碼寫入 `keystore/release.jks`（對齊
+`androidApp/build.gradle.kts` 的 `rootProject.file("keystore/release.jks")`
+讀取路徑），本機開發者也應把簽章檔放在同一路徑。
+
+**Baseline Profile**（`androidApp/src/main/baseline-prof.txt`）維持本機手動
+生成、commit 進 repo 的流程：透過 `:benchmark` 模組的 Macrobenchmark
+（`BaselineProfileGenerator`）在實機或 emulator 上跑 instrumented test 產出，
+CI 不會自動重新生成或更新，只會在打包時使用 repo 內既有的檔案。若有重大導航
+或程式碼路徑變更，建議重新在本機生成一次並 commit。
+
 ---
 
 Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)…
