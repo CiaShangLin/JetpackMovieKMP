@@ -1,0 +1,4 @@
+type: feature
+workspace: branch
+branch: feature/add-release-ci-workflow
+base_branch: master
