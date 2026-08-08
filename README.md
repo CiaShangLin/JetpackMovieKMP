@@ -4,9 +4,8 @@
 
 ## Medium
 
-📖 [多平台重構實戰筆記（連結待補）](https://medium.com/@west7418)
+📖 [Android工程師實作KMP+iOS的心得](https://medium.com/@west7418/android%E5%B7%A5%E7%A8%8B%E5%B8%AB%E5%AF%A6%E4%BD%9Ckmp-ios%E7%9A%84%E5%BF%83%E5%BE%97-9c038b3340ce?postPublishedType=initial)
 
-> 佔位連結，尚未撰寫對應文章，之後可替換成實際文章網址。
 
 ## Demo 影片
 
