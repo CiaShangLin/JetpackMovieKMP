@@ -1,1 +1,4 @@
 type: bug-fix
+workspace: worktree
+branch: bug-fix/fix-home-paging-duplicate-key
+base_branch: master
