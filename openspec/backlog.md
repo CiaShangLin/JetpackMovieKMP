@@ -63,3 +63,28 @@ Tab 的當下），首頁就會重新觸發一次 API 請求。需要討論是�
 scene/backstack 生命週期造成畫面重組導致重新請求，或回頭檢查之前對 Nav3 導覽
 做過的調整是否有影響到這裡，找出根因後再決定怎麼調整（例如用 rememberSaveable、
 ViewModel scope 綁定導覽層級，或調整 LaunchedEffect 的觸發條件）。
+
+## 補上雙端（Android、iOS）UseCase 以支援 UI 測試
+
+- 類型: feature
+- 記錄日期: 2026-08-09
+- 來源: master
+- 前置依賴: 無
+- 狀態: 待處理
+
+目前 UI 測試在 Android 與 iOS 兩端可能缺少可直接注入/替換的 UseCase 層，
+導致 UI 測試難以隔離網路與資料層。需要評估並補上雙端對應的 UseCase（或
+測試替身），讓 UI 測試能透過 UseCase 層 mock/stub 資料，而不必依賴真實
+網路或資料庫。
+
+## 研究 iOS 第三方商店上架
+
+- 類型: feature
+- 記錄日期: 2026-08-09
+- 來源: master
+- 前置依賴: 無
+- 狀態: 待處理
+
+研究 iOS 版透過第三方商店（非 Apple App Store，例如歐盟 DMA 開放的替代
+市集等）發佈的可行性，包含技術限制、簽章與發佈流程差異，評估是否要在
+這條路線上架。
