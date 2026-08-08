@@ -1,0 +1,15 @@
+type: bug-fix
+workspace: worktree
+branch: bug-fix/fix-home-paging-duplicate-key
+base_branch: master
+verify_selected:
+  - unit-test
+  - doc-comment
+  - code-review
+verified:
+  - unit-test
+  - doc-comment
+  - code-review
+verified_at:
+  head: e1ed52956cd6a7cf1e23fd3058747b32f28619bb
+  diff_hash: 8e19215320f1b0f3cf9aba40c296b24a662d8656

@@ -8,6 +8,8 @@
 
 `MovieRepository` 的 public API SHALL 只暴露 model 型別、`Flow` / `Result` / `AppResult` 與 paging public 型別，不得暴露 `shared:network`、`shared:database`、`shared:datastore` 的 datasource、DAO、entity 或 DataStore 實作型別。`MovieRepositoryImpl`、paging source 與 model/entity mapper SHALL 視為 `shared:data` 內部實作細節，不得作為跨 module public API 使用。
 
+電影分頁列表與電影搜尋的 paging source（`MovieGenrePagingSource`／`MovieSearchPagingSource`）SHALL 在同一個 `PagingSource` 實例的生命週期內（一次 `Pager` 建立到下一次 `invalidate`／`refresh` 之間）追蹤已載入的電影 `id`，並在後續頁面回應中過濾掉重複 `id` 的項目，確保對外 emit 的 `PagingData<MovieCardResult>` 不含重複 `id`。分頁邊界（`prevKey`／`nextKey`）SHALL 仍依伺服器回應的 `page`／`totalPages` 計算，不受去重後實際項目筆數影響。
+
 #### Scenario: 取得 TMDB configuration
 
 - **WHEN** 呼叫 `MovieRepository.getConfiguration()`
@@ -18,10 +20,26 @@
 - **WHEN** 呼叫 `MovieRepository.getMovieListPager(withGenres)` 並收集分頁資料
 - **THEN** 回傳的 `Flow<PagingData<MovieCardResult>>` 依序載入 `MovieDataSource.getDiscoverMovie(withGenres, page)` 的分頁結果，分頁邊界（`prevKey`／`nextKey`）依 `totalPages` 正確計算
 
+#### Scenario: 依類型分頁載入時，跨頁重複的電影 id 會被過濾
+
+- **WHEN** 使用者持續滑動觸發 `MovieGenrePagingSource` 依序載入多頁，且伺服器排序在請求之間漂移，導致某一頁回應中包含先前頁面已回傳過的電影 `id`
+- **THEN** 該筆重複 `id` 的項目 MUST NOT 出現在該次 `LoadResult.Page.data` 中
+- **AND** 該頁的 `prevKey`／`nextKey` 仍依伺服器回應的 `page`／`totalPages` 正常計算，不因過濾筆數而改變
+
 #### Scenario: 依關鍵字分頁搜尋電影
 
 - **WHEN** 呼叫 `MovieRepository.getMovieSearchPager(query)` 並收集分頁資料
 - **THEN** 回傳的 `Flow<PagingData<MovieCardResult>>` 依序載入 `MovieDataSource.getMovieSearch(query, page)` 的分頁結果
+
+#### Scenario: 依關鍵字分頁搜尋時，跨頁重複的電影 id 會被過濾
+
+- **WHEN** 使用者持續滑動觸發 `MovieSearchPagingSource` 依序載入多頁，且伺服器排序在請求之間漂移，導致某一頁回應中包含先前頁面已回傳過的電影 `id`
+- **THEN** 該筆重複 `id` 的項目 MUST NOT 出現在該次 `LoadResult.Page.data` 中
+
+#### Scenario: refresh 後重新開始去重追蹤
+
+- **WHEN** `Pager` 觸發 `invalidate()`／下拉重新整理，建立全新的 `MovieGenrePagingSource`（或 `MovieSearchPagingSource`）實例
+- **THEN** 新實例的已載入 `id` 追蹤 MUST 為空集合，先前 session 出現過的電影 `id` 若重新出現在新的分頁結果中 MUST NOT 被視為重複而過濾掉
 
 #### Scenario: 取得電影演員陣容
 
