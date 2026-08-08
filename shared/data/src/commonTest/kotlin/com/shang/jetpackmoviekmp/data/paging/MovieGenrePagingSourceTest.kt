@@ -92,6 +92,83 @@ class MovieGenrePagingSourceTest {
     }
 
     @Test
+    fun load_filters_out_ids_already_returned_by_previous_page() = runTest {
+        val dataSource = object : FakeMovieDataSource() {
+            override suspend fun getDiscoverMovie(withGenres: String, page: Int) =
+                if (page == 1) {
+                    NetworkResponse(
+                        code = 200,
+                        data = MovieListBean(
+                            page = 1,
+                            results = listOf(MovieCardResult(id = 1, title = "A"), MovieCardResult(id = 2, title = "B")),
+                            totalPages = 3,
+                        ),
+                    )
+                } else {
+                    NetworkResponse(
+                        code = 200,
+                        data = MovieListBean(
+                            page = 2,
+                            results = listOf(MovieCardResult(id = 2, title = "B"), MovieCardResult(id = 3, title = "C")),
+                            totalPages = 3,
+                        ),
+                    )
+                }
+        }
+        val pagingSource = MovieGenrePagingSource(dataSource, withGenres = "28")
+
+        pagingSource.load(refreshParams(page = 1))
+        val secondResult = pagingSource.load(refreshParams(page = 2))
+
+        val page = assertIs<PagingSource.LoadResult.Page<Int, MovieCardResult>>(secondResult)
+        assertEquals(listOf(3), page.data.map { it.id })
+    }
+
+    @Test
+    fun load_keeps_nextKey_from_totalPages_when_all_items_are_deduped() = runTest {
+        val dataSource = object : FakeMovieDataSource() {
+            override suspend fun getDiscoverMovie(withGenres: String, page: Int) =
+                if (page == 1) {
+                    NetworkResponse(
+                        code = 200,
+                        data = MovieListBean(page = 1, results = listOf(MovieCardResult(id = 1, title = "A")), totalPages = 3),
+                    )
+                } else {
+                    NetworkResponse(
+                        code = 200,
+                        data = MovieListBean(page = 2, results = listOf(MovieCardResult(id = 1, title = "A")), totalPages = 3),
+                    )
+                }
+        }
+        val pagingSource = MovieGenrePagingSource(dataSource, withGenres = "28")
+
+        pagingSource.load(refreshParams(page = 1))
+        val secondResult = pagingSource.load(refreshParams(page = 2))
+
+        val page = assertIs<PagingSource.LoadResult.Page<Int, MovieCardResult>>(secondResult)
+        assertEquals(emptyList(), page.data)
+        assertEquals(3, page.nextKey)
+    }
+
+    @Test
+    fun load_does_not_treat_ids_from_a_different_instance_as_duplicates() = runTest {
+        val dataSource = FakeMovieDataSource().apply {
+            discoverMovieResponse = NetworkResponse(
+                code = 200,
+                data = MovieListBean(page = 1, results = listOf(MovieCardResult(id = 1, title = "A")), totalPages = 3),
+            )
+        }
+        val firstPagingSource = MovieGenrePagingSource(dataSource, withGenres = "28")
+        firstPagingSource.load(refreshParams(page = 1))
+
+        val secondPagingSource = MovieGenrePagingSource(dataSource, withGenres = "28")
+        val result = secondPagingSource.load(refreshParams(page = 1))
+
+        val page = assertIs<PagingSource.LoadResult.Page<Int, MovieCardResult>>(result)
+        assertEquals(listOf(1), page.data.map { it.id })
+    }
+
+    @Test
     fun load_rethrows_cancellationException_instead_of_wrapping_as_error() = runTest {
         val cancellingDataSource = object : FakeMovieDataSource() {
             override suspend fun getDiscoverMovie(withGenres: String, page: Int) =
