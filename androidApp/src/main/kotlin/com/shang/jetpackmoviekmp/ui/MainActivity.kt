@@ -30,10 +30,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavKey
-import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import com.shang.jetpackmoviekmp.common.UiState
 import com.shang.jetpackmoviekmp.core.designsystem.component.JMBackground
@@ -89,15 +87,15 @@ class MainActivity : ComponentActivity() {
                 userData.languageMode
             }
 
-            val backStack = rememberNavBackStack(HomeKey)
+            val topLevelBackStack = remember { TopLevelBackStack<NavKey>(HomeKey) }
             ThemeProvider(
                 themeMode = userData.themeMode,
                 activity = this@MainActivity,
             ) {
-                // 只包住畫面內容（不含上面的 backStack），語言切換時只重組字串顯示，
-                // 不會重置 backStack、也不需要 activity.recreate()。
+                // 只包住畫面內容（不含上面的 topLevelBackStack），語言切換時只重組字串顯示，
+                // 不會重置 topLevelBackStack、也不需要 activity.recreate()。
                 key(userData.languageMode) {
-                    MainScreen(configuration.value, backStack, onRetry = {
+                    MainScreen(configuration.value, topLevelBackStack, onRetry = {
                         viewModel.retryConfiguration()
                     })
                 }
@@ -154,8 +152,15 @@ private fun ThemeProvider(
     }
 }
 
+/**
+ * App 主畫面容器，依 [mainUiState] 分派載入中／錯誤／成功三種畫面。
+ *
+ * @param mainUiState 首次進入 App 所需設定資料的載入狀態
+ * @param topLevelBackStack 底部導覽用的頂層 back stack，成功狀態時交給 [SuccessScreen] 使用
+ * @param onRetry 載入失敗時使用者點擊重試的回呼
+ */
 @Composable
-fun MainScreen(mainUiState: UiState<ConfigurationBean>, backStack: NavBackStack<NavKey>, onRetry: () -> Unit) {
+fun MainScreen(mainUiState: UiState<ConfigurationBean>, topLevelBackStack: TopLevelBackStack<NavKey>, onRetry: () -> Unit) {
     JMBackground(
         modifier = Modifier
             .fillMaxSize()
@@ -174,7 +179,7 @@ fun MainScreen(mainUiState: UiState<ConfigurationBean>, backStack: NavBackStack<
             }
 
             is UiState.Success -> {
-                SuccessScreen(backStack = backStack)
+                SuccessScreen(topLevelBackStack = topLevelBackStack)
             }
         }
     }
@@ -197,19 +202,27 @@ fun MainErrorScreen(exception: Exception?, onRetry: () -> Unit) {
     }
 }
 
+/**
+ * 設定資料載入成功後的主要導覽畫面：渲染 [NavDisplay] 並包裝底部導覽列。
+ *
+ * detail（[MovieDetailKey]）顯示時隱藏底部導覽列；其餘畫面顯示底部導覽列，
+ * 並依 [TopLevelBackStack.topLevelKey] 標示目前選取的 Tab。
+ *
+ * @param topLevelBackStack 每個底部導覽 Tab 各自維護獨立 sub back stack 的頂層 back stack
+ */
 @Composable
-fun SuccessScreen(backStack: NavBackStack<NavKey>) {
-    val currentKey = backStack.lastOrNull()
+fun SuccessScreen(topLevelBackStack: TopLevelBackStack<NavKey>) {
+    val currentKey = topLevelBackStack.backStack.lastOrNull()
 
     // 用 movableContentOf 讓同一個 NavDisplay 組合狀態能在「有無包裝 JMNavigationSuiteScaffold」
     // 兩種父層結構間搬移，而不會因為切換到不同的呼叫點被 Compose 視為結構變化而整棵樹重建、
     // 遺失子畫面（例如搜尋輸入框、分頁選擇）的 remember 狀態。
-    val navDisplay = remember(backStack) {
+    val navDisplay = remember(topLevelBackStack) {
         movableContentOf {
             NavDisplay(
-                backStack = backStack,
-                onBack = { backStack.removeLastOrNull() },
-                entryProvider = { navKey -> mainEntry(navKey, backStack) },
+                backStack = topLevelBackStack.backStack,
+                onBack = { topLevelBackStack.removeLast() },
+                entryProvider = { navKey -> mainEntry(navKey, topLevelBackStack) },
             )
         }
     }
@@ -223,10 +236,10 @@ fun SuccessScreen(backStack: NavBackStack<NavKey>) {
         navigationSuiteItems = {
             MainNavItem.entries.forEach { item ->
                 item(
-                    selected = currentKey == item.key,
+                    selected = topLevelBackStack.topLevelKey == item.key,
                     onClick = {
-                        if (currentKey != item.key) {
-                            switchTab(backStack, item.key)
+                        if (topLevelBackStack.topLevelKey != item.key) {
+                            topLevelBackStack.addTopLevel(item.key)
                         }
                     },
                     // benchmark/BaselineProfileGenerator.kt 有一份對應的 nav_* resource-id 硬編碼清單，
@@ -257,26 +270,26 @@ fun SuccessScreen(backStack: NavBackStack<NavKey>) {
 
 private fun mainEntry(
     navKey: NavKey,
-    backStack: NavBackStack<NavKey>,
+    topLevelBackStack: TopLevelBackStack<NavKey>,
 ): NavEntry<NavKey> {
     return when (navKey) {
         HomeKey -> homeEntry(onMovieClick = { movieId ->
-            backStack.add(MovieDetailKey(movieId))
+            topLevelBackStack.add(MovieDetailKey(movieId))
         }).second
         CollectKey -> collectEntry(onMovieClick = { movie ->
-            backStack.add(MovieDetailKey(movie.movieCardId))
+            topLevelBackStack.add(MovieDetailKey(movie.movieCardId))
         }).second
         HistoryKey -> historyEntry(onMovieClick = { movie ->
-            backStack.add(MovieDetailKey(movie.movieCardId))
+            topLevelBackStack.add(MovieDetailKey(movie.movieCardId))
         }).second
         SearchKey -> searchEntry(onMovieClick = { movie ->
-            backStack.add(MovieDetailKey(movie.movieCardId))
+            topLevelBackStack.add(MovieDetailKey(movie.movieCardId))
         }).second
         SettingKey -> settingEntry().second
         is MovieDetailKey -> movieDetailEntry(
             key = navKey,
-            onBackClick = { backStack.removeLastOrNull() },
-            onMovieClick = { movie -> backStack.add(MovieDetailKey(movie.movieCardId)) },
+            onBackClick = { topLevelBackStack.removeLast() },
+            onMovieClick = { movie -> topLevelBackStack.add(MovieDetailKey(movie.movieCardId)) },
         ).second
         else -> NavEntry(navKey) { PlaceholderScreen() }
     }
