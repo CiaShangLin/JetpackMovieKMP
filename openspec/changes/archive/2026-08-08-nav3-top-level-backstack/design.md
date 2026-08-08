@@ -26,8 +26,8 @@
 **2. `TopLevelBackStack<T: Any>` 的泛型 `T` 直接綁定為既有 `androidx.navigation3.runtime.NavKey`**
 不另外包裝型別，維持與現有 `mainEntry(navKey: NavKey, ...): NavEntry<NavKey>`、`NavDisplay` 的介面相容，`TopLevelBackStack.backStack`（`SnapshotStateList<NavKey>`）可直接傳給 `NavDisplay(backStack = ...)`。
 
-**3. `TopLevelBackStack` 定義位置沿用 `MainNavBackStack.kt`**
-改寫該檔案內容，移除 `switchTab()`，改為存放 `TopLevelBackStack` class。維持既有作法：由 `MainActivity` 內 `remember { TopLevelBackStack(HomeKey) }` 建立實例（純 UI 層物件，不透過 Koin 注入，與現行 `rememberNavBackStack()` 的建立方式一致）。
+**3. `TopLevelBackStack` 定義位置沿用 `MainNavBackStack.kt`（實作後因 ktlint 規則改名為 `TopLevelBackStack.kt`）**
+改寫該檔案內容，移除 `switchTab()`，改為存放 `TopLevelBackStack` class。實作時發現 ktlint 的 `standard:filename` 規則要求檔名與其內含的單一 class 一致，因此將檔案由 `MainNavBackStack.kt` 改名為 `TopLevelBackStack.kt`（對應測試檔 `MainNavBackStackTest.kt` 同步改名為 `TopLevelBackStackTest.kt`）。維持既有作法：由 `MainActivity` 內 `remember { TopLevelBackStack(HomeKey) }` 建立實例（純 UI 層物件，不透過 Koin 注入，與現行 `rememberNavBackStack()` 的建立方式一致）。
 
 **4. 「detail 顯示時隱藏主 Navigation Suite」改用 `topLevelBackStack.backStack.lastOrNull() is MovieDetailKey`**
 `TopLevelBackStack.backStack` 本身就是攤平後的 flat list（給 `NavDisplay` 消費），語意與現行 `backStack.lastOrNull()` 判斷等價，只是資料來源從 `NavBackStack` 換成 `TopLevelBackStack.backStack`。
