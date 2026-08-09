@@ -1,22 +1,15 @@
 ## ADDED Requirements
 
-### Requirement: 固定成功情境資料
-系統 SHALL 為 UI 測試提供不呼叫正式 TMDB 的固定成功資料。
+### Requirement: 正式資料來源的執行條件
+系統 SHALL 使用正式資料來源執行 UI journey，並記錄資料不足或環境限制造成的不適用結果。
 
-#### Scenario: 啟用測試資料
-- **WHEN** Android 或 iOS UI 測試以測試模式啟動 App
-- **THEN** 系統 MUST 提供固定首頁類型、`Spider-Man` 搜尋結果、詳情、推薦電影及至少兩頁清單資料
+#### Scenario: 維持 production 組裝
+- **WHEN** Android 或 iOS UI 測試啟動 App
+- **THEN** 系統 MUST 維持 production Koin 組裝，且不得要求 fixture 或額外的 Shared 測試 API
 
-### Requirement: 每個旅程的資料重置
-系統 SHALL 在每個 UI 測試旅程開始前重置可變動的使用者資料。
+### Requirement: 不適用結果的範圍
+當正式資料來源未提供搜尋結果、下一頁或必要內容時，UI journey MUST 記錄原因、步驟與截圖為不適用，且不將其視為錯誤重試情境。
 
-#### Scenario: 重置跨旅程狀態
-- **WHEN** 新的 UI 測試旅程啟動
-- **THEN** 系統 MUST 將收藏、瀏覽歷史、主題及語言設定還原為已定義初始狀態
-
-### Requirement: 僅支援成功路徑
-固定資料模式 MUST 僅保證已核准的成功情境，且不提供錯誤、重試或正式網路連線的驗收旅程。
-
-#### Scenario: 執行已核准旅程
-- **WHEN** 執行本 change 定義的 UI 旅程
-- **THEN** 系統 MUST 不以網路失敗或重試畫面作為驗收條件
+#### Scenario: 資料不足
+- **WHEN** journey 所需的搜尋結果、下一頁或內容未出現
+- **THEN** 執行結果 MUST 以不適用記錄原因、步驟與截圖

@@ -1,0 +1,12 @@
+<journey name="favorites-remove-movie">
+  <description>從收藏頁取消收藏並確認清單狀態更新。</description>
+  <actions>
+    <action>將一部電影加入收藏後切換至收藏頁</action>
+    <action>選取該電影的取消收藏控制項</action>
+    <action>驗證該電影已不在收藏清單，或收藏頁顯示空狀態</action>
+  </actions>
+  <acceptance-criteria>
+    <criterion>取消收藏後不得顯示舊收藏狀態</criterion>
+    <criterion>每個步驟均保存截圖與執行結果</criterion>
+  </acceptance-criteria>
+</journey>

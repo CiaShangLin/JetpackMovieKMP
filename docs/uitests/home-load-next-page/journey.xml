@@ -1,0 +1,14 @@
+<journey name="home-load-next-page">
+  <description>在首頁載入下一頁電影內容。</description>
+  <actions>
+    <action>啟動 App 並等待首頁第一頁電影內容顯示</action>
+    <action>記錄第一頁最後一張可見電影卡</action>
+    <action>向上滑動首頁電影清單直到觸發下一頁載入</action>
+    <action>等待載入完成</action>
+    <action>驗證出現第一頁中未出現的新電影卡</action>
+  </actions>
+  <acceptance-criteria>
+    <criterion>僅驗證第二頁出現新電影卡，不驗證 loading footer</criterion>
+    <criterion>每個步驟均保存截圖與執行結果</criterion>
+  </acceptance-criteria>
+</journey>

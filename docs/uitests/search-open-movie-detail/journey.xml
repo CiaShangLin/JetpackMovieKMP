@@ -1,0 +1,12 @@
+<journey name="search-open-movie-detail">
+  <description>從搜尋結果開啟電影詳情。</description>
+  <actions>
+    <action>完成一次有結果的搜尋</action>
+    <action>選取第一張搜尋結果電影卡</action>
+    <action>驗證電影詳情標題與內容區已顯示</action>
+  </actions>
+  <acceptance-criteria>
+    <criterion>若搜尋無結果，將此 journey 記錄為不適用，不以失敗重試</criterion>
+    <criterion>每個步驟均保存截圖與執行結果</criterion>
+  </acceptance-criteria>
+</journey>

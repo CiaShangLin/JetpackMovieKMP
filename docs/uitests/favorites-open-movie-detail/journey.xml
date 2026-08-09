@@ -1,0 +1,14 @@
+<journey name="favorites-open-movie-detail">
+  <description>從收藏頁開啟已收藏電影的詳情。</description>
+  <actions>
+    <action>從電影詳情頁將一部電影加入收藏</action>
+    <action>切換至收藏頁</action>
+    <action>驗證收藏清單顯示至少一張電影卡</action>
+    <action>選取收藏電影卡</action>
+    <action>驗證電影詳情頁已顯示</action>
+  </actions>
+  <acceptance-criteria>
+    <criterion>開啟的詳情頁須保留收藏狀態</criterion>
+    <criterion>每個步驟均保存截圖與執行結果</criterion>
+  </acceptance-criteria>
+</journey>

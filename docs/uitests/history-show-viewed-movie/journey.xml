@@ -1,0 +1,12 @@
+<journey name="history-show-viewed-movie">
+  <description>查看電影詳情後，在歷史頁確認觀看紀錄。</description>
+  <actions>
+    <action>從首頁或搜尋結果開啟一部電影詳情</action>
+    <action>返回頂層導覽並切換至歷史頁</action>
+    <action>驗證歷史清單顯示至少一張電影卡</action>
+  </actions>
+  <acceptance-criteria>
+    <criterion>歷史頁不得停留在空狀態</criterion>
+    <criterion>每個步驟均保存截圖與執行結果</criterion>
+  </acceptance-criteria>
+</journey>

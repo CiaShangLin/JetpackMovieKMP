@@ -9,8 +9,8 @@
 **Goals:**
 
 - 以小而可獨立失敗的旅程覆蓋已確認的成功路徑。
-- 對 Android 與 iOS 使用相同 selector 語意、固定資料與驗收結果。
-- 讓首頁／搜尋的第二頁資料、詳情推薦、收藏與歷史資料可預測且可重置。
+- 對 Android 與 iOS 使用相同 selector 語意與可追溯的驗收結果。
+- 為首頁／搜尋第二頁、詳情、收藏與歷史定義資料不足時的不適用結果。
 - 以 Android UI 自動化及 XCUITest 分別執行，保存各平台的截圖與結果。
 
 **Non-Goals:**
@@ -32,11 +32,9 @@
 
 為共同控制項建立穩定名稱，例如 `nav_home`、`home_genre_<id>`、`movie_card_<id>`、`movie_collect_<id>`、`search_input`、`setting_theme`。Android 以 Compose semantics／`testTag` 暴露，iOS 以 `accessibilityIdentifier` 暴露；顯示文字、圖示與座標不得作為主要 selector。
 
-### 3. 使用受控測試組裝與固定成功資料
+### 3. 使用正式資料來源與可記錄的不適用結果
 
-測試啟動模式在組裝層選取固定 fixture，避免直接打 TMDB。fixture 必須提供固定首頁類型、`Spider-Man` 搜尋結果、電影詳情、推薦電影與至少兩頁首頁／搜尋清單；每次旅程前重置收藏、歷史及使用者設定。
-
-fixture 只存在於測試組裝邊界，不改寫正式 Repository／UseCase 契約。若 Android 與 iOS 需要透過 `shared/app` 啟用，該 API 必須以明確測試用途命名並確認 Swift 匯出相容性。
+旅程使用 production Koin 組裝與正式資料來源，不新增 fixture、測試啟動模式或 Shared 匯出 API。每個 journey 以結構與狀態驗證為主，不以固定電影名稱、結果數或第二頁內容為唯一成功條件；若查無結果、無下一頁或環境無法執行，執行器必須記錄為不適用而非重試。
 
 ### 4. 以獨立旅程保留必要的連續操作
 
@@ -48,16 +46,16 @@ Android 選擇語言時會重建 Activity 並更新 locale；iOS 現況僅儲存
 
 ## Risks / Trade-offs
 
-- **[Risk] fixture 啟用方式意外進入正式環境** → Mitigation：僅由 test target／明確 launch argument 啟用，production 預設永遠使用正式組裝。
+- **[Risk] 正式資料來源變動使旅程不適用** → Mitigation：以 UI 結構驗證為主，並記錄不適用原因與截圖。
 - **[Risk] iOS selector 與 Android selector 漂移** → Mitigation：將語意名稱列為 journey 前置契約，新增旅程時兩端同步檢查。
 - **[Risk] 收藏與歷史資料造成案例互相污染** → Mitigation：每個旅程啟動前重置資料；跨頁驗證只在同一旅程內保留狀態。
-- **[Trade-off] 固定資料不涵蓋正式 API 變動** → 這是 UI 互動回歸測試的刻意取捨；網路契約由既有 network/data 測試負責。
+- **[Trade-off] 正式資料來源可能造成結果波動** → 以 journey 結果記錄呈現環境限制；網路契約仍由既有 network/data 測試負責。
 
 ## Migration Plan
 
-先加入 fixture 與 selector，再建立少量核心旅程並於兩端跑通；其後依序加入其餘旅程。若測試啟動模式有問題，可停止傳入測試 launch argument／移除測試組裝綁定，production 流程不受影響。
+先加入 selector，再建立核心 journey 並於兩端跑通；其後依序加入其餘旅程。正式組裝不因 UI 測試而改變。
 
 ## Open Questions
 
 - iOS 的 `journey.xml` 執行結果是否沿用既有 `summary.json` schema，或需要新增 XCUITest 特有的元素查詢欄位？
-- 固定 fixture 應採 Android/iOS 各自 UI-test target 注入，還是由 `shared/app` 提供一個共用測試組裝入口？
+- 無。

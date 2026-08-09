@@ -1,0 +1,14 @@
+<journey name="settings-change-language-and-show-developers">
+  <description>調整內容語言並開啟開發者資訊。</description>
+  <actions>
+    <action>切換至設定頁</action>
+    <action>開啟語言設定並選取非目前的語言</action>
+    <action>驗證設定摘要已反映所選語言</action>
+    <action>開啟開發者資訊</action>
+    <action>驗證開發者資訊對話框已顯示</action>
+  </actions>
+  <acceptance-criteria>
+    <criterion>語言切換與開發者資訊皆可獨立完成</criterion>
+    <criterion>每個步驟均保存截圖與執行結果</criterion>
+  </acceptance-criteria>
+</journey>

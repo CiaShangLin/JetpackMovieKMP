@@ -1,0 +1,13 @@
+<journey name="home-switch-genre">
+  <description>切換首頁電影類型並確認選取狀態與內容區同步更新。</description>
+  <actions>
+    <action>啟動 App 並等待進入首頁</action>
+    <action>選取非預設的首頁電影類型 Tab</action>
+    <action>驗證該類型 Tab 為選取狀態</action>
+    <action>驗證對應電影內容區已顯示</action>
+  </actions>
+  <acceptance-criteria>
+    <criterion>不得以固定電影名稱作為成功條件</criterion>
+    <criterion>每個步驟均保存截圖與執行結果</criterion>
+  </acceptance-criteria>
+</journey>

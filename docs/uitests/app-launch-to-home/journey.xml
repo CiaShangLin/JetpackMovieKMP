@@ -1,0 +1,12 @@
+<journey name="app-launch-to-home">
+  <description>啟動 App 後完成 Splash 並進入首頁。</description>
+  <actions>
+    <action>啟動 App</action>
+    <action>等待 Splash 畫面完成</action>
+    <action>驗證首頁 Tab 與電影內容區已顯示</action>
+  </actions>
+  <acceptance-criteria>
+    <criterion>首頁為初始選取的底部導覽項目</criterion>
+    <criterion>每個步驟均保存截圖與執行結果</criterion>
+  </acceptance-criteria>
+</journey>

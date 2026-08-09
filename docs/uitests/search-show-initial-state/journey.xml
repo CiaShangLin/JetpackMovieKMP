@@ -1,0 +1,12 @@
+<journey name="search-show-initial-state">
+  <description>進入搜尋頁並確認尚未搜尋時的初始狀態。</description>
+  <actions>
+    <action>啟動 App 並切換至搜尋頁</action>
+    <action>驗證搜尋輸入欄可互動</action>
+    <action>驗證搜尋初始提示已顯示</action>
+  </actions>
+  <acceptance-criteria>
+    <criterion>初始狀態不得顯示先前搜尋的結果</criterion>
+    <criterion>每個步驟均保存截圖與執行結果</criterion>
+  </acceptance-criteria>
+</journey>

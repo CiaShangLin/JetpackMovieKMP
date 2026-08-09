@@ -1,0 +1,15 @@
+<journey name="search-load-next-page">
+  <description>在搜尋結果載入下一頁電影內容。</description>
+  <actions>
+    <action>完成一次有多頁結果的搜尋</action>
+    <action>記錄第一頁最後一張可見電影卡</action>
+    <action>向上滑動搜尋結果直到觸發下一頁載入</action>
+    <action>等待載入完成</action>
+    <action>驗證出現第一頁中未出現的新電影卡</action>
+  </actions>
+  <acceptance-criteria>
+    <criterion>僅驗證第二頁出現新電影卡，不驗證 loading footer</criterion>
+    <criterion>若搜尋結果未提供第二頁，將此 journey 記錄為不適用</criterion>
+    <criterion>每個步驟均保存截圖與執行結果</criterion>
+  </acceptance-criteria>
+</journey>

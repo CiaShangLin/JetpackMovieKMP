@@ -1,0 +1,13 @@
+<journey name="history-clear-items">
+  <description>清空歷史紀錄並確認空狀態。</description>
+  <actions>
+    <action>建立至少一筆觀看紀錄並切換至歷史頁</action>
+    <action>選取清空歷史控制項</action>
+    <action>若出現確認對話框，確認清空操作</action>
+    <action>驗證歷史頁空狀態已顯示</action>
+  </actions>
+  <acceptance-criteria>
+    <criterion>清空後不得保留任何歷史電影卡</criterion>
+    <criterion>每個步驟均保存截圖與執行結果</criterion>
+  </acceptance-criteria>
+</journey>

@@ -1,0 +1,12 @@
+<journey name="home-open-movie-detail">
+  <description>從首頁電影卡開啟電影詳情。</description>
+  <actions>
+    <action>啟動 App 並等待進入首頁</action>
+    <action>選取首頁第一張可互動電影卡</action>
+    <action>驗證電影詳情標題與內容區已顯示</action>
+  </actions>
+  <acceptance-criteria>
+    <criterion>詳情頁須顯示可返回的導覽控制項</criterion>
+    <criterion>每個步驟均保存截圖與執行結果</criterion>
+  </acceptance-criteria>
+</journey>

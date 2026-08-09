@@ -1,0 +1,14 @@
+<journey name="movie-detail-toggle-favorite">
+  <description>在電影詳情頁新增與移除收藏。</description>
+  <actions>
+    <action>從首頁開啟一部電影詳情</action>
+    <action>選取加入收藏控制項</action>
+    <action>驗證收藏控制項已反映收藏狀態</action>
+    <action>再次選取收藏控制項</action>
+    <action>驗證收藏控制項已反映取消收藏狀態</action>
+  </actions>
+  <acceptance-criteria>
+    <criterion>兩次切換均不得離開詳情頁</criterion>
+    <criterion>每個步驟均保存截圖與執行結果</criterion>
+  </acceptance-criteria>
+</journey>

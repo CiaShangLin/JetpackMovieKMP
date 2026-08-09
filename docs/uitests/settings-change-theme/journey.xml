@@ -1,0 +1,13 @@
+<journey name="settings-change-theme">
+  <description>在設定頁切換主題模式。</description>
+  <actions>
+    <action>切換至設定頁</action>
+    <action>開啟主題設定</action>
+    <action>選取深色或淺色主題</action>
+    <action>驗證設定摘要與畫面配色已反映所選主題</action>
+  </actions>
+  <acceptance-criteria>
+    <criterion>切換不得使 App 離開設定頁或崩潰</criterion>
+    <criterion>每個步驟均保存截圖與執行結果</criterion>
+  </acceptance-criteria>
+</journey>

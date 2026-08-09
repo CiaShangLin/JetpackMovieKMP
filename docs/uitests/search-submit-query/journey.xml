@@ -1,0 +1,14 @@
+<journey name="search-submit-query">
+  <description>輸入搜尋字串並確認結果清單。</description>
+  <actions>
+    <action>切換至搜尋頁</action>
+    <action>在搜尋輸入欄輸入非空搜尋字串</action>
+    <action>送出搜尋</action>
+    <action>等待搜尋結果完成載入</action>
+    <action>驗證搜尋結果清單或可辨識的無結果狀態已顯示</action>
+  </actions>
+  <acceptance-criteria>
+    <criterion>不得以固定電影名稱作為成功條件</criterion>
+    <criterion>每個步驟均保存截圖與執行結果</criterion>
+  </acceptance-criteria>
+</journey>
