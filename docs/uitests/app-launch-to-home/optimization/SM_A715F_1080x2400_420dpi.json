@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 1,
+  "name": "app-launch-to-home",
+  "source": {
+    "runId": "2026-08-09-SM_A715F_1080x2400_420dpi",
+    "journeyPath": "docs/uitests/app-launch-to-home/journey.xml",
+    "summaryPath": "docs/uitests/app-launch-to-home/runs/2026-08-09-SM_A715F_1080x2400_420dpi/summary.json",
+    "generatedAt": "2026-08-09T20:56:11+08:00"
+  },
+  "device": {
+    "model": "SM-A715F",
+    "resolution": "1080x2400",
+    "density": "420dpi"
+  },
+  "preconditions": {
+    "packageName": "com.shang.jetpackmoviekmp",
+    "requiresAdbKeyboard": false,
+    "startMode": "launchApp"
+  },
+  "steps": [
+    {
+      "id": "step-001",
+      "enabled": true,
+      "sourceAction": "啟動 App",
+      "method": "launch",
+      "driver": "mobile-mcp",
+      "command": {
+        "type": "launchApp",
+        "package": "com.shang.jetpackmoviekmp"
+      },
+      "target": {
+        "package": "com.shang.jetpackmoviekmp"
+      },
+      "description": "啟動 App",
+      "evidence": {
+        "screenshot": "runs/2026-08-09-SM_A715F_1080x2400_420dpi/screenshots/step-1.png"
+      }
+    },
+    {
+      "id": "step-002",
+      "enabled": true,
+      "sourceAction": "等待 Splash 畫面完成",
+      "method": "wait",
+      "driver": "adb",
+      "command": {
+        "type": "sleep",
+        "waitSeconds": 6
+      },
+      "target": {},
+      "waitSeconds": 6,
+      "description": "等待 Splash 畫面完成",
+      "evidence": {
+        "screenshot": "runs/2026-08-09-SM_A715F_1080x2400_420dpi/screenshots/step-2.png"
+      }
+    },
+    {
+      "id": "step-003",
+      "enabled": true,
+      "sourceAction": "驗證首頁 Tab 與電影內容區已顯示",
+      "method": "verify",
+      "driver": "android-cli",
+      "command": {
+        "type": "layoutAssert",
+        "expectedResourceId": "nav_home"
+      },
+      "target": {
+        "resourceId": "nav_home"
+      },
+      "description": "驗證首頁 Tab 與電影內容區已顯示",
+      "evidence": {
+        "screenshot": "runs/2026-08-09-SM_A715F_1080x2400_420dpi/screenshots/step-3.png"
+      }
+    }
+  ]
+}

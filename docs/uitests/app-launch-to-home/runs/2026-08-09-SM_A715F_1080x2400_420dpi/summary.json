@@ -1,0 +1,52 @@
+{
+  "journey": "app-launch-to-home",
+  "device": {
+    "model": "SM-A715F",
+    "resolution": "1080x2400",
+    "density": "420dpi"
+  },
+  "results": [
+    {
+      "action": "啟動 App",
+      "type": "operation",
+      "status": "PASSED",
+      "resolvedAction": {
+        "method": "launch",
+        "package": "com.shang.jetpackmoviekmp"
+      },
+      "commands": [
+        "adb shell monkey -p com.shang.jetpackmoviekmp -c android.intent.category.LAUNCHER 1"
+      ],
+      "screenshot": "screenshots/step-1.png",
+      "comment": ""
+    },
+    {
+      "action": "等待 Splash 畫面完成",
+      "type": "operation",
+      "status": "PASSED",
+      "resolvedAction": {
+        "method": "wait"
+      },
+      "waitSeconds": 6,
+      "commands": [
+        "wait 6 seconds"
+      ],
+      "screenshot": "screenshots/step-2.png",
+      "comment": ""
+    },
+    {
+      "action": "驗證首頁 Tab 與電影內容區已顯示",
+      "type": "verification",
+      "status": "PASSED",
+      "assertion": {
+        "type": "resourceId",
+        "value": "nav_home"
+      },
+      "commands": [
+        "android layout --device R58N957BG1W --pretty"
+      ],
+      "screenshot": "screenshots/step-3.png",
+      "comment": "nav_home selected；畫面包含首頁類型 Tab 與多張可互動電影卡。"
+    }
+  ]
+}

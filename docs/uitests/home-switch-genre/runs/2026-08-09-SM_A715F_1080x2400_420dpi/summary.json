@@ -1,0 +1,44 @@
+{
+  "journey": "home-switch-genre",
+  "device": { "model": "SM-A715F", "resolution": "1080x2400", "density": "420dpi" },
+  "results": [
+    {
+      "action": "啟動 App 並等待進入首頁",
+      "type": "operation",
+      "status": "PASSED",
+      "resolvedAction": { "method": "launch", "package": "com.shang.jetpackmoviekmp" },
+      "waitSeconds": 6,
+      "commands": ["adb shell monkey -p com.shang.jetpackmoviekmp -c android.intent.category.LAUNCHER 1"],
+      "screenshot": "screenshots/step-1.png",
+      "comment": "首頁已在等待後顯示。"
+    },
+    {
+      "action": "選取非預設的首頁電影類型 Tab",
+      "type": "operation",
+      "status": "PASSED",
+      "resolvedAction": { "method": "tap", "position": [354, 149] },
+      "waitSeconds": 2,
+      "commands": ["adb shell input tap 354 149"],
+      "screenshot": "screenshots/step-3.png",
+      "comment": "第二個首頁類型 Tab。"
+    },
+    {
+      "action": "驗證該類型 Tab 為選取狀態",
+      "type": "verification",
+      "status": "PASSED",
+      "assertion": { "type": "position", "value": "[354,146] selected" },
+      "commands": ["android layout --device R58N957BG1W --pretty"],
+      "screenshot": "screenshots/step-4.png",
+      "comment": "第二個 Tab 在 UI hierarchy 中為 selected。"
+    },
+    {
+      "action": "驗證對應電影內容區已顯示",
+      "type": "verification",
+      "status": "PASSED",
+      "assertion": { "type": "structure", "value": "首頁內容區包含多張可互動電影卡" },
+      "commands": ["android layout --device R58N957BG1W --pretty"],
+      "screenshot": "screenshots/step-4.png",
+      "comment": "電影內容區可見且包含多個可互動項目。"
+    }
+  ]
+}
