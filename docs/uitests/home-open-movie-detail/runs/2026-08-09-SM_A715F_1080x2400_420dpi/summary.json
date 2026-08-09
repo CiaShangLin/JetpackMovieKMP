@@ -1,0 +1,50 @@
+{
+  "journey": "home-open-movie-detail",
+  "device": {
+    "model": "SM-A715F",
+    "resolution": "1080x2400",
+    "density": "420dpi"
+  },
+  "results": [
+    {
+      "action": "啟動 App 並等待進入首頁",
+      "type": "operation",
+      "status": "PASSED",
+      "resolvedAction": {
+        "method": "launch",
+        "package": "com.shang.jetpackmoviekmp"
+      },
+      "waitSeconds": 6,
+      "commands": [
+        "adb shell monkey -p com.shang.jetpackmoviekmp -c android.intent.category.LAUNCHER 1"
+      ],
+      "screenshot": "screenshots/step-1.png",
+      "comment": "首頁在等待後顯示。"
+    },
+    {
+      "action": "選取首頁第一張可互動電影卡",
+      "type": "operation",
+      "status": "PASSED",
+      "resolvedAction": {
+        "method": "tap",
+        "position": [275, 684]
+      },
+      "waitSeconds": 3,
+      "commands": ["adb shell input tap 275 684"],
+      "screenshot": "screenshots/step-2.png",
+      "comment": "首頁第一張可互動電影卡。"
+    },
+    {
+      "action": "驗證電影詳情標題與內容區已顯示",
+      "type": "verification",
+      "status": "PASSED",
+      "assertion": {
+        "type": "text",
+        "value": "劇情簡介、主要演員、推薦電影"
+      },
+      "commands": ["android layout --device R58N957BG1W --pretty"],
+      "screenshot": "screenshots/step-3.png",
+      "comment": "詳情頁含標題、劇情簡介、主要演員、推薦電影，以及位於左上角的返回控制項。"
+    }
+  ]
+}
