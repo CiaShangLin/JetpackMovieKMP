@@ -1,0 +1,71 @@
+{
+  "journey": {
+    "name": "home-open-movie-detail",
+    "description": "從首頁電影卡開啟電影詳情。",
+    "actions": [
+      "啟動 App 並等待進入首頁",
+      "選取首頁第一張可互動電影卡",
+      "驗證電影詳情標題與內容區已顯示"
+    ],
+    "acceptanceCriteria": [
+      "詳情頁須顯示可返回的導覽控制項",
+      "每個步驟均保存截圖與執行結果"
+    ]
+  },
+  "device": {
+    "model": "SM-A715F",
+    "resolution": "1080x2400",
+    "density": "420dpi"
+  },
+  "results": [
+    {
+      "action": "啟動 App 並等待進入首頁",
+      "type": "operation",
+      "status": "PASSED",
+      "resolvedAction": {
+        "method": "launch",
+        "package": "com.shang.jetpackmoviekmp"
+      },
+      "waitSeconds": 3,
+      "commands": [
+        "adb shell monkey -p com.shang.jetpackmoviekmp -c android.intent.category.LAUNCHER 1"
+      ],
+      "screenshot": "screenshots/step-1.png",
+      "comment": "成功啟動 App 並載入首頁電影列表"
+    },
+    {
+      "action": "選取首頁第一張可互動電影卡",
+      "type": "operation",
+      "status": "PASSED",
+      "resolvedAction": {
+        "method": "tap",
+        "position": [
+          275,
+          684
+        ],
+        "target": {
+          "text": "蜘蛛侠：崭新之日"
+        }
+      },
+      "waitSeconds": 2,
+      "commands": [
+        "adb shell input tap 275 684"
+      ],
+      "screenshot": "screenshots/step-2.png",
+      "comment": "點擊第一張電影卡「蜘蛛侠：崭新之日」"
+    },
+    {
+      "action": "驗證電影詳情標題與內容區已顯示",
+      "type": "verification",
+      "status": "PASSED",
+      "assertion": {
+        "type": "text",
+        "value": "蜘蛛侠：崭新之日"
+      },
+      "waitSeconds": 1,
+      "commands": [],
+      "screenshot": "screenshots/step-3.png",
+      "comment": "確認進入詳情頁，標題「蜘蛛侠：崭新之日」、劇情簡介與返回按鈕皆正常顯示"
+    }
+  ]
+}
